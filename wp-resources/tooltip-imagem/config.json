@@ -1,0 +1,7 @@
+{
+  "titulo": "TOOLTIP COM IMAGEM",
+  "conteudo": "Palavras destacadas em um bloco de texto que, ao passar o mouse sobre elas, exibem um tooltip* com uma imagem ilustrativa.",
+  "observacao": "* Tooltip é uma pequena caixa de texto que aparece quando o usuário passa o cursor sobre um elemento de uma interface gráfica, como um botão ou um ícone. O objetivo do tooltip é fornecer informações adicionais sobre esse elemento, geralmente explicando sua função ou oferecendo dicas úteis.",
+  "img": "wp-resources/tooltip-imagem/tooltip_image.webp",
+  "src": ""
+}
