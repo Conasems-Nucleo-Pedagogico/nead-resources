@@ -130,7 +130,7 @@ function createCard(config) {
             <h3>${config.titulo}</h3>
             <p>${config.conteudo}</p>
             ${observacaoHTML}
-            <button class="btn-visualizar" data-resource="${config.resourceId}">Visualizar</button>
+            <button class="btn-visualizar" data-resource="${config.resourceId}">Ver exemplo</button>
         </div>
     `;
     
@@ -172,21 +172,8 @@ function initializeCards() {
 function handleResourceClick(resourceId, cardTitle, button) {
     console.log(`Botão clicado para: ${cardTitle} (${resourceId})`);
     
-    // Feedback visual
-    const originalText = button.textContent;
-    button.textContent = 'Em breve...';
-    button.style.background = 'linear-gradient(45deg, #95a5a6, #7f8c8d)';
-    button.disabled = true;
-    
-    setTimeout(() => {
-        button.textContent = originalText;
-        button.style.background = 'linear-gradient(45deg, #00bfa6, #00a8cc)';
-        button.disabled = false;
-    }, 1500);
-    
-    // Aqui você pode adicionar lógica específica para cada recurso
-    // Por exemplo, carregar e executar o arquivo src específico do recurso
-    loadResourceDemo(resourceId);
+    // Abrir painel de visualização
+    abrirPainelVisualizacao(resourceId, cardTitle);
 }
 
 // Função para carregar demonstração específica do recurso
@@ -274,11 +261,195 @@ function smoothScrollTo(element) {
     });
 }
 
+// Criar painel de visualização se não existir
+function criarPainelVisualizacao() {
+    if (document.getElementById('painel-visualizacao')) {
+        return; // Painel já existe
+    }
+
+    const painelHTML = `
+        <div id="painel-overlay" class="painel-overlay"></div>
+        <div id="painel-visualizacao" class="painel-visualizacao">
+            <div class="painel-header">
+                <div class="painel-titulo" id="painel-titulo">VISUALIZANDO RECURSO</div>
+                <button class="btn-fechar" id="btn-fechar-painel">×</button>
+            </div>
+            <div class="painel-conteudo">
+                <div class="conteudo-recurso" id="conteudo-recurso">
+                    Carregando...
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', painelHTML);
+
+    // Adicionar event listeners
+    const btnFechar = document.getElementById('btn-fechar-painel');
+    const overlay = document.getElementById('painel-overlay');
+
+    btnFechar.addEventListener('click', fecharPainelVisualizacao);
+    overlay.addEventListener('click', fecharPainelVisualizacao);
+
+    // Prevenir scroll do body quando painel estiver aberto
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('painel-visualizacao').classList.contains('aberto')) {
+            fecharPainelVisualizacao();
+        }
+    });
+}
+
+// Abrir painel de visualização
+async function abrirPainelVisualizacao(resourceId, cardTitle) {
+    criarPainelVisualizacao();
+
+    const painel = document.getElementById('painel-visualizacao');
+    const overlay = document.getElementById('painel-overlay');
+    const titulo = document.getElementById('painel-titulo');
+    const conteudo = document.getElementById('conteudo-recurso');
+
+    // Definir título
+    titulo.textContent = cardTitle;
+
+    // Mostrar painel
+    overlay.classList.add('ativo');
+    document.body.style.overflow = 'hidden'; // Prevenir scroll
+    
+    setTimeout(() => {
+        painel.classList.add('aberto');
+    }, 100);
+
+    // Carregar conteúdo do recurso
+    try {
+        const response = await fetch(`wp-resources/${resourceId}/config.json`);
+        const config = await response.json();
+
+        if (config.src && config.src.trim() !== '') {
+            // Se tem src definido, carregar o conteúdo
+            try {
+                const srcResponse = await fetch(`wp-resources/${resourceId}/${config.src}`);
+                if (srcResponse.ok) {
+                    const srcContent = await srcResponse.text();
+                    
+                    // Verificar se é HTML
+                    if (config.src.endsWith('.html')) {
+                        // Criar iframe para isolamento completo do CSS e JavaScript
+                        const iframe = document.createElement('iframe');
+                        iframe.src = `wp-resources/${resourceId}/${config.src}`;
+                        iframe.style.cssText = `
+                            width: 100%;
+                            height: 70vh;
+                            min-height: 500px;
+                            border: none;
+                            border-radius: 10px;
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                            background: white;
+                        `;
+                        iframe.title = `Demonstração: ${cardTitle}`;
+                        
+                        // Limpar conteúdo e adicionar iframe com loading
+                        conteudo.innerHTML = '';
+                        conteudo.classList.add('iframe-loading');
+                        conteudo.appendChild(iframe);
+                        conteudo.classList.remove('em-breve');
+                        
+                        // Ajustar layout para iframe
+                        conteudo.style.display = 'block';
+                        conteudo.style.alignItems = 'flex-start';
+                        conteudo.style.justifyContent = 'flex-start';
+                        conteudo.style.textAlign = 'center';
+                        conteudo.style.padding = '20px';
+                        
+                        // Adicionar evento de erro para o iframe
+                        iframe.addEventListener('error', function() {
+                            console.error(`Erro ao carregar iframe para ${resourceId}`);
+                            conteudo.classList.remove('iframe-loading');
+                            mostrarEmBreve(conteudo);
+                        });
+                        
+                        // Remover loading quando iframe carregar
+                        iframe.addEventListener('load', function() {
+                            console.log(`✅ Iframe carregado com sucesso para ${resourceId}`);
+                            conteudo.classList.remove('iframe-loading');
+                            
+                            // Pequeno delay para suavizar a transição
+                            setTimeout(() => {
+                                iframe.style.opacity = '1';
+                            }, 100);
+                        });
+                        
+                    } else {
+                        // Para outros tipos de arquivo, mostrar como texto
+                        conteudo.innerHTML = `<pre style="text-align: left; white-space: pre-wrap; font-family: monospace; margin: 0;">${escapeHtml(srcContent)}</pre>`;
+                        conteudo.classList.remove('em-breve');
+                        conteudo.style.display = 'block';
+                        conteudo.style.alignItems = 'flex-start';
+                        conteudo.style.justifyContent = 'flex-start';
+                        conteudo.style.textAlign = 'left';
+                    }
+                } else {
+                    throw new Error('Arquivo src não encontrado');
+                }
+            } catch (error) {
+                console.error(`Erro ao carregar src para ${resourceId}:`, error);
+                mostrarEmBreve(conteudo);
+            }
+        } else {
+            // Se não tem src ou está vazio, mostrar "Em breve"
+            mostrarEmBreve(conteudo);
+        }
+    } catch (error) {
+        console.error(`Erro ao carregar config para ${resourceId}:`, error);
+        mostrarEmBreve(conteudo);
+    }
+}
+
+// Fechar painel de visualização
+function fecharPainelVisualizacao() {
+    const painel = document.getElementById('painel-visualizacao');
+    const overlay = document.getElementById('painel-overlay');
+
+    if (painel && painel.classList.contains('aberto')) {
+        painel.classList.remove('aberto');
+        overlay.classList.remove('ativo');
+        document.body.style.overflow = ''; // Restaurar scroll
+
+        setTimeout(() => {
+            // Limpar conteúdo após animação
+            const conteudo = document.getElementById('conteudo-recurso');
+            if (conteudo) {
+                conteudo.innerHTML = 'Carregando...';
+                conteudo.classList.remove('em-breve');
+                // Resetar estilos
+                conteudo.style.display = 'flex';
+                conteudo.style.alignItems = 'center';
+                conteudo.style.justifyContent = 'center';
+                conteudo.style.textAlign = 'center';
+            }
+        }, 500);
+    }
+}
+
+// Mostrar mensagem "Em breve"
+function mostrarEmBreve(conteudoElement) {
+    conteudoElement.innerHTML = 'Em breve';
+    conteudoElement.classList.add('em-breve');
+}
+
+// Escapar HTML para exibição segura
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Exportar funções para uso global
 window.RecursosEducacionais = {
     loadCards,
     reloadResources,
     filterResources,
     smoothScrollTo,
-    getAvailableResources
+    getAvailableResources,
+    abrirPainelVisualizacao,
+    fecharPainelVisualizacao
 };

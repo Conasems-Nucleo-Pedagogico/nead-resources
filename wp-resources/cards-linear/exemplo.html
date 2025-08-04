@@ -1,0 +1,101 @@
+<h1>📱 Demonstração: Cards com Animação Linear</h1>
+
+<p>Este recurso demonstra como criar cards que aparecem de forma sequencial com animação suave.</p>
+
+<div class="demo-area">
+    <h3>Área de Demonstração</h3>
+    <div id="cards-demo">
+        <div class="exemplo-card" style="opacity: 0; transform: translateX(-20px);">
+            <h4>🎯 Card 1 - Objetivos</h4>
+            <p>Definir metas claras e mensuráveis para o projeto educacional.</p>
+        </div>
+        <div class="exemplo-card" style="opacity: 0; transform: translateX(-20px);">
+            <h4>📚 Card 2 - Conteúdo</h4>
+            <p>Desenvolver material didático relevante e engajador.</p>
+        </div>
+        <div class="exemplo-card" style="opacity: 0; transform: translateX(-20px);">
+            <h4>🎨 Card 3 - Design</h4>
+            <p>Criar uma interface visual atrativa e funcional.</p>
+        </div>
+        <div class="exemplo-card" style="opacity: 0; transform: translateX(-20px);">
+            <h4>🚀 Card 4 - Implementação</h4>
+            <p>Colocar o projeto em prática com qualidade.</p>
+        </div>
+    </div>
+    
+    <button class="btn-exemplo" onclick="animarCards()">▶️ Iniciar Animação</button>
+    <button class="btn-exemplo" onclick="resetarCards()">🔄 Resetar</button>
+</div>
+
+<div class="destaque-dica">
+    <strong>💡 Características da Animação Linear:</strong>
+    <ul>
+        <li>Os cards aparecem um após o outro</li>
+        <li>Movimento suave da esquerda para a direita</li>
+        <li>Timing controlado para melhor visualização</li>
+        <li>Ideal para apresentar sequências de informações</li>
+    </ul>
+</div>
+
+<h2>🛠️ Como Implementar</h2>
+
+<div class="exemplo-card">
+    <h3>CSS Necessário:</h3>
+    <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto;">
+.card-animacao {
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.6s ease;
+}
+
+.card-animacao.visivel {
+    opacity: 1;
+    transform: translateX(0);
+}
+    </pre>
+</div>
+
+<div class="exemplo-card">
+    <h3>JavaScript para Animação:</h3>
+    <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto;">
+function animarCards() {
+    const cards = document.querySelectorAll('.card-animacao');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.classList.add('visivel');
+        }, index * 200); // Delay de 200ms entre cards
+    });
+}
+    </pre>
+</div>
+
+<div class="destaque-aviso">
+    <strong>⚠️ Dicas Importantes:</strong>
+    <ul>
+        <li>Use delays apropriados para não sobrecarregar o usuário</li>
+        <li>Teste em diferentes dispositivos</li>
+        <li>Considere preferências de movimento reduzido</li>
+        <li>Mantenha as animações suaves e profissionais</li>
+    </ul>
+</div>
+
+<script>
+function animarCards() {
+    const cards = document.querySelectorAll('#cards-demo .exemplo-card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateX(0)';
+            card.style.transition = 'all 0.6s ease';
+        }, index * 200);
+    });
+}
+
+function resetarCards() {
+    const cards = document.querySelectorAll('#cards-demo .exemplo-card');
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(-20px)';
+    });
+}
+</script>

@@ -3,5 +3,5 @@
   "conteudo": "Cards no formato de um livro. São necessários dois botões, \"Próximo\" e \"Anterior\", para controlar a mudança de página do livro.",
   "observacao": "",
   "img": "wp-resources/cards-livro/book_animation.webp",
-  "src": ""
+  "src": "code.html"
 }

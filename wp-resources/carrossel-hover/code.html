@@ -1,0 +1,383 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+    /* Variáveis */
+    :root {
+        --color-white: #fff;
+        --color-black: #000;
+
+        --transition-time: 250ms;
+        --transition-method: ease-in-out;
+
+        --card-height: 440px;
+        --card-width: 840px;
+        --card-hover-offset-x: 60px;
+        --card-hover-offset-y: 60px;
+    }
+
+    ul {
+        list-style-type: none
+    }
+
+    /* Reset e configurações globais */
+    html {
+        box-sizing: border-box;
+    }
+
+    body {
+        /* color: #676767; */
+        font-family: "Poppins", sans-serif;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var()
+    }
+
+    *,
+    *:before,
+    *:after {
+        box-sizing: inherit;
+        line-height: inherit;
+    }
+
+    /* Mixin clearfix */
+    .clearfix:after {
+        clear: both;
+        content: '';
+        display: table;
+    }
+
+    /* Estilos das cartas */
+    .card-wrapper {
+        box-shadow: 0px 0px 100px 25px rgba(var(--color-black), 0.2);
+        height: var(--card-height);
+        position: relative;
+        width: var(--card-width);
+
+        &:hover .card-carousel {
+            transition: all var(--transition-time) var(--transition-method);
+            bottom: var(--card-hover-offset-y);
+            right: var(--card-hover-offset-x);
+        }
+    }
+
+    .card-wrapper--centered {
+        transform: translate(-50%, -50%);
+        left: 50%;
+        position: absolute;
+        top: 50%;
+    }
+
+    .card-carousel {
+        transition: all var(--transition-time) var(--transition-method) 250ms;
+        height: var(--card-height);
+        width: var(--card-width);
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        overflow: hidden;
+    }
+
+    .card-navigation {
+        background-color: var(--color-white);
+        bottom: 0;
+        height: 100%;
+        overflow: hidden;
+        position: absolute;
+        right: 0;
+        width: 100%;
+        z-index: 15;
+    }
+
+    .card-navigation__list {
+        position: absolute;
+        right: calc((var(--card-hover-offset-x) - 12px) / 2);
+        top: 50%;
+        transform: translateY(-50%);
+        /* width: calc(12px * 1.5); */
+    }
+
+    .card-navigation__list li {
+        transition: all var(--transition-time) var(--transition-method);
+        background-color: #ccc;
+        border-radius: 100%;
+        cursor: pointer;
+        height: 12px;
+        margin: 0 auto 6px;
+        width: 12px;
+    }
+
+    .card-navigation__list li:last-child {
+        margin-bottom: 0;
+    }
+
+    .card-navigation__list li.is-active {
+        height: calc(12px * 1.5);
+        width: calc(12px * 1.5);
+    }
+
+    .card-navigation__list li:hover {
+        background-color: #bbb;
+    }
+
+    .card {
+        transition: all calc(var(--transition-time) * 2) var(--transition-method);
+        background-size: cover;
+        bottom: 0;
+        height: 100%;
+        overflow: hidden;
+        position: absolute;
+        right: 0;
+        opacity: 0;
+        width: 100%;
+        z-index: 20;
+    }
+
+    .card__content {
+        left: 430px;
+        position: absolute;
+        top: 150px;
+        width: 40%;
+    }
+
+    .card__title {
+        font-size: 60px;
+        font-weight: 700;
+        line-height: 1;
+        margin-left: -4px;
+        text-transform: uppercase;
+    }
+
+    .card__details {
+        @extend .clearfix;
+        margin-bottom: 30px;
+        margin-top: 15px;
+    }
+
+    .card__details-item {
+        display: block;
+        float: left;
+        margin-right: 20px;
+    }
+
+    .card__details-list {
+        @extend .clearfix;
+    }
+
+    .card__details-list li {
+        float: left;
+        margin-right: 5px;
+        padding-right: 6px;
+        position: relative;
+    }
+
+    .card__details-list li:after {
+        content: '|';
+        position: absolute;
+        right: 0;
+    }
+
+    .card__details-list li:last-child {
+        margin-right: 0;
+    }
+
+    .card__details-list li:last-child:after {
+        display: none;
+    }
+
+    .card__description {
+        font-size: 14px;
+        max-width: 390px;
+    }
+
+    .card__rating {
+        height: 50px;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 50px;
+        position: absolute;
+        right: 50px;
+        text-align: center;
+        width: 50px;
+    }
+
+    .card__rating:after {
+        border-radius: 100%;
+        border: 2px solid #ee927b;
+        content: '';
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 100%;
+    }
+
+    .card__player {
+        transition: all calc(var(--transition-time) * 2) var(--transition-method);
+        transform: translate(-50%, -50%);
+        height: 0;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        width: 0;
+        z-index: 20;
+    }
+
+    .card--playing .card__player {
+        height: var(--card-height);
+        width: var(--card-width);
+    }
+
+    .card__player iframe {
+        height: 100%;
+        width: 100%;
+    }
+
+    /* Modificadores das cartas */
+    .card--active {
+        opacity: 1;
+        z-index: 25;
+    }
+
+    .card--light {
+        background-color: #effdfd;
+        color: var(--color-black);
+    }
+
+    .card--light [class*='__title'] {
+        color: var(--color-black);
+    }
+
+    .card--dark {
+        background-color: var(--color-black);
+        color: #fff;
+    }
+
+    .card--dark [class*='__title'] {
+        color: #fff;
+    }
+</style>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+
+<div class="card-wrapper card-wrapper--centered">
+
+    <div class="card-carousel"></div>
+
+    <div class="card-navigation">
+        <ul class="card-navigation__list" data-navigation>
+
+        </ul>
+    </div>
+</div>
+
+<script>
+    current = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const handlePopulateCards = () => {
+            const carouselContent = [
+                {
+                    title: 'Sangue',
+                    description: 'Lorem ipsum dolor sit amet, <b>consectetur adipiscing elit</b>. Cras at imperdiet orci. Nam lobortis metus quis elementum posuere. Etiam gravida dolor vestibulum interdum blandit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed condimentum purus scelerisque libero lacinia, nec aliquet mi mattis. ',
+                    style: `background-image:url(https://outros-cursos.nead.conasems.org.br/wp-content/uploads/2024/07/Sem-titulo-1_Prancheta-1.png); background-position: top left;background-repeat: no-repeat;background-size: cover;`,
+                    classList: ['card--dark']
+                },
+                {
+                    title: 'Bexiga',
+                    description: 'Lorem ipsum dolor sit amet, <b>consectetur adipiscing elit</b>. Cras at imperdiet orci. Nam lobortis metus quis elementum posuere. Etiam gravida dolor vestibulum interdum blandit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed condimentum purus scelerisque libero lacinia, nec aliquet mi mattis. ',
+                    style: `background-image:url(https://outros-cursos.nead.conasems.org.br/wp-content/uploads/2024/07/bexiga-11-qmweoqwoe.png); background-position: top right;background-repeat: no-repeat;background-size: cover;`
+                },
+                {
+                    title: 'Dor',
+                    description: 'Lorem ipsum dolor sit amet, <b>consectetur adipiscing elit</b>. Cras at imperdiet orci. Nam lobortis metus quis elementum posuere. Etiam gravida dolor vestibulum interdum blandit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed condimentum purus scelerisque libero lacinia, nec aliquet mi mattis. ',
+                    style: `background-image:url(https://outros-cursos.nead.conasems.org.br/wp-content/uploads/2024/07/bexiga-09-kqweokqwoek.png); background-position: top right;background-repeat: no-repeat;background-size: cover;`
+                },
+                {
+                    title: 'Diabetes',
+                    description: 'Lorem ipsum dolor sit amet, <b>consectetur adipiscing elit</b>. Cras at imperdiet orci. Nam lobortis metus quis elementum posuere. Etiam gravida dolor vestibulum interdum blandit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed condimentum purus scelerisque libero lacinia, nec aliquet mi mattis. ',
+                    style: `background-image:url(https://outros-cursos.nead.conasems.org.br/wp-content/uploads/2024/07/conceito-de-conscientizacao-do-dia-mundial-do-diabetes-o-diabetico-mede-o-nivel-de-glicose-no-sangue_teste.png); background-position: top right;background-repeat: no-repeat;background-size: cover;`,
+                }
+            ]
+
+            const carouselContainer = document.querySelector('.card-carousel');
+            const ul = document.querySelector('.card-navigation__list');
+
+            carouselContent.forEach((carousel, index) => {
+                const li = document.createElement('li')
+                const card = document.createElement('div');
+                card.classList.add('card');
+
+                if (index === 0) {
+                    card.classList.add('card--active')
+                    li.classList.add('is-active')
+                }
+
+                ul.appendChild(li);
+
+                const cardContentContainer = document.createElement('div');
+                cardContentContainer.classList.add('card__content');
+
+                const cardTitle = document.createElement('div');
+                cardTitle.classList.add('card__title');
+
+                const cardDescriptionContainer = document.createElement('div');
+                cardContentContainer.classList.add('card__description')
+                const description = document.createElement('p');
+
+                cardTitle.innerHTML = carousel.title;
+                description.innerHTML = carousel.description;
+
+                cardDescriptionContainer.appendChild(description)
+
+                cardContentContainer.appendChild(cardTitle);
+                cardContentContainer.appendChild(cardDescriptionContainer);
+
+                card.appendChild(cardContentContainer);
+                card.style.backgroundImage = `url('${carousel.bgUrl}')`;
+
+                if (carousel.style) {
+                    card.style = carousel.style
+                }
+
+                if (carousel.classList) {
+                    card.classList.add(carousel.classList)
+                } else {
+                    card.classList.add('card--light')
+                }
+
+                carouselContainer.appendChild(card);
+            })
+        }
+
+        handlePopulateCards()
+
+
+        const handleNavigation = () => {
+            const navigationsLi = document.querySelectorAll('[data-navigation] li');
+
+            navigationsLi.forEach((nav, index) => {
+                nav.addEventListener('click', () => {
+                    const currentCard = document.querySelector(`.card:nth-child(${current + 1})`);
+                    currentCard.classList.remove('card--playing', 'card--active')
+
+                    current = index;
+
+                    navigationsLi.forEach(navLi => {
+                        if (navLi === nav) {
+                            nav.classList.add('is-active')
+                        } else {
+                            navLi.classList.remove('is-active')
+                        }
+                    })
+
+                    const newCurrentCard = document.querySelector(`.card:nth-child(${current + 1})`);
+                    newCurrentCard.classList.add('card--active')
+                })
+            })
+        }
+
+        handleNavigation()
+
+    })
+</script>

@@ -334,3 +334,390 @@ footer p {
         opacity: 0.7;
     }
 }
+
+/* Painel de Visualização */
+.painel-visualizacao {
+    position: fixed;
+    top: 100vh;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: white;
+    z-index: 1000;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    flex-direction: column;
+}
+
+.painel-visualizacao.aberto {
+    transform: translateY(-100vh);
+}
+
+.painel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    border-bottom: 1px solid #e9ecef;
+    background: linear-gradient(90deg, #00a8cc 0%, #00bfa6 100%);
+    color: white;
+    border-radius: 20px 20px 0 0;
+}
+
+.painel-titulo {
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-fechar {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-fechar:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.painel-conteudo {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
+
+.conteudo-recurso {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #666;
+    text-align: center;
+}
+
+.conteudo-recurso.em-breve {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #00bfa6;
+}
+
+.conteudo-recurso.em-breve::before {
+    content: '🚧';
+    display: block;
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+/* Overlay para escurecer o fundo */
+.painel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.painel-overlay.ativo {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsivo para o painel */
+@media (max-width: 768px) {
+    .painel-header {
+        padding: 15px 20px;
+    }
+    
+    .painel-titulo {
+        font-size: 16px;
+    }
+    
+    .painel-conteudo {
+        padding: 20px;
+    }
+    
+    .conteudo-recurso {
+        padding: 30px 20px;
+        font-size: 16px;
+    }
+}
+
+/* Estilos para conteúdo dos recursos/exemplos */
+.conteudo-recurso {
+    line-height: 1.6;
+}
+
+.conteudo-recurso h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+.conteudo-recurso h2 {
+    color: #00bfa6;
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+.conteudo-recurso h3 {
+    color: #555;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.conteudo-recurso p {
+    margin-bottom: 15px;
+    text-align: justify;
+    font-size: 16px;
+    color: #333;
+}
+
+.conteudo-recurso ul, .conteudo-recurso ol {
+    margin: 15px 0;
+    padding-left: 30px;
+}
+
+.conteudo-recurso li {
+    margin-bottom: 8px;
+}
+
+/* Tooltip com Imagem - Estilos específicos */
+.tooltip-palavra {
+    color: #00bfa6;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    border-bottom: 2px dotted #00bfa6;
+    transition: all 0.3s ease;
+}
+
+.tooltip-palavra:hover {
+    color: #00a693;
+    border-bottom-color: #00a693;
+}
+
+.tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 2px solid #00bfa6;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    display: none;
+    z-index: 1000;
+    width: 200px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.tooltip img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.tooltip-palavra:hover .tooltip {
+    display: block;
+    animation: tooltipFadeIn 0.3s ease;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Caixas de destaque para exemplos */
+.destaque-info {
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    border-left: 4px solid #4caf50;
+}
+
+.destaque-dica {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    border-left: 4px solid #00bfa6;
+}
+
+.destaque-aviso {
+    background: linear-gradient(135deg, #fff3e0 0%, #fef8f0 100%);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    border-left: 4px solid #ff9800;
+}
+
+.destaque-info strong,
+.destaque-dica strong,
+.destaque-aviso strong {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+/* Estilos para demonstrações interativas */
+.demo-area {
+    background: #f8f9fa;
+    border: 2px dashed #00bfa6;
+    border-radius: 15px;
+    padding: 30px;
+    margin: 25px 0;
+    text-align: center;
+}
+
+.demo-text {
+    font-size: 18px;
+    text-align: justify;
+    margin-bottom: 20px;
+}
+
+/* Botões dentro dos exemplos */
+.conteudo-recurso .btn-exemplo {
+    background: linear-gradient(45deg, #00bfa6, #00a8cc);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 10px 5px;
+}
+
+.conteudo-recurso .btn-exemplo:hover {
+    background: linear-gradient(45deg, #00a693, #0097b3);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 191, 166, 0.3);
+}
+
+/* Cards dentro dos exemplos */
+.exemplo-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+}
+
+/* Estilos para iframe de demonstração */
+.conteudo-recurso iframe {
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+.conteudo-recurso iframe[src] {
+    opacity: 1;
+}
+
+/* Indicador de carregamento para iframe */
+.iframe-loading {
+    position: relative;
+}
+
+.iframe-loading::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #00bfa6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 1001;
+}
+
+.iframe-loading::after {
+    content: 'Carregando demonstração...';
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #666;
+    font-size: 14px;
+    white-space: nowrap;
+    z-index: 1001;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Responsivo para conteúdo dos recursos */
+@media (max-width: 768px) {
+    .conteudo-recurso h1 {
+        font-size: 20px;
+    }
+    
+    .conteudo-recurso h2 {
+        font-size: 18px;
+    }
+    
+    .conteudo-recurso h3 {
+        font-size: 16px;
+    }
+    
+    .demo-text {
+        font-size: 16px;
+    }
+    
+    .tooltip {
+        width: 150px;
+        font-size: 12px;
+        padding: 10px;
+    }
+    
+    /* Ajustar iframe em dispositivos móveis */
+    .conteudo-recurso iframe {
+        height: 60vh !important;
+        min-height: 400px !important;
+    }
+    
+    .conteudo-recurso {
+        padding: 20px 15px !important;
+    }
+}
