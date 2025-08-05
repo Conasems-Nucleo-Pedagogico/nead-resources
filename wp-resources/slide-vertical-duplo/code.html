@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider Vertical Duplo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        .slider-container {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 100vh;
+            background: white;
+            display: flex;
+        }
+
+        .left-slide {
+            width: 40%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .right-slide {
+            width: 60%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slide-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        /* Cores diferentes para identificação das seções */
+        .left-slide .slide-content:nth-child(1) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .left-slide .slide-content:nth-child(2) {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .left-slide .slide-content:nth-child(3) {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .left-slide .slide-content:nth-child(4) {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .right-slide .slide-content:nth-child(1) {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .right-slide .slide-content:nth-child(2) {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .right-slide .slide-content:nth-child(3) {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        .right-slide .slide-content:nth-child(4) {
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            color: white;
+        }
+
+        .slide-content h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .slide-content p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .right-slide .slide-content {
+            border-radius: 0;
+            margin: 0;
+            height: 100%;
+        }
+
+        .right-slide .slide-content h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .right-slide .slide-content p {
+            font-size: 1em;
+        }
+
+        .down-button {
+            position: absolute;
+            left: calc(40% - 50px);
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            z-index: 10;
+        }
+
+        .up-button {
+            position: absolute;
+            left: 40%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            z-index: 10;
+        }
+
+        .up-button a,
+        .down-button a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            border-radius: 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .up-button a:hover,
+        .down-button a:hover {
+            background: white;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsividade */
+        @media (max-width: 921px) {
+            .slider-container {
+                flex-direction: column;
+                height: 100vh;
+            }
+
+            .left-slide {
+                position: absolute !important;
+                top: 0 !important;
+                left: 40% !important;
+                width: 40%;
+                height: 100%;
+            }
+
+            .right-slide {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0% !important;
+                width: 60%;
+                height: 100%;
+            }
+
+            .slide-content h2 {
+                font-size: 1.8em;
+            }
+
+            .slide-content p {
+                font-size: 1em;
+            }
+
+            .slide-content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .left-slide {
+                left: 100% !important;
+                width: 100%;
+            }
+
+            .right-slide {
+                width: 100%;
+            }
+
+            .down-button {
+                left: 50%;
+                bottom: 80px;
+                top: auto;
+                transform: translateX(-50%);
+            }
+
+            .up-button {
+                left: 50%;
+                bottom: 20px;
+                top: auto;
+                transform: translateX(-50%);
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slider-container">
+        <!-- Slide da Esquerda (Conteúdo Principal) -->
+        <div class="left-slide">
+            <div class="slide-content">
+                <h2>Título 1</h2>
+                <p>A Revisão de Literatura é muito importante para a pesquisa, pois ela ajuda a contextualizar o problema de pesquisa em diálogo com a literatura, justifica a importância do estudo, diferenciando-o de estudos anteriores, e possibilita a ampliação do conhecimento sobre o tema.</p>
+            </div>
+            <div class="slide-content">
+                <h2>Título 2</h2>
+                <p>A metodologia de pesquisa é fundamental para garantir a validade e confiabilidade dos resultados obtidos. Ela define os procedimentos, técnicas e instrumentos utilizados para coleta e análise de dados, assegurando que o estudo seja conduzido de forma sistemática e rigorosa.</p>
+            </div>
+            <div class="slide-content">
+                <h2>Título 3</h2>
+                <p>A análise de dados é o processo de examinar, limpar, transformar e modelar dados com o objetivo de descobrir informações úteis, tirar conclusões e apoiar a tomada de decisões. Esta etapa é crucial para extrair insights significativos da pesquisa.</p>
+            </div>
+            <div class="slide-content">
+                <h2>Título 4</h2>
+                <p>A apresentação dos resultados deve ser clara e objetiva, acompanhada de uma discussão que relacione os achados com a literatura existente, destacando as contribuições do estudo e suas implicações para a área de conhecimento.</p>
+            </div>
+        </div>
+
+        <!-- Slide da Direita (Navegação Lateral) -->
+        <div class="right-slide">
+            <div class="slide-content">
+                <h3>Fundamentação Teórica</h3>
+                <p>Base conceitual que sustenta toda a pesquisa científica.</p>
+            </div>
+            <div class="slide-content">
+                <h3>Procedimentos</h3>
+                <p>Métodos e técnicas aplicados para condução do estudo.</p>
+            </div>
+            <div class="slide-content">
+                <h3>Processamento</h3>
+                <p>Tratamento e interpretação das informações coletadas.</p>
+            </div>
+            <div class="slide-content">
+                <h3>Conclusões</h3>
+                <p>Síntese dos achados e contribuições para o conhecimento.</p>
+            </div>
+        </div>
+
+        <!-- Botões de Navegação -->
+        <div class="down-button">
+            <a href="#" role="button" aria-label="Próximo slide">▼</a>
+        </div>
+        <div class="up-button">
+            <a href="#" role="button" aria-label="Slide anterior">▲</a>
+        </div>
+    </div>
+
+    <script>
+        function handleDoubleVerticalSlider(entry) {
+            const screenSize = window.innerWidth;
+
+            const sliderContainer = entry;
+            const slideRight = entry.querySelector('.right-slide');
+            const slideLeft = entry.querySelector('.left-slide');
+            const upButton = entry.querySelector('.up-button');
+            const downButton = entry.querySelector('.down-button');
+            const slidesLength = slideRight.querySelectorAll('.slide-content').length;
+            let activeSlideIndex = 0;
+
+            // Posicionar o slide esquerdo inicialmente
+            slideLeft.style.top = `-${(slidesLength - 1) * 100}vh`;
+
+            // Event listeners para os botões
+            upButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                changeSlide('up');
+            });
+
+            downButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                changeSlide('down');
+            });
+
+            // Função para mudar slides
+            const changeSlide = (direction) => {
+                const sliderHeight = sliderContainer.clientHeight;
+                
+                if (direction === 'up') {
+                    activeSlideIndex++;
+                    if (activeSlideIndex > slidesLength - 1) {
+                        activeSlideIndex = 0;
+                    }
+                } else if (direction === 'down') {
+                    activeSlideIndex--;
+                    if (activeSlideIndex < 0) {
+                        activeSlideIndex = slidesLength - 1;
+                    }
+                }
+
+                // Aplicar transformações
+                slideRight.style.transform = `translateY(-${activeSlideIndex * sliderHeight}px)`;
+                slideLeft.style.transform = `translateY(${activeSlideIndex * sliderHeight}px)`;
+            };
+
+            // Suporte para navegação por teclado
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    changeSlide('up');
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    changeSlide('down');
+                }
+            });
+
+            // Suporte para touch/swipe em dispositivos móveis
+            let startY = 0;
+            let endY = 0;
+
+            sliderContainer.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+            });
+
+            sliderContainer.addEventListener('touchend', (e) => {
+                endY = e.changedTouches[0].clientY;
+                const deltaY = startY - endY;
+                
+                if (Math.abs(deltaY) > 50) { // Mínimo de 50px para considerar um swipe
+                    if (deltaY > 0) {
+                        changeSlide('up'); // Swipe para cima -> próximo slide
+                    } else {
+                        changeSlide('down'); // Swipe para baixo -> slide anterior
+                    }
+                }
+            });
+        }
+
+        // Inicializar quando o DOM estiver carregado
+        document.addEventListener("DOMContentLoaded", function () {
+            const sliderContainerWrapper = document.querySelectorAll('.slider-container');
+
+            sliderContainerWrapper.forEach((entry) => {
+                handleDoubleVerticalSlider(entry);
+            });
+        });
+    </script>
+</body>
+</html>

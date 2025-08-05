@@ -1,7 +1,7 @@
 {
-  "titulo": "SLIDE VERTICAL DUPLO",
-  "conteudo": "Sistema de slides com navegação vertical em duas colunas simultaneamente.",
-  "observacao": "",
+  "titulo": "SLIDER VERTICAL DUPLO",
+  "conteudo": "Slider com duas colunas: uma exibe o conteúdo principal e outra mostra navegação lateral. O controle é feito através de botões que movimentam ambas as colunas de forma sincronizada, criando um efeito visual único.",
+  "observacao": "Suporte para navegação por teclado (setas) e touch/swipe em dispositivos móveis.",
   "img": "wp-resources/slide-vertical-duplo/slide_vertical_duplo.webp",
   "src": "code.html"
 }

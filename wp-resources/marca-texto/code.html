@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marca Texto Animado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .text-content {
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: #2c3e50;
+            text-align: justify;
+            position: relative;
+        }
+
+        .highlight-text {
+            position: relative;
+            display: inline;
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            background-size: 0% 100%;
+            background-repeat: no-repeat;
+            background-position: left center;
+            transition: background-size 0.8s ease-in-out;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .highlight-text::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(120deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 6px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .highlight-text.animate {
+            background-size: 100% 100%;
+            animation: highlightGlow 2s ease-in-out;
+        }
+
+        .highlight-text.animate::before {
+            opacity: 0.3;
+        }
+
+        @keyframes highlightGlow {
+            0% {
+                box-shadow: 0 0 5px rgba(255, 193, 7, 0);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(255, 193, 7, 0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2em;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title fade-in">Marca Texto Animado</h1>
+        <p class="subtitle fade-in">Animação que simula um marca-texto real</p>
+        
+        <p class="text-content fade-in">
+            Quisque consectetur justo at nisi consectetur venenatis et quis orci. 
+            Vestibulum nunc magna, lobortis nec erat et, commodo consequat augue. 
+            Pellentesque nibh augue, fringilla id sem at, tincidunt suscipit ligula. 
+            <span class="highlight-text" data-highlight>Aenean varius et leo sit amet tempor</span> 
+            lectus dignissim. Cras blandit sed ante at sodales. Duis posuere maximus posuere. 
+            Mauris facilisis, nulla vel cursus tempor, elit mauris venenatis nunc, 
+            <span class="highlight-text" data-highlight>sed vehicula ipsum dolor</span> 
+            vel urna consectetur facilisis.
+        </p>
+    </div>
+
+    <script>
+        // Função para animar os destaques
+        function animateHighlights() {
+            const highlights = document.querySelectorAll('[data-highlight]');
+            
+            highlights.forEach((highlight, index) => {
+                setTimeout(() => {
+                    highlight.classList.add('animate');
+                }, 2000 + (index * 1500)); // Delay entre animações
+            });
+        }
+
+        // Intersection Observer para detectar quando o texto entra na viewport
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateHighlights();
+                    observer.unobserve(entry.target); // Para não repetir a animação
+                }
+            });
+        }, {
+            threshold: 0.5
+        });
+
+        // Observa o container de texto
+        document.addEventListener('DOMContentLoaded', () => {
+            const textContent = document.querySelector('.text-content');
+            observer.observe(textContent);
+        });
+
+        // Adiciona evento de clique para repetir a animação
+        document.addEventListener('click', () => {
+            const highlights = document.querySelectorAll('[data-highlight]');
+            highlights.forEach(highlight => {
+                highlight.classList.remove('animate');
+            });
+            
+            setTimeout(() => {
+                animateHighlights();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lottie Hotspot - Territórios de Saúde</title>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2.2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        
+        .lottie-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+        
+        .hotspot {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #e74c3c;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .hotspot:hover {
+            transform: scale(1.2);
+            background: #c0392b;
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+            }
+        }
+        
+        .info-panel {
+            margin-top: 30px;
+            padding: 25px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+            min-height: 150px;
+        }
+        
+        .info-panel h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        
+        .info-panel p {
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+                 .hotspot-1 {
+             top: 38%;
+             left: 30%;
+         }
+         
+         .hotspot-2 {
+             top: 53%;
+             left: 48%;
+         }
+         
+         .hotspot-3 {
+             top: 80%;
+             left: 56%;
+         }
+        
+        .instructions {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .show {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Territórios de Saúde no Brasil</h1>
+        <p class="subtitle">
+            Vamos navegar pelo mapa abaixo e conhecer os principais aspectos que constituem 
+            o que compreendemos como território. Clique nos alfinetes ao longo do percurso.
+        </p>
+        
+                 <!-- Mapa 1 -->
+         <div class="lottie-container" id="map-container-1">
+             <lottie-player 
+                 src="../../wp-assets/map-path1_opt.json"
+                 background="transparent"
+                 speed="1"
+                 style="width: 100%; height: 500px;"
+                 loop
+                 autoplay>
+             </lottie-player>
+             <div class="hotspot hotspot-1" data-info="territorio-familiar">1</div>
+         </div>
+         
+         <!-- Mapa 2 -->
+         <div class="lottie-container" id="map-container-2" style="display: none;">
+             <lottie-player 
+                 src="../../wp-assets/map-path2_opt.json"
+                 background="transparent"
+                 speed="1"
+                 style="width: 100%; height: 500px;"
+                 loop
+                 autoplay>
+             </lottie-player>
+             <div class="hotspot hotspot-2" data-info="territorio-local">2</div>
+         </div>
+         
+         <!-- Mapa 3 -->
+         <div class="lottie-container" id="map-container-3" style="display: none;">
+             <lottie-player 
+                 src="../../wp-assets/map-path3_opt.json"
+                 background="transparent"
+                 speed="1"
+                 style="width: 100%; height: 500px;"
+                 loop
+                 autoplay>
+             </lottie-player>
+             <div class="hotspot hotspot-3" data-info="territorio-distrital">3</div>
+         </div>
+        
+                 <p class="instructions">
+             📍 Clique no ponto vermelho para avançar na jornada pelos territórios de saúde
+         </p>
+        
+        <div class="info-panel">
+            <div id="default-info">
+                <h3>🏛️ Organização Territorial do SUS</h3>
+                <p>O Sistema Único de Saúde (SUS) está estruturado com base em abrangências territoriais 
+                geopolíticas e níveis assistenciais definidos pela densidade tecnológica.</p>
+                <p>Essa organização territorial define os fluxos de usuários dentro do sistema, 
+                as logísticas de acesso aos serviços e as responsabilidades profissionais em cada nível de atenção.</p>
+                <p><strong>Clique nos pontos do mapa para explorar cada território!</strong></p>
+            </div>
+            
+            <div id="territorio-familiar" class="hidden">
+                <h3>🏠 Territórios e Âmbitos Familiares/Domiciliares</h3>
+                <p>São a base da vida privada e das relações cotidianas. Envolvem famílias de diferentes 
+                formas (nucleares, extensas ou atípicas) e são o referencial central para as ações da 
+                Atenção Básica/Primária à Saúde, especialmente para os ACS.</p>
+                <p>É onde se desenvolve o cuidado mais íntimo e contínuo em saúde, representando o 
+                primeiro nível de organização territorial do sistema de saúde.</p>
+            </div>
+            
+            <div id="territorio-local" class="hidden">
+                <h3>🏘️ Territórios e Âmbitos Locais</h3>
+                <p>Correspondem a pequenas comunidades (bairros, vilas, municípios pequenos), com 
+                convivência próxima e presencial. São fundamentais para a atuação de ACSs e ACEs, 
+                que se inserem nesses territórios para promover a saúde e fazer vigilância em saúde.</p>
+                <p>Aqui prevalecem relações micropolíticas e participação direta da população nas 
+                decisões de saúde da comunidade.</p>
+            </div>
+            
+            <div id="territorio-distrital" class="hidden">
+                <h3>🏢 Territórios e Âmbitos Intermediários Distritais</h3>
+                <p>Agregam diversos âmbitos locais (ex.: bairros maiores, distritos urbanos e rurais). 
+                A convivência é menos cotidiana, e a representação pode ser direta ou indireta.</p>
+                <p>Costumam oferecer serviços da ABS/APS e também alguns serviços especializados 
+                (Média e Alta Complexidade – MAC e Serviços de Apoio Diagnóstico e Terapêutico – SADT). 
+                Estão sob a gestão dos municípios.</p>
+            </div>
+        </div>
+    </div>
+
+         <script>
+         document.addEventListener('DOMContentLoaded', function() {
+             let currentStep = 1;
+             
+             // Botão 1
+             document.querySelector('.hotspot-1').addEventListener('click', function() {
+                 showInfo('territorio-familiar');
+                 animateHotspotClick(this);
+                 
+                 setTimeout(() => {
+                     document.getElementById('map-container-1').style.display = 'none';
+                     document.getElementById('map-container-2').style.display = 'block';
+                     currentStep = 2;
+                 }, 1000);
+             });
+             
+             // Botão 2
+             document.querySelector('.hotspot-2').addEventListener('click', function() {
+                 showInfo('territorio-local');
+                 animateHotspotClick(this);
+                 
+                 setTimeout(() => {
+                     document.getElementById('map-container-2').style.display = 'none';
+                     document.getElementById('map-container-3').style.display = 'block';
+                     currentStep = 3;
+                 }, 1000);
+             });
+             
+             // Botão 3 (final)
+             document.querySelector('.hotspot-3').addEventListener('click', function() {
+                 showInfo('territorio-distrital');
+                 animateHotspotClick(this);
+             });
+             
+             function animateHotspotClick(hotspot) {
+                 hotspot.style.transform = 'scale(1.3)';
+                 hotspot.style.background = '#2ecc71';
+                 hotspot.style.animation = 'none';
+                 
+                 setTimeout(() => {
+                     hotspot.style.transform = 'scale(1)';
+                     hotspot.style.background = '#e74c3c';
+                 }, 1000);
+             }
+             
+             function showInfo(infoId) {
+                 const allInfos = document.querySelectorAll('.info-panel > div');
+                 allInfos.forEach(info => {
+                     info.classList.add('hidden');
+                     info.classList.remove('show');
+                 });
+                 
+                 const targetInfo = document.getElementById(infoId);
+                 if (targetInfo) {
+                     targetInfo.classList.remove('hidden');
+                     targetInfo.classList.add('show');
+                 }
+             }
+             
+             // Hover nos hotspots
+             const hotspots = document.querySelectorAll('.hotspot');
+             hotspots.forEach(hotspot => {
+                 hotspot.addEventListener('mouseenter', function() {
+                     this.style.transform = 'scale(1.2)';
+                 });
+                 
+                 hotspot.addEventListener('mouseleave', function() {
+                     if (this.style.background !== 'rgb(46, 204, 113)') {
+                         this.style.transform = 'scale(1)';
+                     }
+                 });
+             });
+         });
+     </script>
+</body>
+</html>
