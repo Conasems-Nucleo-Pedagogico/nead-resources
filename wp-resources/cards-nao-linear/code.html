@@ -1,0 +1,258 @@
+<style>
+    h1 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1;
+        color: #423E37;
+    }
+
+    /* Layout */
+    .page {
+        width: 100vw;
+        height: 100vh;
+        min-height: 700px;
+        overflow: hidden;
+    }
+
+    /* Tabs */
+    .tabs-controls {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        box-sizing: border-box;
+        padding: 50px 0 100px;
+        list-style-type: none;
+        text-align: center;
+    }
+
+    .tabs-controls__link {
+        position: relative;
+        display: block;
+        padding: 16px 32px;
+        font-size: 20px;
+        font-weight: 700;
+        color: #423E37;
+        text-transform: uppercase;
+        text-decoration: none;
+        align-content: center;
+    }
+
+    .tabs-controls__link:after {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: block;
+        width: 0;
+        height: 4px;
+        background-color: #423E37;
+        border-radius: 2px;
+        margin: auto;
+        content: '';
+        transition: width 0.4s;
+    }
+
+    .tabs-controls__link--active:after {
+        width: 100%;
+    }
+
+    /* Cards */
+    .cards-container {
+        position: relative;
+        z-index: 1;
+        width: 500px;
+        height: calc(100vh - 205px);
+        margin: 0 auto;
+    }
+
+    .card {
+        position: absolute;
+        width: 500px;
+        height: 300px;
+        background-color: #EDEBD7;
+        border: 1px solid #423E37;
+        box-shadow: 9px 11px 3px 0px rgba(0, 0, 0, 0.2);
+        box-sizing: border-box;
+        padding: 40px;
+        transition: transform 0.3s, opacity 0.2s !important;
+    }
+
+    .card.nead-hidden {
+        z-index: 100;
+        background-color: #fff;
+        color: #fff;
+        opacity: 0;
+        transition: color 0.5s, background-color 0.5s, transform 1s, opacity 0.2s 0.4s !important;
+    }
+
+    .card.nead-hidden h1 {
+        color: #fff;
+        transition: color 0.5s !important;
+    }
+
+    .card.nead-hidden:nth-of-type(1) {
+        transform: rotate(-65deg) translateX(101%) translateY(-15%) scale(0.2) skewX(8deg) skewY(3deg) !important;
+    }
+
+    .card.nead-hidden:nth-of-type(2) {
+        transform: rotate(-8deg) translateX(101%) translateY(-43%) scale(0.1) skewX(4deg) skewY(9deg) !important;
+    }
+
+    .card.nead-hidden:nth-of-type(3) {
+        transform: rotate(-63deg) translateX(101%) translateY(-5%) scale(0.3) skewX(7deg) skewY(3deg) !important;
+    }
+
+    .card.nead-hidden:nth-of-type(4) {
+        transform: rotate(-25deg) translateX(101%) translateY(-3%) scale(0.8) skewX(8deg) skewY(8deg) !important;
+    }
+
+    .card.nead-nead-hidden:nth-of-type(5) {
+        transform: rotate(-82deg) translateX(101%) translateY(-57%) scale(0.5) skewX(5deg) skewY(1deg) !important;
+    }
+
+    .card.nead-nead-hidden:nth-of-type(6) {
+        transform: rotate(-34deg) translateX(101%) translateY(-60%) scale(0.4) skewX(12deg) skewY(5deg) !important;
+    }
+
+    .card:nth-of-type(1) {
+        z-index: 5;
+        transform: translateX(0px) translateY(0px) !important;
+    }
+
+    .card:nth-of-type(2) {
+        z-index: 4;
+        transform: translateX(10px) translateY(10px) !important;
+    }
+
+    .card:nth-of-type(3) {
+        z-index: 3;
+        transform: translateX(20px) translateY(20px) !important;
+    }
+
+    .card:nth-of-type(4) {
+        z-index: 2;
+        transform: translateX(30px) translateY(30px) !important;
+    }
+
+    .card:nth-of-type(5) {
+        z-index: 1;
+        transform: translateX(40px) translateY(40px) !important;
+    }
+
+    .card:nth-of-type(6) {
+        z-index: 0;
+        transform: translateX(50px) translateY(50px) !important;
+    }
+</style>
+
+<section class="page">
+    <section>
+        <ul class="tabs-controls">
+        </ul>
+    </section>
+    <!-- <section id="teste"> Teste</section> -->
+    <section class="cards-container">
+    </section>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabsAndCardsList = [
+            { name: "Diabetes", content: "Controle rigoroso dos níveis de glicose no sangue, uso de medicamentos como insulina ou metformina, e acompanhamento regular." },
+            { name: "Histórico Familiar", content: "Triagem regular e monitoramento para indivíduos com histórico familiar de doença renal." },
+            { name: "Hipertensão arterial", content: "A hipertensão é um dos principais fatores de risco para a DRC, danificando os vasos sanguíneos nos rins." },
+            { name: "Sangue", content: "A hipertensão é um dos principais fatores de risco para a DRC, danificando os vasos sanguíneos nos rins. 2222222222222222" },
+            { name: "Bexiga", content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vitae aliquet massa, eu volutpat lectus." }
+        ];
+
+        const populateTabsAndCards = () => {
+            const ulTabs = document.querySelector('.tabs-controls');
+            const cardSection = document.querySelector('.cards-container');
+
+            tabsAndCardsList.forEach((obj, index) => {
+                const liTabs = document.createElement('li');
+                liTabs.classList.add('tabs-controls__item');
+                const anchorTabs = document.createElement('a');
+                anchorTabs.setAttribute('href', "#");
+                anchorTabs.classList.add('tabs-controls__link');
+                anchorTabs.setAttribute('data-id', index + 1);
+                const cardContainer = document.createElement('div');
+                cardContainer.classList.add('card');
+                cardContainer.setAttribute('data-id', index + 1);
+                const h1Title = document.createElement('h1');
+                const pContent = document.createElement('p');
+
+                h1Title.innerHTML = obj.name;
+                pContent.innerHTML = obj.content;
+
+                if (index === 0) {
+                    // cardContainer.classList.add('card--current');
+                    anchorTabs.classList.add('tabs-controls__link--active');
+                }
+
+                anchorTabs.innerHTML = obj.name;
+
+                liTabs.appendChild(anchorTabs);
+                ulTabs.appendChild(liTabs);
+                cardContainer.appendChild(h1Title);
+                cardContainer.appendChild(pContent);
+                cardSection.appendChild(cardContainer)
+            });
+        }
+
+        const handleClick = () => {
+            var oldId = null;
+
+            var tabLinks = document.querySelectorAll('.tabs-controls__link');
+            tabLinks.forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    if (this.classList.contains('tabs-controls__link--active')) {
+                        return false;
+                    }
+
+                    var currentId = parseInt(this.getAttribute('data-id'), 10);
+                    document.querySelector('.tabs-controls__link--active').classList.remove('tabs-controls__link--active');
+                    this.classList.add('tabs-controls__link--active');
+
+                    if (currentId < oldId) { // item is nead-hidden
+                        var timing = document.querySelectorAll('.card.nead-hidden').length * 100;
+                        var cards = document.querySelectorAll('.card');
+                        cards.forEach(function (card, index) {
+                            if (index >= (currentId - 1)) {
+                                setTimeout(function () {
+                                    cards[index].classList.remove('nead-hidden');
+                                }, timing - (index * 100));
+                            }
+                        });
+                    } else {
+                        var cards = document.querySelectorAll('.card');
+                        cards.forEach(function (card, index) {
+                            if (index < (currentId - 1)) {
+                                setTimeout(function () {
+                                    cards[index].classList.add('nead-hidden');
+                                }, index * 100);
+                            }
+                        });
+                    }
+
+                    oldId = currentId;
+                });
+            });
+        }
+
+
+
+        populateTabsAndCards();
+        handleClick();
+    });
+
+
+
+</script>

@@ -1,0 +1,99 @@
+    <style>
+
+        .carousel-custom {
+            display: flex;
+            width: 90%;
+            min-height: 300px;
+            overflow: hidden;
+        }
+
+        .carousel-custom-item {
+            flex: 1;
+            margin: 5px;
+            background-color: #003366;
+            border-radius: 30px;
+            transition: flex 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .carousel-custom-item.active {
+            flex: 8;
+            background-color: #fff;
+        }
+
+        .carousel-custom-item:not(.active) {
+            flex: 1;
+            color: #fff;
+        }
+
+        .content-custom {
+            display: none;
+            text-align: center;
+            color: #fff;
+        }
+
+        .carousel-custom-item.active .content-custom {
+            display: block;
+            color: #000;
+        }
+
+        .icon-custom {
+            display: none;
+            position: absolute;
+            font-size: 24px;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .carousel-custom-item:not(.active) .icon-custom {
+            display: block;
+        }
+    </style>
+
+    <div class="carousel-custom" id="carousel"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const items = [
+                { content: '<p><b>Estágio 1:</b> TFG normal ou aumentada (≥90 mL/min/1,73 m²) com evidência de dano renal.</p>' },
+                { content: '<p><b>Estágio 2:</b> TFG entre 60-89 mL/min/1,73 m² com evidência de dano renal.</p>' },
+                { content: '<p><b>Estágio 3:</b> TFG entre 30-59 mL/min/1,73 m².</p>' },
+                { content: '<p><b>Estágio 4:</b> TFG entre 15-29 mL/min/1,73 m².</p>' },
+                { content: '<p><b>Estágio 5:</b> TFG < 15 mL/min/1,73 m² ou em diálise.</p>' }
+            ];
+
+            const carousel = document.getElementById('carousel');
+
+            items.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `carousel-custom-item${index === 0 ? ' active' : ''}`;
+                div.dataset.index = index;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'content-custom';
+                contentDiv.innerHTML = item.content;
+                
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'icon-custom';
+                iconDiv.innerHTML = '<i aria-hidden="true" class="far fa-hand-pointer"></i>';
+
+                div.appendChild(contentDiv);
+                div.appendChild(iconDiv);
+                carousel.appendChild(div);
+            });
+
+            const carouselItems = document.querySelectorAll('.carousel-custom-item');
+
+            carouselItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    carouselItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                });
+            });
+        });
+    </script>
+

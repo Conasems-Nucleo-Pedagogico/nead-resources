@@ -1,0 +1,259 @@
+<style>
+    canvas {
+        height: 400px;
+    }
+
+    @media (max-width: 1366px) {
+        canvas {
+            height: 250px;
+        }
+    }
+
+    /* Estilos para as caixas de texto */
+    .text-box {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.95);
+        border: 2px solid #0075C9;
+        border-radius: 8px;
+        padding: 15px;
+        max-width: 250px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+
+    .text-box h3 {
+        margin: 0 0 8px 0;
+        color: #0075C9;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .text-box p {
+        margin: 0;
+        color: #333;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    /* Posicionamento das caixas */
+    .text-box-top-left {
+        top: 20px;
+        left: 20px;
+    }
+
+    .text-box-top-right {
+        top: 20px;
+        right: 20px;
+    }
+
+    .text-box-bottom-left {
+        bottom: 20px;
+        left: 20px;
+    }
+
+    .text-box-bottom-right {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    /* Classe para mostrar a caixa */
+    .text-box.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Responsividade para mobile */
+    @media (max-width: 768px) {
+        .text-box {
+            max-width: 200px;
+            padding: 12px;
+        }
+
+        .text-box h3 {
+            font-size: 14px;
+        }
+
+        .text-box p {
+            font-size: 12px;
+        }
+    }
+</style>
+
+<div class="chart-container" style="position: relative; height: 100%;">
+    <canvas id="myChart" width="100%" height="300"></canvas>
+    <img id="chartImage" src="../../wp-assets/sca-d18-t12a.webp"
+        style="display: none;" />
+
+    <!-- Caixas de texto posicionadas nos cantos -->
+    <div class="text-box text-box-top-right" id="saneamento">
+        <h3>Saneamento</h3>
+        <p>Informações sobre saneamento básico e infraestrutura sanitária.</p>
+    </div>
+
+    <div class="text-box text-box-bottom-right" id="habitacao">
+        <h3>Habitação</h3>
+        <p>Dados sobre condições de moradia e infraestrutura habitacional.</p>
+    </div>
+
+    <div class="text-box text-box-bottom-left" id="educacao">
+        <h3>Educação</h3>
+        <p>Indicadores educacionais e qualidade do ensino.</p>
+    </div>
+
+    <div class="text-box text-box-top-left" id="indicadoresdesaude">
+        <h3>Indicadores de Saúde</h3>
+        <p>Métricas e indicadores relacionados à saúde pública.</p>
+    </div>
+</div>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const screenSize = window.innerWidth;
+
+        // T12 - Gráfico
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const image = document.getElementById('chartImage');
+        const textBoxes = document.querySelectorAll('.text-box');
+        var selectedIndex = null;
+        var clickedSlices = new Set();
+
+        if (Chart.getChart('myChart')) {
+            Chart.getChart('myChart').destroy();
+        }
+
+        const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    'Saneamento',
+                    'Habitação',
+                    'Educação',
+                    'Indicadores\nde saúde',
+                ],
+                datasets: [
+                    {
+                        data: [25, 25, 25, 25],
+                        backgroundColor: [
+                            '#00ABC3',
+                            '#0075C9',
+                            '#155BAE',
+                            '#06377F',
+                        ],
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: `${screenSize > 1367 ? '50%' : '25%'}`,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    tooltip: { enabled: false },
+                    datalabels: {
+                        color: `${screenSize > 1367 ? '#2A2A2A' : '#fbfefe'}`,
+                        font: {
+                            size: 14,
+                            weight: 'bold',
+                            family: 'Roboto, sans-serif',
+                        },
+                        align: `${screenSize > 1367 ? 'end' : 'center'}`,
+                        anchor: `${screenSize > 1367 ? 'end' : 'center'}`,
+                        formatter: (value, context) => {
+                            return context.chart.data.labels[context.dataIndex];
+                        },
+                    },
+                },
+                animation: { animateScale: true },
+                onClick: function (evt, activeElements) {
+                    if (activeElements.length > 0) {
+                        var index = activeElements[0].index;
+                        var label = chart.data.labels[index];
+
+                        // Adiciona ao conjunto de fatias clicadas
+                        clickedSlices.add(label);
+
+                        // Atualiza o deslocamento da fatia clicada
+                        chart.data.datasets[0].offset = new Array(
+                            chart.data.datasets[0].data.length
+                        ).fill(0);
+                        chart.data.datasets[0].offset[index] = 40;
+                        selectedIndex = index;
+                        chart.update();
+
+                        // Mapeamento baseado no índice do gráfico para garantir correspondência correta
+                        const indexToBoxMapping = {
+                            0: 'saneamento',      // Saneamento - top-left
+                            1: 'habitacao',       // Habitação - bottom-left
+                            2: 'educacao',        // Educação - bottom-right
+                            3: 'indicadoresdesaude' // Indicadores de saúde - top-right
+                        };
+
+                        // Oculta todas as caixas de texto primeiro
+                        textBoxes.forEach(box => {
+                            box.classList.remove('show');
+                        });
+
+                        // Mostra a caixa de texto correspondente usando o índice
+                        const targetBoxId = indexToBoxMapping[index];
+                        if (targetBoxId) {
+                            const targetBox = document.getElementById(targetBoxId);
+                            if (targetBox) {
+                                targetBox.classList.add('show');
+                            }
+                        }
+
+                        // Se todas as fatias foram clicadas, mostra todas as caixas
+                        if (clickedSlices.size >= chart.data.labels.length) {
+                            textBoxes.forEach(box => {
+                                box.classList.add('show');
+                            });
+                        }
+                    }
+                },
+            },
+            plugins: [
+                ChartDataLabels,
+                {
+                    beforeDraw: function (chart) {
+                        const ctx = chart.ctx;
+                        const chartArea = chart.chartArea;
+                        const centerX = (chartArea.left + chartArea.right) / 2;
+                        const centerY = (chartArea.top + chartArea.bottom) / 2;
+                        const imgSize = screenSize <= 1367
+                            ? Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top) / 5 // Tamanho menor para mobile
+                            : Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top) / 3; // Tamanho padrão para desktop
+
+
+                        // Math.min(
+                        //     chartArea.right - chartArea.left,
+                        //     chartArea.bottom - chartArea.top
+                        // ) / 3;
+
+                        if (image.complete) {
+                            ctx.drawImage(
+                                image,
+                                centerX - imgSize / 2,
+                                centerY - imgSize / 2,
+                                imgSize,
+                                imgSize
+                            );
+                        } else {
+                            image.onload = () => {
+                                chart.draw();
+                            };
+                        }
+                    },
+                },
+            ],
+        });
+    });
+</script>

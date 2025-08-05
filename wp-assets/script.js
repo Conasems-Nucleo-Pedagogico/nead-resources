@@ -64,7 +64,7 @@ async function loadCards() {
     try {
         // Carregar lista de recursos do index.json
         const recursos = await getAvailableResources();
-        
+        console.log(recursos);
         if (recursos.length === 0) {
             container.innerHTML = '<div class="error">Nenhum recurso listado no index.json</div>';
             return;

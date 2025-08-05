@@ -1,0 +1,120 @@
+<div class="gif-video-layout">
+    <div class="video-column">
+        <div class="video-container">
+            <div class="video-border-effect">
+                <video class="main-video" autoplay muted loop playsinline>
+                    <source src="/wp-assets/DPOCT2a-1.mp4" type="video/mp4">
+                    Seu navegador não suporta vídeos.
+                </video>
+            </div>
+        </div>
+    </div>
+    
+    <div class="content-column">
+        <div class="text-content">
+            <h2>Lorem Ipsum</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.gif-video-layout {
+    display: flex;
+    gap: 60px;
+    align-items: center;
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 500px;
+}
+
+.video-column {
+    flex: 0 0 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+}
+
+.video-border-effect {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background: #1a1a1a;
+    border-radius: 20px;
+    box-shadow: 
+        8px 8px 0px #e0f2f1,
+        0 0 0 2px #1a1a1a;
+    overflow: hidden;
+}
+
+.main-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 18px;
+    display: block;
+}
+
+.content-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px;
+    background: #f8f9fa;
+    border-radius: 16px;
+    min-height: 300px;
+}
+
+.text-content h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #1E1F21;
+    font-family: "Montserrat", sans-serif;
+}
+
+.text-content p {
+    font-size: 18px;
+    line-height: 1.7;
+    color: #1E1F21;
+    font-family: "Rubik", sans-serif;
+}
+
+@media (max-width: 768px) {
+    .gif-video-layout {
+        flex-direction: column;
+        gap: 40px;
+        padding: 20px;
+    }
+    
+    .video-column {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    
+    .video-border-effect {
+        height: 250px;
+    }
+    
+    .content-column {
+        min-height: 250px;
+        padding: 30px;
+    }
+    
+    .text-content h2 {
+        font-size: 28px;
+    }
+    
+    .text-content p {
+        font-size: 16px;
+    }
+}
+</style>
