@@ -84,6 +84,8 @@ header h1 {
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     cursor: pointer;
     border: 1px solid rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
 }
 
 .card:hover {
@@ -119,6 +121,9 @@ header h1 {
 
 .card-content {
     padding: 30px 35px 35px 35px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .card-content h3 {
@@ -155,6 +160,10 @@ header h1 {
     font-weight: 500;
 }
 
+.card-content .btn-visualizar {
+    margin-top: auto;
+}
+
 /* Button */
 .btn-visualizar {
     background: linear-gradient(45deg, #00bfa6, #00a8cc);
@@ -170,7 +179,6 @@ header h1 {
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     width: 100%;
     box-shadow: 0 6px 20px rgba(0, 191, 166, 0.25);
-    margin-top: 5px;
 }
 
 .btn-visualizar:hover {

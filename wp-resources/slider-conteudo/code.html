@@ -1,0 +1,228 @@
+<style>
+    .slider {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .emoticon1 {
+        margin-right: 20px !important;
+    }
+
+    .instruction-text {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .instruction-icon {
+        width: 16px;
+        height: 16px;
+        background-color: #ccc;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    output {
+        position: absolute;
+        left: 50px;
+        margin: 1.5em;
+        color: #194F55;
+        top: 25px;
+    }
+
+    #fader {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 12px;
+        max-width: 100%;
+        background: #FFF;
+        outline: none;
+        opacity: 0.7;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+    }
+
+    #fader:hover {
+        opacity: 1;
+    }
+
+    #fader::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        border: none;
+        height: 28px;
+        width: 28px;
+        border-radius: 50%;
+        margin-top: -5px;
+        background-color: #194F55;
+    }
+
+    #fader::-moz-range-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        border: none;
+        height: 28px;
+        width: 28px;
+        border-radius: 50%;
+        margin-top: -5px;
+        background-color: #194F55;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+        height: 20px;
+        border: none;
+        border-radius: 3px;
+        padding: 0px;
+        background: linear-gradient(to right, #BDBDBD, #B4E6E9, #ADF6FA, #02C0C9, #194F55);
+    }
+
+    /** FF*/
+    input[type="range"]::-moz-range-track {
+        height: 20px;
+        border: none;
+        border-radius: 3px;
+        padding: 0px;
+        background: linear-gradient(to right, #BDBDBD, #B4E6E9, #ADF6FA, #02C0C9, #194F55);
+    }
+
+    /* IE*/
+    input[type="range"]::-ms-fill-lower {
+        background-color: #194F55;
+    }
+
+    input[type="range"]::-ms-fill-upper {
+        background-color: #194F55;
+    }
+
+    /* Estilos para as caixas de texto */
+    .text-boxes-container {
+        margin-top: 30px;
+    }
+
+    .sliderTxt {
+        background-color: #E8F4F5;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 16px;
+        line-height: 1.5;
+        border: 1px solid #D0E8E9;
+        transition: all 0.3s ease;
+    }
+
+    .sliderTxt strong {
+        color: #194F55;
+        font-weight: 600;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    /* Container principal */
+    .slider-content-wrapper {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+</style>
+
+<script>
+function outputUpdate(vol) {
+    const slidersTxt = document.querySelectorAll('.sliderTxt');
+
+    if (vol >= 0 && vol < 19) {
+        slidersTxt.forEach(txt => {
+            if (txt.id === 't5-slider1') {
+                txt.classList.remove('hidden');
+            } else {
+                txt.classList.add('hidden')
+            }
+        })
+    };
+
+    if (vol >= 20 && vol < 50) {
+        slidersTxt.forEach(txt => {
+            if (txt.id === 't5-slider2') {
+                txt.classList.remove('hidden');
+            } else {
+                txt.classList.add('hidden')
+            }
+        })
+    };
+
+    if (vol >= 51 && vol < 70) {
+        slidersTxt.forEach(txt => {
+            if (txt.id === 't5-slider3') {
+                txt.classList.remove('hidden');
+            } else {
+                txt.classList.add('hidden')
+            }
+        })
+    };
+
+    if (vol >= 71 && vol < 95) {
+        slidersTxt.forEach(txt => {
+            if (txt.id === 't5-slider4') {
+                txt.classList.remove('hidden');
+            } else {
+                txt.classList.add('hidden')
+            }
+        })
+    };
+
+    if (vol >= 96 && vol < 100) {
+        slidersTxt.forEach(txt => {
+            if (txt.id === 't5-slider5') {
+                txt.classList.remove('hidden');
+            } else {
+                txt.classList.add('hidden')
+            }
+        })
+    };
+}
+
+//http://thenewcode.com/757/Playing-With-The-HTML5-range-Slider-Input
+</script>
+
+<div class="slider-content-wrapper">
+    <div class="instruction-text">
+        <span class="instruction-icon"></span>
+        Arraste o círculo
+    </div>
+    
+    <div class="slider">
+        <output for="fader" id="volume"></output>
+        <input type="range" min="0" max="100" value="0" id="fader" step="0" oninput="outputUpdate(value)"
+            style="padding:0; border:0;">
+    </div>
+
+    <div class="text-boxes-container">
+        <div id="t5-slider1" class="sliderTxt">
+            O achado de <strong>sibilos ou roncos expiratórios</strong> pode estar presente, mas nem sempre se relacionam com a gravidade da obstrução.
+        </div>
+        
+        <div id="t5-slider2" class="sliderTxt hidden">
+            O aumento do <strong>tempo expiratório</strong> é um achado mais consistente e indica obstrução ao fluxo aéreo expiratório.
+        </div>
+        
+        <div id="t5-slider3" class="sliderTxt hidden">
+            <strong>Sinais de hiperinsuflação</strong>, como tórax em tonel, hipertimpanismo à percussão, sons respiratórios reduzidos e hipofonese das bulhas cardíacas aparecem em parte dos pacientes com doença mais grave.
+        </div>
+        
+        <div id="t5-slider4" class="sliderTxt hidden">
+            Na ausculta respiratória, além dos sibilos, podem aparecer também <strong>crepitações inspiratórias finas esparsas</strong>.
+        </div>
+        
+        <div id="t5-slider5" class="sliderTxt hidden">
+            A <strong>taquipneia, os sinais de esforço respiratório e a cianose</strong> ocorrem em pacientes muito graves ou durante exacerbação, mas também em outras condições clínicas.
+        </div>
+    </div>
+</div>

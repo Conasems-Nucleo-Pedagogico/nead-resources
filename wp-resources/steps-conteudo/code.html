@@ -1,0 +1,376 @@
+<style>
+    @charset "UTF-8";
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+    body {
+        font-family: "Open Sans", sans-serif;
+        font-optical-sizing: auto;
+        font-style: normal;
+        font-variation-settings:
+            "wdth" 100;
+        background-color: #1e3a3a;
+        color: #FAFAFA;
+        padding: 20px;
+    }
+
+    .stepper-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .stepper-horizontal {
+        display: table;
+        width: auto;
+        margin: 0 auto;
+        background-color: #6a4c93;
+        border-radius: 10px;
+        padding: 15px;
+    }
+
+    .stepper-horizontal .step {
+        display: table-cell;
+        position: relative;
+        padding: 0.5rem;
+        z-index: 2;
+        width: auto;
+        min-width: 80px;
+    }
+
+    .stepper-horizontal .step:last-child .step-bar-left,
+    .stepper-horizontal .step:last-child .step-bar-right {
+        display: none;
+    }
+
+    .stepper-horizontal .step .step-circle {
+        width: 1.5rem;
+        height: 1.5rem;
+        margin: 0 auto;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 1.25rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 2;
+        border: 2px solid #FAFAFA;
+        background-color: transparent;
+    }
+
+    .stepper-horizontal .step.done .step-circle {
+        background-color: #00d4aa;
+        border: 2px solid #00d4aa;
+        color: #FAFAFA;
+    }
+
+    .stepper-horizontal .step.done .step-title {
+        color: #00d4aa;
+    }
+
+    .stepper-horizontal .step.editing .step-circle {
+        background-color: #00d4aa;
+        border: 2px solid #00d4aa;
+        color: #FAFAFA;
+    }
+
+    .stepper-horizontal .step.editing .step-title {
+        color: #00d4aa;
+    }
+
+    .stepper-horizontal .step .step-title {
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .stepper-horizontal .step .step-title,
+    .stepper-horizontal .step .step-optional {
+        text-align: center;
+        color: #FAFAFA;
+    }
+
+    .stepper-horizontal .step .step-optional {
+        font-size: 0.75rem;
+        font-style: italic;
+        color: #9FB3C8;
+    }
+
+    .stepper-horizontal .step .step-bar-left,
+    .stepper-horizontal .step .step-bar-right {
+        position: absolute;
+        top: calc(1rem + 2px);
+        height: 3px;
+        background-color: #FAFAFA;
+        border: solid #FAFAFA;
+        border-width: 1px 0;
+    }
+
+    .stepper-horizontal .step .step-bar-left {
+        width: calc(100% - 1.5rem);
+        left: 50%;
+        margin-left: 0.75rem;
+        z-index: -1;
+    }
+
+    .stepper-horizontal .step .step-bar-right {
+        width: 0;
+        left: 50%;
+        margin-left: 0.75rem;
+        z-index: -1;
+        transition: width 500ms ease-in-out;
+    }
+
+    .stepper-horizontal .step.done .step-bar-right {
+        background-color: #00d4aa;
+        border-color: #00d4aa;
+        z-index: 3;
+        width: calc(100% - 1.5rem);
+    }
+
+    .stepper-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .iconColor {
+        cursor: pointer;
+        color: #FAFAFA;
+        font-size: 24px;
+        font-weight: bold;
+        padding: 8px;
+        border-radius: 50%;
+        transition: background-color 0.3s;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .iconColor:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .step-content {
+        background-color: #00d4aa;
+        color: #FAFAFA;
+        padding: 20px;
+        margin: 10px 0;
+        border-radius: 8px;
+        font-size: 16px;
+        line-height: 1.5;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .know-more-box {
+        background-color: #a8e6cf;
+        color: #2c5530;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+        font-size: 14px;
+        line-height: 1.6;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .know-more-link {
+        color: #00d4aa;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .know-more-link:hover {
+        text-decoration: underline;
+    }
+
+    .content-area {
+        flex: 1;
+        max-width: 600px;
+    }
+</style>
+
+<div class="stepper-wrapper">
+    <div class="iconColor" id="dpoc-a3-t4-stepper-previousBtn">&lt;</div>
+    
+    <div class="stepper-horizontal" id="stepper1">
+        <div class="step editing">
+            <div class="step-circle"></div>
+            <div class="step-title">Passo 1</div>
+            <div class="step-bar-left"></div>
+            <div class="step-bar-right"></div>
+        </div>
+        <div class="step">
+            <div class="step-circle"></div>
+            <div class="step-title">Passo 2</div>
+            <div class="step-bar-left"></div>
+            <div class="step-bar-right"></div>
+        </div>
+        <div class="step">
+            <div class="step-circle"></div>
+            <div class="step-title">Passo 3</div>
+            <div class="step-bar-left"></div>
+            <div class="step-bar-right"></div>
+        </div>
+        <div class="step">
+            <div class="step-circle"></div>
+            <div class="step-title">Passo 4</div>
+            <div class="step-bar-left"></div>
+            <div class="step-bar-right"></div>
+        </div>
+    </div>
+    
+    <div class="iconColor" id="dpoc-a3-t4-stepper-nextBtn">&gt;</div>
+</div>
+
+<div class="stepper-container">
+    <div class="content-area">
+        <div class="stepper-txt" id="step1-content">
+            <div class="step-content">
+                Avaliação da espirometria: Grau de limitação do fluxo aéreo.
+            </div>
+        </div>
+        <div class="stepper-txt hidden" id="step2-content">
+            <div class="step-content">
+                Avaliação dos Sintomas.
+            </div>
+        </div>
+        <div class="stepper-txt hidden" id="step3-content">
+            <div class="step-content">
+                Avaliação das Exacerbações.
+            </div>
+        </div>
+        <div class="stepper-txt hidden" id="step4-content">
+            <div class="step-content">
+                Avaliação Combinada ABCD.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="know-more-box hidden" id="dpoc-a3-t4-stepper-txt-saibamais">
+    <span class="know-more-link">Clique aqui</span> e conheça o fluxograma, desenvolvido pela Fundação ProAR, que descreve o passo a passo para avaliação e para o tratamento da DPOC, de acordo com a classificação A,B,C e D.
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const previousBtn = document.getElementById('dpoc-a3-t4-stepper-previousBtn');
+        const nextBtn = document.getElementById('dpoc-a3-t4-stepper-nextBtn');
+        const steppersTxt = document.querySelectorAll('.stepper-txt');
+        const knowMoreTxt = document.getElementById('dpoc-a3-t4-stepper-txt-saibamais');
+
+        previousBtn.classList.add('iconColor');
+        nextBtn.classList.add('iconColor');
+        previousBtn.classList.add('hidden');
+
+
+        nextBtn.addEventListener('click', () => {
+            handleStep('next');
+        })
+
+        previousBtn.addEventListener('click', () => {
+            handleStep('previous');
+        })
+
+        var currentStep = 1;
+        var numSteps = 4;
+
+        function previousStep() {
+            currentStep--;
+            console.log(currentStep, 'current step previous')
+        }
+
+        function handleStep(position) {
+            if (position === 'previous') {
+                currentStep--
+            } else {
+                currentStep++;
+            } 
+
+            var stepper = document.getElementById('stepper1');
+            var steps = stepper.getElementsByClassName('step');
+
+            Array.from(steps).forEach((step, index) => {
+                let stepNum = index + 1;
+
+                if (currentStep === numSteps) {
+                    addClass(step, 'done');
+                    addClass(nextBtn, 'hidden');
+                }
+
+                if (currentStep !== 1) {
+                    removeClass(previousBtn, 'hidden');
+                }
+
+                if (currentStep === 1) {
+                    addClass(previousBtn, 'hidden');
+                    removeClass(nextBtn, 'hidden');
+                }
+
+                if (stepNum === currentStep) {
+                    addClass(step, 'editing');
+                    handleText(currentStep);
+                } else {
+                    removeClass(step, 'editing');
+                }
+                if (stepNum < currentStep) {
+                    addClass(step, 'done');
+                } else {
+                    removeClass(step, 'done');
+                }
+            })
+        }
+
+        function handleText(currentStep) {
+            steppersTxt.forEach((txt, index) => {
+                console.log(txt, 'no index:', index)
+                const txtNumber = index + 1;
+
+
+
+                console.log(currentStep, 'currentStep chegando via params')
+
+                if (txtNumber === currentStep) {
+                    if (currentStep === numSteps) {
+                        knowMoreTxt.classList.remove('hidden');
+                        txt.classList.remove('hidden');
+                    } else {
+                        txt.classList.remove('hidden');
+                        
+                    }
+                } else {
+                    txt.classList.add('hidden');
+                }
+            })
+            // console.log(currentStep)
+            // console.log(steppersTxt, 'steppersTxt')
+        }
+
+
+        /* get, set class, see https://ultimatecourses.com/blog/javascript-hasclass-addclass-removeclass-toggleclass */
+
+        function hasClass(elem, className) {
+            return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
+        }
+
+        function addClass(elem, className) {
+            if (!hasClass(elem, className)) {
+                elem.className += ' ' + className;
+            }
+        }
+
+        function removeClass(elem, className) {
+            var newClass = ' ' + elem.className.replace(/[\t\r\n]/g, ' ') + ' ';
+            if (hasClass(elem, className)) {
+                while (newClass.indexOf(' ' + className + ' ') >= 0) {
+                    newClass = newClass.replace(' ' + className + ' ', ' ');
+                }
+                elem.className = newClass.replace(/^\s+|\s+$/g, '');
+            }
+        }
+    })
+
+</script>
