@@ -1,0 +1,706 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
+</style>
+
+<style>
+/* Variables to CSS */
+
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
+
+:root {
+/* cards: */
+--backgroundColor-container: #00ff0000;
+--shadow-container: 0px 0px 0px 0px rgba(46, 61, 73, 0.5);
+--backgroundColor-deck-card: #E5E6E7;
+--color-deck-card: #FFF;
+--backgroundColor-card-open:#287BD9;
+--backgroundColor-card-match: #27AE60;
+--backgroundColor-card-unmatched: #EB5757;
+--grid-rows: 2;
+--grid-column: 6;
+
+/* modal */
+--title-color-modal: #012876;
+--title-font: 'Teko';
+--backgroundColor-popup: #E5E6E7;
+--modal-close-button-color: #3F3F41;
+--modal-close-button-color-hover: #3F3F41;
+--modal-content-color: #3F3F41;
+--backgroundColor-button-play-again: #F1C75F;
+--color-button-play-again: #012876;
+}
+
+body {
+font-family: 'Titillium Web', sans-serif;
+font-size: 18px;
+}
+
+button {
+appearance: none;
+background-color: transparent;
+border: none;
+color: inherit;
+cursor: pointer;
+font: inherit;
+margin: 0;
+padding: 0;
+text-align: inherit;
+}
+
+.memory-container {
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.deck {
+background-color: var(--backgroundColor-container);
+padding: 0.1rem;
+border-radius: 2px;
+box-shadow: var(--shadow-container);
+display: grid;
+grid-template-rows: repeat(var(--grid-rows), 1fr);
+grid-template-columns: repeat(var(--grid-column), 1fr);
+gap: 10px;
+justify-content: space-around;
+align-items: center;
+margin: 0 0 0.2em;
+}
+
+.deck .card {
+height: 60px;
+width: 60px;
+margin: 0.1rem 0.1rem 0.1rem 0.1rem;
+background-color: var(--backgroundColor-deck-card);
+font-size: 0;
+color: var(--color-deck-card);
+border-radius: 5px;
+cursor: pointer;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+box-shadow: 5px 2px 20px 0 rgba(46, 61, 73, 0.5);
+border-radius: 20px;
+flex: 1 0 11%
+}
+
+.deck .card .front-face {
+width: 80px;
+height: 80px;
+}
+
+.perguntas {
+text-align: center;
+}
+
+.deck .card .back-face {
+display: none;
+}
+
+.deck .card.open {
+transform: rotateY(0);
+background-color: var(--backgroundColor-card-open);
+cursor: default;
+animation-name: flipInY;
+-webkit-backface-visibility: visible !important;
+backface-visibility: visible !important;
+animation-duration: .75s;
+}
+
+.deck .card.open .front-face {
+display: none;
+}
+
+.deck .card.match .front-face {
+display: none;
+}
+
+.deck .card.show {
+font-size: 12px;
+padding: 2px;
+}
+
+.deck .card.open .back-face {
+display: flex;
+width: 50px;
+height: 50px;
+}
+
+.deck .card.match {
+cursor: default;
+background-color: var(--backgroundColor-card-match);
+font-size: 15px;
+animation-name: rubberBand;
+-webkit-backface-visibility: visible !important;
+backface-visibility: visible !important;
+animation-duration: .75s;
+}
+
+.deck .card.match .back-face {
+display: flex;
+width: 60px;
+height: 60px;
+}
+
+.deck .card.unmatched {
+animation-name: pulse;
+-webkit-backface-visibility: visible !important;
+backface-visibility: visible !important;
+animation-duration: .75s;
+background: var(--backgroundColor-card-unmatched);
+}
+
+.deck .card.disabled {
+pointer-events: none;
+opacity: 0.9;
+}
+
+/* Styles for congratulations modal */
+.popup h1 {
+color: var(--title-color-modal);
+font-family: var(--title-font), Sans-serif;
+font-size: 15px;
+font-weight: 100;
+text-transform: uppercase;
+line-height: 1.1em;
+}
+
+.overlay {
+position: fixed;
+top: 0;
+bottom: 0;
+left: 0;
+right: 0;
+background: rgba(0, 0, 0, 0.7);
+transition: opacity 500ms;
+visibility: hidden;
+opacity: 0;
+}
+
+.overlay:target {
+visibility: visible;
+opacity: 1;
+}
+
+.popup {
+margin: 25vh auto;
+padding: 20px;
+background: var(--backgroundColor-popup);
+border-radius: 5px;
+width: 85%;
+position: relative;
+transition: all 5s ease-in-out;
+}
+
+.popup h1 {
+text-align: center;
+font-size: 30px;
+padding: 15px;
+
+}
+
+.popup .close {
+position: absolute;
+top: 20px;
+right: 30px;
+transition: all 200ms;
+font-size: 30px;
+font-weight: bold;
+text-decoration: none;
+color: var(--modal-close-button-color);
+cursor: pointer;
+}
+
+.popup .close:hover {
+color: var(--modal-close-button-color-hover);
+}
+
+.popup .content-1,
+.content-2 {
+max-height: 30%;
+overflow: auto;
+text-align: center;
+color: var(--modal-content-color);
+}
+
+.show {
+visibility: visible !important;
+opacity: 100 !important;
+}
+
+#starRating li {
+display: inline-block;
+}
+
+#play-again {
+background-color: var(--backgroundColor-button-play-again);
+padding: 18px 90px;
+font-size: 18px;
+display: block;
+margin: 0 auto;
+margin-top: 20px;
+line-height: 19.8px;
+font-family: 'Quicksand';
+color: var(--color-button-play-again);
+border-radius: 5px;
+font-weight: bold;
+}
+
+/* animations */
+@keyframes flipInY {
+from {
+    transform: perspective(400px) rotate3d(0, 1, 0, 90deg);
+    animation-timing-function: ease-in;
+    opacity: 0;
+}
+
+40% {
+    transform: perspective(400px) rotate3d(0, 1, 0, -20deg);
+    animation-timing-function: ease-in;
+}
+
+60% {
+    transform: perspective(400px) rotate3d(0, 1, 0, 10deg);
+    opacity: 1;
+}
+
+80% {
+    transform: perspective(400px) rotate3d(0, 1, 0, -5deg);
+}
+
+to {
+    transform: perspective(400px);
+}
+}
+
+@keyframes rubberBand {
+from {
+    transform: scale3d(1, 1, 1);
+}
+
+30% {
+    transform: scale3d(1.25, 0.75, 1);
+}
+
+40% {
+    transform: scale3d(0.75, 1.25, 1);
+}
+
+50% {
+    transform: scale3d(1.15, 0.85, 1);
+}
+
+65% {
+    transform: scale3d(.95, 1.05, 1);
+}
+
+75% {
+    transform: scale3d(1.05, .95, 1);
+}
+
+to {
+    transform: scale3d(1, 1, 1);
+}
+}
+
+@keyframes pulse {
+from {
+    transform: scale3d(1, 1, 1);
+}
+
+50% {
+    transform: scale3d(1.2, 1.2, 1.2);
+}
+
+to {
+    transform: scale3d(1, 1, 1);
+}
+}
+
+/****** Media queries***************************/
+@media (max-width: 500px) {
+.deck {
+    width: 40%;
+    grid-template-rows: repeat(var(--grid-column), 1fr);
+    grid-template-columns: repeat(var(--grid-rows), 1fr);
+}
+
+.deck .card {
+    height: 120px;
+    width: 120px;
+    flex: 1 0 100%
+}
+
+.deck .card .front-face {
+    height: 50px;
+    width: 50px;
+    position: absolute;
+}
+}
+
+
+/* For Tablets and larger screens****************/
+@media (min-width: 768px) {
+.container {
+    font-size: 22px;
+}
+
+.deck {
+    width: 50%;
+    height: 50%;
+}
+
+.deck .card {
+    height: 130px;
+    width: 130px;
+
+}
+
+.popup {
+    width: 60%;
+}
+}
+</style>
+
+<div class="memory-container">
+    <ul class="deck" id="card-deck"></ul>
+</div>
+
+<div id="popup1" class="overlay">
+    <div class="popup">
+        <h1 id="titulo-final">
+            </h2>
+            <a class="close" onclick='closeModal(modal)'>×</a>
+
+            <div class="content-1">
+                <p><span id=conteudo-final> </span></p>
+                Parabéns! Você acertou todas as questões.<br>
+
+            </div>
+
+            <button id="play-again" onclick="playAgain()">
+                Jogar novamente 😄
+            </button>
+    </div>
+</div>
+<div id="popup2" class="overlay">
+    <div class="popup">
+        <h1 id=titulo-acerto>
+            </h2>
+            <a class="close" onclick='closeModal(modal2)'>×</a>
+            <div class="content-1">
+
+            </div>
+            <div class="content-2">
+                <p><span id=conteudo-acerto> </span></p>
+
+            </div>
+
+    </div>
+</div>
+<script src="../../wp-assets/script.js"></script>
+<script>
+var openedCards = [];
+const modal = document.getElementById("popup1")
+const modal2 = document.getElementById("popup2")
+
+const modalTexts = [
+{
+    type: 'question1',
+    tituloInterno: 'Seja organizado:',
+    textoInterno: 'É importante estabelecer um horário para se dedicar sistematicamente aos estudos. Lembre-se de que sua agenda pode mudar de uma semana para outra. <strong>Nesse caso, faça replanejamentos regulares.</strong>'
+},
+{
+    type: 'question2',
+    tituloInterno: 'Busque foco:',
+    textoInterno: 'Reserve um local apropriado para os estudos e fique bem longe do que pode atrapalhar sua atenção, como celulares e aparelhos de TV. Você não precisa de várias mídias ligadas ao mesmo tempo para estudar na modalidade a distância. <strong>Disciplina é muito importante!</strong>'
+},
+{
+    type: 'question3',
+    tituloInterno: 'Assista às teleaulas.',
+    textoInterno: 'Procure relacionar as informações das teleaulas com o conteúdo das aulas interativas e os e-books disponibilizados no AVA.'
+},
+{
+    type: 'question4',
+    tituloInterno: 'Organize seu tempo:',
+    textoInterno: 'Não deixe tudo para a última hora. Acompanhe o cronograma do curso e distribua o estudo ao longo da semana. Estudar horas seguidas é cansativo e compromete o aprendizado. Além disso, o acúmulo de conteúdo pode sobrecarregá-lo(a) e desanimá-lo(a) a continuar no curso.'
+},
+{
+    type: 'question5',
+    tituloInterno: 'Retome sempre que possível o material didático do Curso:',
+    textoInterno: 'Uma das vantagens da EaD é o material de estudo estar disponível para revisões constantes. <br> <strong>Reveja os materiais disponibilizados sempre que sentir dúvidas sobre um determinado assunto.</strong>'
+},
+{
+    type: 'question6',
+    tituloInterno: 'Seja protagonista',
+    textoInterno: 'Assuma o controle do seu processo de aprendizagem, tenha autoconfiança, organize seus estudos e seu tempo de forma eficiente. Busque relacionar o conteúdo estudado com sua prática profissional diária e integre as informação para trazer novos significados para você.'
+}
+]
+
+const memoryGameData = [
+{
+    text: 'Seja Organizado',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'organizado.png',
+    classBack: 'back-face',
+    type: 'question1'
+},
+{
+    text: 'Seja Organizado',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'organizado.png',
+    classBack: 'back-face',
+    type: 'question1'
+},
+{
+    text: 'Busque Foco',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'foco.png',
+    classBack: 'back-face',
+    type: 'question2'
+},
+{
+    text: 'Busque Foco',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'foco.png',
+    classBack: 'back-face',
+    type: 'question2'
+},
+{
+    text: 'Assista às teleaulas',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'aula-online.png',
+    classBack: 'back-face',
+    type: 'question3'
+},
+{
+    text: 'Assista às teleaulas',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'aula-online.png',
+    classBack: 'back-face',
+    type: 'question3'
+},
+{
+    text: 'Organize seu tempo',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'organize.png',
+    classBack: 'back-face',
+    type: 'question4'
+},
+{
+    text: 'Organize seu tempo',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'organize.png',
+    classBack: 'back-face',
+    type: 'question4'
+},
+{
+    text: 'Interaja com o conteúdo',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'interaja.png',
+    classBack: 'back-face',
+    type: 'question5'
+},
+{
+    text: 'Interaja com o conteúdo',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'interaja.png',
+    classBack: 'back-face',
+    type: 'question5'
+},
+{
+    text: 'Seja protagonista',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'protagonista.png',
+    classBack: 'back-face',
+    type: 'question6'
+},
+{
+    text: 'Seja protagonista',
+    imgFront: 'box.png',
+    classFront: 'front-face',
+    imgBack: 'protagonista.png',
+    classBack: 'back-face',
+    type: 'question6'
+},
+]
+
+
+function showModal(modal) {
+modal.classList.add('show');
+}
+
+function closeModal(mod) {
+mod.classList.remove("show");
+}
+
+function displayCard({ target }) {
+if (target.tagName === 'IMG' || target.tagName === 'DIV') {
+    target = target.parentNode;
+}
+
+target.classList.toggle("open");
+target.classList.toggle("show");
+target.classList.toggle("disabled");
+}
+
+function cardOpen({ target }) {
+if (target.tagName === 'IMG' || target.tagName === 'DIV') {
+    target = target.parentNode;
+}
+
+openedCards.push(target);
+
+if(openedCards.length === 2) {
+    if (openedCards[0].type === openedCards[1].type) {
+        matched(target.type);
+    } else {
+        unmatched();
+    }
+}
+}
+
+function modalText(objWithTextsToModal) {
+const matchedCard = Array.from(document.getElementsByClassName("match"));
+
+if (matchedCard.length != memoryGameData.length) {
+    document.getElementById("titulo-acerto").innerHTML = objWithTextsToModal.tituloInterno;
+    document.getElementById("conteudo-acerto").innerHTML = objWithTextsToModal.textoInterno;      
+    showModal(modal2);
+} else {
+    document.getElementById("titulo-final").innerHTML = objWithTextsToModal.tituloInterno;
+    document.getElementById("conteudo-final").innerHTML = objWithTextsToModal.textoInterno;
+}
+}
+
+function matched(type) {
+openedCards[0].classList.add('match', 'disabled');
+openedCards[0].classList.remove('show', 'open', 'no-event');
+
+openedCards[1].classList.add('match', 'disabled');
+openedCards[1].classList.remove('show', 'open', 'no-event');
+
+openedCards = [];
+
+const objWithTextsToModal = modalTexts.find(text => text.type === type);
+
+modalText(objWithTextsToModal);
+}
+
+function unmatched() {
+openedCards[0].classList.add("unmatched");
+openedCards[1].classList.add("unmatched");
+disable();
+setTimeout(function () {
+    openedCards[0].classList.remove("show", "open", "no-event", "unmatched");
+    openedCards[1].classList.remove("show", "open", "no-event", "unmatched");
+    enable();
+    openedCards = [];
+}, 1100);
+}
+
+function disable() {
+let cardList = Array.from(document.getElementsByClassName("card"));
+
+for (let index = 0; index < cardList.length; index++) {
+    const element = cardList[index];
+    element.classList.add('disabled');
+    
+}
+}
+
+function enable() {
+const cardList = Array.from(document.getElementsByClassName("card"));
+const matchedCard = Array.from(document.getElementsByClassName("match"));
+
+for (let index = 0; index < cardList.length; index++) {
+    const element = cardList[index];
+    element.classList.remove('disabled');
+}
+
+for (var i = 0; i < matchedCard.length; i++) {
+    matchedCard[i].classList.add("disabled");
+}
+}
+
+function congratulations() {
+const matchedCard = Array.from(document.getElementsByClassName("match"));
+
+if (matchedCard.length === memoryGameData.length) {
+    showModal(modal)
+}
+}
+
+function createCard() {
+const deckElement = document.getElementById('card-deck');
+const memoryGameDataShuffled = shuffleArray(memoryGameData);
+
+for (let index = 0; index < memoryGameDataShuffled.length; index++) {
+    const elementLi = document.createElement('li');
+
+    const imageLi = document.createElement('img');
+    const divLi = document.createElement('div');
+
+    elementLi.classList.add('card');
+    elementLi.setAttribute('type', memoryGameDataShuffled[index].type);
+
+    imageLi.classList.add(memoryGameDataShuffled[index].classFront);
+    imageLi.setAttribute('src', memoryGameDataShuffled[index].imgFront);
+    elementLi.appendChild(imageLi);
+
+    const imageLiBack = document.createElement('img');
+    imageLiBack.classList.add(memoryGameDataShuffled[index].classBack);
+    imageLiBack.setAttribute('src', memoryGameDataShuffled[index].imgBack)
+    elementLi.appendChild(imageLiBack)
+
+    divLi.classList.add('perguntas');
+    divLi.innerText = memoryGameDataShuffled[index].text;
+    elementLi.appendChild(divLi);
+
+    elementLi.addEventListener("click", displayCard);
+    elementLi.addEventListener("click", cardOpen);
+    elementLi.addEventListener("click", congratulations);
+
+    deckElement.appendChild(elementLi);
+}
+
+showBoard()
+}
+
+function showBoard() {
+const cardList = Array.from(document.getElementsByClassName("card"));
+
+for (var i = 0; i < cardList.length; i++) {
+    cardList[i].classList.add("show", "open", "disabled");
+}
+setTimeout(() => {
+    for (var i = 0; i < cardList.length; i++) {
+        cardList[i].classList.remove("show", "open", "disabled");
+    }
+}, 3000);
+}
+
+function playAgain() {
+modal.classList.remove("show");
+const deck = document.getElementById('card-deck');
+deck.innerHTML = '';
+
+createCard();
+}
+
+document.addEventListener("DOMContentLoaded", function (event) {
+createCard();
+});
+</script>

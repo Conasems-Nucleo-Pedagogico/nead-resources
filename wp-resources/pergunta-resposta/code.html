@@ -1,0 +1,117 @@
+<script>
+
+
+    // add classe .hide-elements aos elementos a serem escondidos
+    // adicionar número de elementos (imagens e textos) na constante numberElements:
+    // adicionar handleTxtAndImgChange no onclick dos botões, informando via parâmetro o tipo do botão (false ou true)
+    // adicionar a resposta dos textos usando o atributo: res|true ou false
+    const numberElements = 6;
+    
+    function hideElements() {
+        const hiddenElements = document.getElementsByClassName('hide-elements');
+    
+        for (let index = 0; index < hiddenElements.length; index++) {
+            const element = hiddenElements[index];
+    
+            element.style.display = "none";
+            
+        }
+    } 
+    
+    function handleTxtAndImgChange(buttonType) {
+    
+        console.log(buttonType, 'button')
+        const currentElements = document.getElementsByClassName('current');
+        const currentElementIndex = Number((currentElements[0].id).split('-')[1]);
+    
+        const currentText = document.getElementById(`txt-${currentElementIndex}`)
+        const currentRes = currentText.getAttribute('res') === 'true' ? true : false;
+    
+        // acertou
+        if (currentRes === buttonType) {
+            const secError = document.getElementById('sec-error');
+            const title = document.getElementById('title');
+            title.style.display = 'block';
+            secError.style.display = 'none';
+    
+            for (let j = 0; j < currentElements.length; j++) {
+                const element = currentElements[j];
+                element.style.display = "none";
+            }
+        
+            if (currentElementIndex < numberElements - 1) {
+                const currentImg = document.getElementById(`img-${currentElementIndex}`)
+                const currentTxt = document.getElementById(`txt-${currentElementIndex}`)
+                const nextImage = document.getElementById(`img-${currentElementIndex + 1}`);
+                const nextText = document.getElementById(`txt-${currentElementIndex + 1}`);
+        
+                nextImage.style.display = "block";
+                nextImage.classList.add('current')
+                nextText.style.display = "block";
+                nextText.classList.add('current')
+        
+                currentImg.classList.remove('current');
+                currentTxt.classList.remove('current')
+            } else {
+                const nextImage = document.getElementById(`img-${currentElementIndex + 1}`);
+                const buttonNewGame = document.getElementById('button-new-game');
+                buttonNewGame.style.display = 'block'
+        
+                const secTexts = document.getElementById('sec1');
+                const secCongrats = document.getElementById('sec2');
+        
+                nextImage.style.display = "block";
+                secTexts.style.display = 'none';
+                secCongrats.style.display = 'block';
+    
+    
+            }
+        } else {
+            // errou
+            const secError = document.getElementById('sec-error');
+            const title = document.getElementById('title');
+    
+            title.style.display = 'none';
+            secError.style.display = 'block';
+        }
+    }
+    
+    function newGame() {
+        for (let index = 2; index <= numberElements; index++) {
+            const firstTxt = document.getElementById(`txt-1`);
+            const firstImg = document.getElementById(`img-1`);
+            const secTexts = document.getElementById('sec1');
+            const secCongrats = document.getElementById('sec2');
+    
+            secTexts.style.display = 'block';
+            secCongrats.style.display = 'none'; 
+    
+            firstTxt.style.display = 'block';
+            firstTxt.classList.add('current');
+            firstImg.style.display = 'block';
+            firstImg.classList.add('current');
+    
+            const buttonNewGame = document.getElementById('button-new-game');
+            buttonNewGame.style.display = 'none'
+    
+            if (index !== numberElements) {
+                const txt = document.getElementById(`txt-${index}`);
+                txt.style.display = 'none';
+                txt.classList.remove('current')
+    
+                const img = document.getElementById(`img-${index}`)
+                img.style.display = 'none';
+                img.classList.remove('current')
+            } else {
+                const img = document.getElementById(`img-${index}`)
+                img.style.display = 'none';
+                img.classList.remove('current')
+            }
+        }
+    }
+    
+    document.addEventListener("DOMContentLoaded", function (event) {
+        hideElements();
+    });
+    
+    </script>

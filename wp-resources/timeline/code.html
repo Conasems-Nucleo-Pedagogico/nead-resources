@@ -1,0 +1,423 @@
+<div class="flex justify-around mb-6">
+    <p id="initial-text"></p>
+
+  </div>
+  
+  <div class="flex flex-col items-center">
+    <div id="principal-container-timeline"></div>
+    
+  </div>
+  
+  <div class="mt-8 justify-center flex flex-wrap" id="buttons-container">
+    <button class="resBtn mr-2 bg-amber-400 hover:bg-amber-500 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150" onclick="checkResult()" id="check-result">
+      Confira!
+    </button>
+    <button class="resBtn2 ml-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150" onclick="restartGame()">
+        Reiniciar!
+    </button>
+    <button class="resBtn2 ml-2 max-md:my-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150" onclick="solveGame()">
+      Solucionar!
+  </button>
+  </div>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+      const stepsNumbers = 5;
+const initialText = "Nesta atividade síntese, ordene a cronologia dos acontecimentos da Estratégia e-SUS APS.";
+const mobileMessage = "Clique em um card para selecioná-lo e, em seguida, clique no box cinza da ordem correta";
+const desktopMessage = "Clique e arraste o box para seu respectivo lugar na linha do tempo"
+const letters = ['A','B','C','D','E','F','G']
+const tamanhoDeTela = window.innerWidth;
+const timelineSelect = []
+
+const stepsObjs = [
+    {
+        step: 1,
+        text: 'Início da estratégia e-SUS APS formalizando um modelo nacional de gestão da informação',
+        image: 'https://tse4.mm.bing.net/th?id=OIP.GTl7DTMZKWNUvKjMjTc-uQHaC7&pid=Api&P=0&h=180'
+    },
+    {
+        step: 2,
+        text: 'Informatiza APS para apoiar nacionalmente a informatização das unidades de saúde e a qualificação dos dados da atenção primária à saúde',
+        image: 'https://tse4.mm.bing.net/th?id=OIP.nb_5lTM2GOGXLWQUsMyIawHaD7&pid=Api&P=0&h=180'
+    },
+    {
+        step: 3,
+        text: 'Estratégia de Saúde Digital ESD28 estabelece os fundamentos para a saúde digital para o Brasil',
+        image: 'https://www.inbounder.com.br/wp-content/uploads/2020/09/marketing-digital-clinica-saude.jpg'
+    },
+    {
+        step: 4,
+        text: 'Aplicativos Gestor e-SUS APS para apoiar decisões estratégicas e e-SUS Vacinação para apoiar o registro em campanhas de vacinação.',
+        image: 'http://simers.org.br/img/files/04.Abril/27.04/card_conect_sus.jpg'
+    },
+    {
+        step: 5,
+        text: 'Criação das eMultis, reforçando as diretrizes da PNAB, instituindo a oferta de ações de saúde à distância, provendo práticas intersetoriais e o compartilhamento do cuidado mediado por tecnologia',
+        image: 'https://static.tuasaude.com/media/article/ee/bi/equipe-multidisciplinar_30723_l.jpg'
+    },
+]
+
+// Função para embaralhar o array de forma aleatória
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    return array;
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text/plain", ev.target.id);
+}
+
+function createDesktopCards() {
+    const container = document.getElementById("principal-container-timeline")
+
+    const cardsContainer = document.createElement('div');
+    cardsContainer.setAttribute('class', 'flex');
+
+    const shuffledArray = shuffleArray(stepsObjs);
+
+    shuffledArray.forEach((steps, index) => {
+        const card = document.createElement('div');
+        card.setAttribute('id', `card-${steps.step}`)
+        card.setAttribute('class', 'w-64 mx-4 border-2 border-solid border-slate-100 bg-white rounded-lg overflow-hidden shadow-lg flex flex-col	justify-between	');
+        card.setAttribute("draggable", true);
+        card.setAttribute("ondragstart", "drag(event)");
+        card.setAttribute("data-step", (index + 1).toString());
+        const textCard = document.createElement('p');
+        textCard.innerText = steps.text;
+        textCard.setAttribute('class', 'text-gray-700 text-base px-2 pt-6')
+        textCard.setAttribute("draggable", false);
+        card.appendChild(textCard)
+        
+        const imageCard = document.createElement('img');
+        imageCard.setAttribute('src', steps.image);
+        imageCard.setAttribute('class', 'w-full h-48 object-contain')
+        imageCard.setAttribute("draggable", false);
+        card.appendChild(imageCard)
+
+        const letterContainer = document.createElement('div');
+        letterContainer.setAttribute('class', 'bg-cyan-400 h-9 flex justify-center items-center')
+        letterContainer.setAttribute("draggable", false);
+
+        const letterCard = document.createElement('p');
+        letterCard.innerText = letters[index]
+        letterCard.setAttribute('class', 'text-white')
+
+        letterContainer.appendChild(letterCard);
+        card.appendChild(letterContainer)
+
+        cardsContainer.appendChild(card);
+    })
+    container.appendChild(cardsContainer)
+}
+
+function drop(ev) {
+    
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text/plain");
+    const draggedElement = document.getElementById(data);
+    const dropTarget = ev.target;
+    
+    if (dropTarget.classList.contains("drop-target")) {
+        draggedElement.classList.remove('mx-4')
+        draggedElement.classList.add('h-full')
+        draggedElement.classList.add('border-2')
+        draggedElement.classList.add('border-solid')
+        draggedElement.classList.add('border-cyan-400')
+        draggedElement.classList.add('dragged')
+
+
+        const childText = draggedElement.firstChild
+        childText.classList.remove('pt-6')
+
+        dropTarget.appendChild(draggedElement);
+    }
+
+    const targets = document.querySelectorAll('.dragged');
+
+    if (targets.length === 5) {
+        const buttonsContainer = document.getElementById('buttons-container');
+        buttonsContainer.classList.remove('hidden');
+    }
+}
+
+// Adicione a função allowDrop
+function allowDrop(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+}
+
+function createContainersAnswers(mobile) {
+    const container = document.getElementById("principal-container-timeline");
+
+    const cardsContainer = document.createElement("div");
+    cardsContainer.setAttribute("class", `flex ${mobile && 'flex-col'}`);
+
+    const classList = mobile ? 'h-30 w-full mb-4 flex justify-center items-center' : 'w-64 h-96 mx-4 mt-8 flex flex-col justify-between'
+
+    for (let index = 0; index < stepsNumbers; index++) {
+        const card = document.createElement("div");
+        card.setAttribute("class", `drop-target bg-slate-200 rounded-lg overflow-hidden shadow-lg ${classList}`);
+        card.setAttribute('id', index + 1)
+        card.setAttribute('data-parent', 'answer')
+
+        if (mobile) {
+            card.innerText = index + 1;
+            card.setAttribute("ontouchend", "touchdrop(event)");
+        } else {
+            card.setAttribute("ondrop", "drop(event)");
+            card.setAttribute("ondragover", "allowDrop(event)");
+        }
+
+        cardsContainer.appendChild(card);
+    }
+
+    container.appendChild(cardsContainer);
+}
+
+function createStepsLabel() {
+    const container = document.getElementById("principal-container-timeline")
+
+    const cardsContainer = document.createElement('div');
+    cardsContainer.setAttribute('class', 'flex');
+
+    for (let index = 0; index < stepsNumbers; index++) {
+        const stepLabelContainer = document.createElement('div');
+        stepLabelContainer.setAttribute('class', 'w-64 mx-4 flex justify-center labels')
+
+        const textLabel = document.createElement('p');
+        textLabel.innerText = index + 1;
+        textLabel.setAttribute('id', `label-${index + 1}`)
+        textLabel.setAttribute('class', 'bg-slate-300 p-2 w-32 shadow-lg rounded-full mt-2 text-center')
+        stepLabelContainer.appendChild(textLabel);
+
+        cardsContainer.appendChild(stepLabelContainer);
+    }
+    container.appendChild(cardsContainer)
+}
+function solveGame(){
+    const cards = document.querySelectorAll("[id^='card-']")
+    if (tamanhoDeTela > 767){
+        const targets = document.querySelectorAll('.drop-target');
+        const labels = document.querySelectorAll('.labels');
+
+
+
+        cards.forEach((card)=>{
+            const cardIndex = Number(card.id?.split('-')[1]);
+            card.classList.add('h-full')
+            card.classList.remove('mx-4')
+            card.classList.add('border-2')
+            card.classList.add('border-solid')
+            card.classList.add('border-cyan-400')
+            card.classList.add('dragged')
+            targets[cardIndex-1].appendChild(card)
+            checkResult(); 
+        }) 
+
+    }
+    else{
+
+        cards.forEach((card)=>{
+            const select = card.getElementsByTagName('select')
+            const selectTargetId = select[0].id;
+            const cardIndex = selectTargetId?.split('-')[1];
+            select[0].value = cardIndex;
+            const targetValue = select[0].value;
+            timelineSelect.push({ selectId: selectTargetId, optionId: `position-${targetValue}`, targetValue });
+            
+        })
+        checkResult();
+    }
+}
+function checkResult() {
+    if (tamanhoDeTela > 767) {
+        const targets = document.querySelectorAll('.drop-target');
+        const labels = document.querySelectorAll('.labels');
+    
+        targets.forEach((target, index) => {
+            const targetId = Number(target.id);
+            const dragged = target.firstChild;
+            if(dragged){
+                const draggedIndex = Number(dragged.id?.split('-')[1]);
+                const comparation = tamanhoDeTela > 767 ? index + 1 : targetId;
+                const label = labels[index];
+                dragged.classList.remove('border-cyan-400')
+                dragged.lastChild.classList.remove('bg-cyan-400')
+                label.lastChild.classList.remove('bg-slate-300')
+        
+                if (comparation === draggedIndex ) {
+                    dragged.classList.add('border-green-400')
+                    dragged.lastChild.classList.add('bg-green-400')
+                    label.lastChild.classList.add('bg-green-400')
+                    dragged.classList.remove('border-red-400')
+                    dragged.lastChild.classList.remove('bg-red-400')
+                    label.lastChild.classList.remove('bg-red-400')
+                } else {
+                    dragged.classList.add('border-red-400')
+                    dragged.lastChild.classList.add('bg-red-400')
+                    label.lastChild.classList.add('bg-red-400')
+                    dragged.classList.remove('border-green-400')
+                    dragged.lastChild.classList.remove('bg-green-400')
+                    label.lastChild.classList.remove('bg-green-400')
+                }
+            }
+            else{
+                labels[index].lastChild.classList.remove('bg-green-400')
+                labels[index].lastChild.classList.remove('bg-red-400')
+                labels[index].lastChild.classList.add('bg-slate-300')
+            }
+            
+            
+    
+            //document.getElementById('check-result').classList.add('hidden')
+        })
+    } else {
+        timelineSelect.forEach(object => {
+            const selectElement = document.getElementById(object.selectId);
+            const selectElementId = selectElement.id.split('-')[1];
+            const option = selectElement.querySelector('#' + object.optionId);
+            const card = document.getElementById(`card-${selectElementId}`)
+            card.classList.add('border-2')
+            card.classList.add('border-solid')
+            if (selectElementId === object.targetValue) {
+                selectElement.setAttribute('disabled', true);
+                card.classList.add('border-green-400')
+                card.classList.remove('border-red-400')
+            } else if (object.targetValue !== '') {
+                card.classList.add('border-red-400')
+                card.classList.remove('border-green-400')
+            }
+        })
+    }
+}
+
+function restartGame () { 
+    var game = document.getElementById('principal-container-timeline');
+    game.innerHTML = '';
+    const tamanhoDeTela = window.innerWidth;
+    const initialTextElement = document.getElementById('initial-text');
+    initialTextElement.innerText = tamanhoDeTela > 767 ? `${initialText} ${desktopMessage}` : `${initialText} ${mobileMessage}`;
+
+    tamanhoDeTela > 767 ? createDesktopCards() : createMobileCards();
+    tamanhoDeTela > 767 && createContainersAnswers(false);
+    tamanhoDeTela > 767 && createStepsLabel();
+
+
+}
+
+function createMobileCards() {
+    const container = document.getElementById("principal-container-timeline")
+    const cardsContainer = document.createElement('div');
+    cardsContainer.setAttribute('class', 'flex flex-col');
+    const shuffledArray = shuffleArray(stepsObjs);
+    
+    shuffledArray.forEach((steps) => {
+        const card = document.createElement('div');
+        card.setAttribute('id', `card-${steps.step}`)
+        card.setAttribute('class', 'min-h-40 w-full border-2 border-solid border-slate-200 bg-white rounded-lg overflow-hidden shadow-lg flex flex-col justify-between mb-4');
+        card.setAttribute('data-parent', 'card')
+
+        const containerImageAndText = document.createElement('div');
+        containerImageAndText.classList.add('flex')
+
+        const imageCard = document.createElement('img');
+        imageCard.setAttribute('src', steps.image);
+        imageCard.setAttribute('class', 'w-1/2 p-2 object-contain')
+        imageCard.setAttribute("draggable", false);
+        containerImageAndText.appendChild(imageCard)
+
+        const textCard = document.createElement('p');
+        textCard.innerText = steps.text;
+        textCard.setAttribute('class', 'text-gray-700 text-sm px-2 pt-6 pb-6')
+        textCard.setAttribute("draggable", false);
+        containerImageAndText.appendChild(textCard)
+        
+        card.appendChild(containerImageAndText)
+
+        const selectContainer = document.createElement('div');
+        selectContainer.classList.add("relative", "inline-block");
+        
+        const select = document.createElement('select');
+        select.classList.add('select', 'block', 'appearance-none', 'w-full', 'bg-white', 'border', 'border-gray-300', 'hover:border-gray-400', 'px-4', 'py-2', 'pr-8', 'rounded', 'leading-tight', 'focus:outline-none', 'focus:border-blue-500', 'focus:shadow-outline-blue')
+        select.setAttribute('id', `select-${steps.step}`)
+        selectContainer.appendChild(select);
+
+        for (let index = -1; index < shuffledArray.length; index++) {
+            const option = document.createElement('option');
+            if (index === -1) {
+                option.setAttribute('value', '')
+                option.innerText = `Selecione uma posição`
+            } else {
+                option.setAttribute('value', `${index + 1}`)
+                option.setAttribute('id', `position-${index + 1}`)
+                option.innerText = `${index + 1}ª posição`
+
+            }
+
+            select.appendChild(option)
+        }
+
+        select.addEventListener("change", function (event) {
+            const selects = document.querySelectorAll('.select');
+            const selectTargetId = event.target.id;
+            const targetValue = event.target.value;
+
+            const existingIndex = hasSelectInList(selectTargetId);
+
+            if (existingIndex === -1 && targetValue !== '') {
+                timelineSelect.push({ selectId: selectTargetId, optionId: `position-${targetValue}`, targetValue });
+
+                // se ele não existe, significa que aquele select nunca foi modificado, ou seja, eu só preciso me preocupar em excluir as demais options
+                selects.forEach(select => {
+                    if (select.id !== selectTargetId) { 
+                            removeSelectOptions(select, targetValue)
+                    } 
+                })
+            } else if (targetValue !== '') {
+                const oldSelect = timelineSelect[existingIndex];
+
+                selects.forEach(select => {
+                    if (select.id !== selectTargetId) { 
+                            addSelectOptions(select, oldSelect.targetValue)
+                            removeSelectOptions(select, targetValue)
+                    }
+                })
+
+                timelineSelect[existingIndex].optionId = `position-${targetValue}`;
+                timelineSelect[existingIndex].targetValue = targetValue;
+            }
+
+        });
+
+        const svgContainer = document.createElement('div');
+        svgContainer.classList.add('pointer-events-none', 'absolute', 'inset-y-0', 'right-0', 'flex', 'items-center', 'px-2', 'text-gray-700')
+        
+        const svgDivElement = "<svg class='fill-current h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M7 7l3-3 3 3m0 6l-3 3-3-3'></path></svg>"
+        
+        svgContainer.innerHTML = svgDivElement
+        selectContainer.appendChild(svgContainer)
+
+        card.appendChild(selectContainer)
+        cardsContainer.appendChild(card);
+    })
+    container.appendChild(cardsContainer)
+}
+
+document.addEventListener("DOMContentLoaded", function (event) {
+    const tamanhoDeTela = window.innerWidth;
+    const initialTextElement = document.getElementById('initial-text');
+    initialTextElement.innerText = tamanhoDeTela > 767 ? `${initialText} ${desktopMessage}` : `${initialText} ${mobileMessage}`;
+
+    tamanhoDeTela > 767 ? createDesktopCards() : createMobileCards();
+    tamanhoDeTela > 767 && createContainersAnswers(false);
+    tamanhoDeTela > 767 && createStepsLabel();
+});
+
+
+
+  </script>
+  

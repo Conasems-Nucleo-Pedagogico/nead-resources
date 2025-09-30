@@ -1,0 +1,291 @@
+<style>
+    .wrong-answer {
+    animation: shake .1s;
+    animation-iteration-count: 4;
+}
+
+@keyframes shake {
+    0% { transform: translate(0, 0); }
+    10%, 20%, 30% { transform: translate(-1px, 1px); }
+    40%, 50%, 60%, 70%, 80%, 90% { transform: translate(1px, -1px); }
+    100% { transform: translate(0, 0); }
+}
+</style>
+<script src="../../wp-assets/script.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<div id="groups-container">
+    </div>
+
+    <div id="correct-words"></div>
+    <div id="conexo-game-container" class="bg-slate-100	rounded-xl flex justify-center">
+    </div>
+
+    <div class="mt-8 justify-center flex" id="buttons-container">
+        <button class="resBtn2 ml-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150" onclick="restartGame()">
+            Reiniciar!
+        </button>
+        <button class="resBtn2 ml-2 max-md:my-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150" id="solve-button" onclick="solveGame()">
+            Solucionar!
+        </button>
+    </div>
+    
+<script>
+   const orientationMessage = 'Clique sobre os cards de acordo com os seguintes grupos:'
+let groupNumber = 3;
+let wordInTheGroup = 3;
+const wordList = [
+    {
+        word: 'Dengue',
+        group: 'Doenças transmitidas pelo vetor Aedes'
+    },
+    {
+        word: 'Chikungunya',
+        group: 'Doenças transmitidas pelo vetor Aedes'
+    },
+    {
+        word: 'Zika',
+        group: 'Doenças transmitidas pelo vetor Aedes'
+    },
+    {
+        word: 'Vigilância',
+        group: 'Atribuições do ACE'
+    },
+    {
+        word: 'Prevenção',
+        group: 'Atribuições do ACE'
+    },
+    {
+        word: 'Promoção à Saúde',
+        group: 'Atribuições do ACE'
+    },
+    {
+        word: 'Artrópodes',
+        group: 'Principais Agentes Transmissores de Doenças de Importância Sanitária'
+    },
+    {
+        word: 'Moluscos',
+        group: 'Principais Agentes Transmissores de Doenças de Importância Sanitária'
+    },
+    {
+        word: 'Roedores',
+        group: 'Principais Agentes Transmissores de Doenças de Importância Sanitária'
+    },
+]
+const groupsList = [ 'Doenças transmitidas pelo vetor Aedes', 'Atribuições do ACE', 'Principais Agentes Transmissores de Doenças de Importância Sanitária' ]
+const tamanhoDeTela = window.innerWidth;
+
+let selectedButtons = [];
+let selectedGroups = [];
+
+function handleSelectedButtons(event) {
+    const hasAdded = selectedButtons.includes(event.target);
+    
+    if (hasAdded) {
+        event.target.classList.remove('bg-violet-700')
+        event.target.classList.add('bg-cyan-800')
+        selectedButtons.splice(selectedButtons.indexOf(event.target), 1);
+    } else {
+        selectedButtons.push(event.target);
+        event.target.classList.remove('bg-cyan-800')
+        event.target.classList.add('bg-violet-700')
+    }
+
+    if (selectedButtons.length === wordInTheGroup) {
+        for (let index = 0; index < selectedButtons.length; index++) {
+            const elementText = selectedButtons[index].innerText;
+
+            const groupByElement = wordList
+                .find(element => element.word === elementText)
+                .group;
+
+            selectedGroups.push(groupByElement);
+        }
+
+        const itsCorrect = areTheElementsAllTheSame(selectedGroups)
+
+        if (itsCorrect) {
+            // adicionando uma nova div com os grupos corretos e novo container. 
+            const correctWordsContainer = document.getElementById('correct-words')
+            correctWordsContainer.classList.add('bg-slate-100',	'rounded-t-xl')
+
+            const cardGroupChecked = document.createElement('div'); // card
+            cardGroupChecked.classList.add('flex', 'flex-col', 'items-center', 'p-2');
+
+            const buttonsGroupCheckedContainer = document.createElement('div'); // div contendo os buttons
+            buttonsGroupCheckedContainer.classList.add('grid', `grid-cols-${groupNumber}`, `${tamanhoDeTela > 767 && 'gap-4'}`);
+
+            const paragraphGroupElement = document.getElementById(selectedGroups[0]);
+            paragraphGroupElement.classList.remove('bg-blue-600', 'text-white')
+            cardGroupChecked.appendChild(paragraphGroupElement)
+
+            // removendo o arredondamento de cima para parecer uma coisa só com o container "correct-words"
+            const groupsContainer = document.getElementById('conexo-game-container')
+            groupsContainer.classList.remove('rounded-xl')
+            groupsContainer.classList.add('rounded-b-xl')
+
+            // pegando o grid especificamente
+            const lastChildGroupsContainer = groupsContainer.lastChild;
+
+            // Iterando a lista de elementos selecionados:
+            for (let index = 0; index < selectedButtons.length; index++) {
+                const element = selectedButtons[index];
+
+                // removendo o elemento do grid:
+                lastChildGroupsContainer.removeChild(element);
+                element.classList.remove('m-8')
+                element.classList.add('bg-green-400', `${tamanhoDeTela > 767 && 'mx-8'}`)
+                element.setAttribute('disabled', true)
+
+                // adicionando os botões selecionados com a resposta certa ao novo container (correct-words)
+                buttonsGroupCheckedContainer.appendChild(element)
+            }
+
+            cardGroupChecked.appendChild(buttonsGroupCheckedContainer)
+            correctWordsContainer.appendChild(cardGroupChecked)
+        } else {
+            for (let index = 0; index < selectedButtons.length; index++) {
+                const element = selectedButtons[index];
+                element.classList.add('wrong-answer')
+
+                element.classList.remove('bg-violet-700')
+                element.classList.add('bg-cyan-800')
+
+                setTimeout(() => {
+                    // Remove a classe após a animação
+                    element.classList.remove('wrong-answer');
+                }, 1000);
+            }
+        }
+
+        selectedButtons = []
+        selectedGroups = []
+    }
+} 
+
+function createWordCards () {
+    const wordShuffledList = shuffleArray(wordList);
+    const gridContainer = document.createElement('div');
+    gridContainer.classList.add('grid', `grid-cols-${groupNumber}`, `${tamanhoDeTela > 767 && 'gap-4'}`);
+
+    const container = document.getElementById('conexo-game-container');
+
+    wordShuffledList.forEach(word => {
+        const button = document.createElement('button');
+        button.innerText = word.word;
+        button.classList.add(
+            'button-word',
+            'bg-cyan-800',
+            `${tamanhoDeTela > 767 ? 'w-32' : 'w-24'}`,
+            `${tamanhoDeTela > 767 ? 'h-32' : 'h-24'}`,
+            `${tamanhoDeTela > 767 ? 'm-8' : 'm-2'}`,
+            'text-white',
+            'col-span-1',
+            'flex',
+            'items-center', 
+            'justify-center'
+        )
+        button.setAttribute('onclick', 'handleSelectedButtons(event)')
+
+        gridContainer.appendChild(button)
+    });
+
+    container.appendChild(gridContainer)
+}
+
+function createGroupsContainer() {
+    const groupShuffledList = shuffleArray(groupsList);
+    const container = document.getElementById('groups-container');
+    container.classList.add(
+        'flex', 
+        'flex-col',
+        'items-center' ,
+        'justify-center',
+        'my-8',
+    )
+
+    const paragraph = document.createElement('p');
+    paragraph.classList.add('mb-4', 'text-center')
+    paragraph.innerText = orientationMessage;
+    container.appendChild(paragraph)
+
+    const containerGroupWords = document.createElement('div');
+    containerGroupWords.classList.add('flex', `${tamanhoDeTela <= 767 && 'flex-col'}`)
+
+    for (let index = 0; index < groupShuffledList.length; index++) {
+        const paragraphGroup = document.createElement('p');
+        paragraphGroup.innerText = groupShuffledList[index];
+        paragraphGroup.classList.add('bg-blue-600', 'p-2', 'group', `${tamanhoDeTela > 767 ? 'mx-2' : 'my-2'}`, 'text-white', 'text-center');
+        paragraphGroup.setAttribute('id', groupShuffledList[index])
+
+        containerGroupWords.appendChild(paragraphGroup)
+    }
+
+    container.appendChild(containerGroupWords);
+}
+
+function restartGame() {
+    const groupsContainer = document.getElementById('groups-container');
+    const correctWordsContainer = document.getElementById('conexo-game-container');
+    const correctWords = document.getElementById('correct-words');
+    groupsContainer.innerHTML = '';
+    correctWordsContainer.innerHTML = '';
+    correctWords.innerHTML = '';
+
+    createWordCards();
+    createGroupsContainer();
+
+    const solveButton = document.getElementById('solve-button');
+    solveButton.removeAttribute('disabled')
+}
+
+function solveGame() {
+    const correctWordsContainer = document.getElementById('conexo-game-container');
+    correctWordsContainer.innerHTML = '';
+
+    const correctWords = document.getElementById('correct-words')
+    correctWords.classList.add('bg-slate-100',	'rounded-xl', 'flex', 'justify-center', 'flex-col', 'items-center')
+    
+    groupsList.forEach(group => {
+        const wordsByGroup = wordList.filter(word => word.group === group);
+        const cardGroupChecked = document.createElement('div'); // card
+
+        const buttonsGroupCheckedContainer = document.createElement('div'); // div contendo os buttons
+        buttonsGroupCheckedContainer.classList.add('flex');
+
+        const paragraphGroupElement = document.getElementById(group);
+        paragraphGroupElement.classList.remove('bg-blue-600', 'text-white', 'p-2')
+        paragraphGroupElement.classList.add('my-2')
+        cardGroupChecked.appendChild(paragraphGroupElement)
+
+        for (let index = 0; index < wordsByGroup.length; index++) {
+            const button = document.createElement('button');
+            button.innerText = wordsByGroup[index].word;
+            button.classList.add(
+                'button-word',
+                `${tamanhoDeTela > 767 ? 'w-32' : 'w-24'}`,
+                `${tamanhoDeTela > 767 ? 'h-32' : 'h-24'}`,
+                `${tamanhoDeTela > 767 ? 'm-8' : 'm-2'}`,
+                'text-white',
+                'col-span-1',
+                'flex',
+                'items-center', 
+                'justify-center',
+                'bg-green-400',
+                `${tamanhoDeTela > 767 && 'mx-8'}`
+            );
+            button.setAttribute('disabled', true)
+            buttonsGroupCheckedContainer.appendChild(button)
+        }
+        cardGroupChecked.appendChild(buttonsGroupCheckedContainer)
+        correctWords.appendChild(cardGroupChecked)
+    })
+
+    const solveButton = document.getElementById('solve-button');
+    solveButton.setAttribute('disabled', true)
+}
+
+document.addEventListener("DOMContentLoaded", function (event) {
+    createWordCards();
+    createGroupsContainer();
+});
+</script>

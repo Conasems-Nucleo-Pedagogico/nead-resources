@@ -1,0 +1,247 @@
+<p id="initial-text"></p>
+    <div id="principal-container-frase" class="max-w-full whitespace-normal break-normal"></div>
+
+    <div class="mt-8 justify-center flex" id="buttons-container">
+        <button class="resBtn mr-2 bg-amber-400 hover:bg-amber-500 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150" onclick="checkResult()" id="check-result">
+            Confira!
+        </button>
+        <button class="resBtn2 ml-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150" onclick="restartGame()">
+            Reiniciar!
+        </button>
+    </div>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../../wp-assets/script.js"></script>
+<script>
+   const frase = 'O que aconteceu lá na unidade de saúde resultou em um aumento da [] do cuidado. O exemplo mostrou como foi possível ampliar o [] à atenção à saúde. [] o atendimento e melhorar o fluxo de [] para a [], além de apoiar a [] da saúde.'
+// const listaPalavras = ['QUALIDADE', 'ACESSO', 'AGILIZAR', 'INFORMAÇÕES', 'TOMADA DE DECISÃO', 'GESTÃO', 'SAÚDE', 'VACINA', 'DEMANDA', 'UBS', 'SUS'];
+const tamanhoDeTela = window.innerWidth;
+const timelineSelect = []
+
+const listaPalavras = [
+    {
+        word: 'QUALIDADE',
+        itsRight: true,
+        position: 1,
+    }, 
+    {
+        word: 'ACESSO',
+        itsRight: true,
+        position: 2,
+    }, 
+    {
+        word: 'AGILIZAR',
+        itsRight: true,
+        position: 3,
+    }, 
+    {
+        word: 'INFORMAÇÕES',
+        itsRight: true,
+        position: 4,
+    }, 
+    {
+        word: 'TOMADA DE DECISÃO',
+        itsRight: true,
+        position: 5,
+    }, 
+    {
+        word: 'GESTÃO',
+        itsRight: true,
+        position: 6,
+    }, 
+    {
+        word: 'SAÚDE',
+        itsRight: false,
+    }, 
+    {
+        word: 'VACINA',
+        itsRight: false,
+    }, 
+];
+
+const principalContainer = document.getElementById('principal-container-frase');
+const numeroDePalavras = (frase.match(new RegExp('\\[\\]', 'g')) || []).length; 
+
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text/plain");
+    const draggedElement = document.getElementById(data);
+    const draggedElementAttribute = draggedElement.getAttribute('data-word');
+    const dropTarget = ev.target;
+    const dropTargetAttribute = dropTarget.getAttribute('data-right');
+
+     if (draggedElementAttribute === dropTargetAttribute) {
+        dropTarget.classList.add('checked');
+    } else {
+        dropTarget.classList.add('notChecked');
+    } 
+
+
+    dropTarget.innerText = draggedElement.innerText;
+    dropTarget.classList.remove('bg-slate-200');
+    dropTarget.style.backgroundColor = draggedElement.style.backgroundColor;
+    dropTarget.classList.add('px-2');
+
+    draggedElement.remove();
+}
+function createPhraseDOM() {
+    const phraseArray = frase.split(' ');
+    const container = document.createElement('div');
+    container.setAttribute('class', `max-w-full flex flex-wrap items-center ${tamanhoDeTela < 767 && 'justify-center'}`)
+    principalContainer.appendChild(container);
+    const auxilirList = [];
+    const shuffledArray = shuffleArray(listaPalavras);
+
+    phraseArray.forEach((palavra, index) => {
+        const span = document.createElement('span');
+        span.setAttribute('class', 'm-2 mt-4')
+
+        if (palavra === '[]' || palavra ===  '[],' || palavra === '[].') {
+            auxilirList.push(index);
+
+            if (tamanhoDeTela > 767) {
+                span.setAttribute('class', 'bg-slate-200 h-7 rounded-lg word-placer flex items-center justify-center')
+                span.style.minWidth = '9rem';
+                span.setAttribute("ondrop", "drop(event)");
+                span.setAttribute("ondragover", "allowDrop(event)");
+                span.setAttribute("draggable", true)
+                span.setAttribute("ondragstart", "drag(event)")
+                
+                span.setAttribute('data-right', auxilirList.length)
+            } else {
+                const selectElement = document.createElement('select');
+                selectElement.classList.add('select', 'w-auto', 'block', 'border', 'border-gray-300', 'px-4', 'py-2', 'rounded-lg', 'focus:outline-none')
+                selectElement.setAttribute('id', auxilirList.length)
+                container.appendChild(selectElement);
+
+                for (let index = -1; index < shuffledArray.length; index++) {
+                    const option = document.createElement('option');
+
+                    if (index === -1) {
+                        option.setAttribute('value', '')
+                        option.innerText = `Selecione uma posição`
+                    } else {
+                        option.setAttribute('value', `${shuffledArray[index].position}`)
+                        option.setAttribute('id', `position-${shuffledArray[index].position}`)
+                        option.innerText = shuffledArray[index].word
+                    }
+                    selectElement.appendChild(option)
+                }
+
+                selectElement.addEventListener("change", function (event) {
+                    const selects = document.querySelectorAll('.select');
+                    const selectTargetId = event.target.id;
+                    const targetValue = event.target.value;
+                    const existingIndex = hasSelectInList(selectTargetId);
+        
+                    if (existingIndex === -1 && targetValue !== '') {
+                        
+                        timelineSelect.push({ selectId: selectTargetId, optionId: `position-${targetValue}`, targetValue });
+        
+                        // se ele não existe, significa que aquele select nunca foi modificado, ou seja, eu só preciso me preocupar em excluir as demais options
+                        selects.forEach(select => {
+                            if (select.id !== selectTargetId) { 
+                                    removeSelectOptions(select, targetValue)
+                            } 
+                        })
+                    } else if (targetValue !== '') {
+                        const oldSelect = timelineSelect[existingIndex];
+        
+                        selects.forEach(select => {
+                            if (select.id !== selectTargetId) { 
+                                    addSelectOptions(select, oldSelect.targetValue)
+                                    removeSelectOptions(select, targetValue)
+                            }
+                        })
+        
+                        timelineSelect[existingIndex].optionId = `position-${targetValue}`;
+                        timelineSelect[existingIndex].targetValue = targetValue;
+                    }
+
+                    if (targetValue === selectTargetId) {
+                        selectElement.classList.add('checked');
+                    } else {
+                        selectElement.classList.add('notChecked')
+                    }
+                });
+            }
+        } else {
+            span.innerText = palavra
+        }
+        container.appendChild(span)
+    })
+}
+
+function createWordsList() {
+    const shuffledArray = shuffleArray(listaPalavras);
+    const container = document.createElement('div');
+    container.setAttribute('class', 'bg-slate-100 w-full mt-12 flex p-12 flex-wrap')
+    principalContainer.appendChild(container);
+
+    shuffledArray.forEach(word => {
+        const wordElement = document.createElement('div')
+        const randomColor = returnsRandomColor();
+        
+        wordElement.setAttribute('class', 'm-6 p-2 rounded-lg word')
+        wordElement.innerText = word.word;
+        wordElement.style.backgroundColor = randomColor
+        wordElement.setAttribute('id', `${word.word}`)
+        wordElement.setAttribute("draggable", true);
+        wordElement.setAttribute("ondragstart", "drag(event)");
+        wordElement.setAttribute('data-word', word.position)
+
+        container.appendChild(wordElement)
+    })
+}
+function solveGame(){
+    if(tamanhoDeTela>767){
+        restartGame();
+        const wordPlace = document.querySelectorAll('.word-placer')
+        const words = document.querySelectorAll('.word')
+        words.forEach((word)=>{
+              const wordId = word.getAttribute('data-word')
+            if(wordId>=0 && wordPlace[wordId-1]){
+                wordPlace[wordId-1].innerText = word.innerText
+                wordPlace[wordId-1].classList.remove('bg-slate-200');
+                wordPlace[wordId-1].style.backgroundColor = word.style.backgroundColor;
+                wordPlace[wordId-1].classList.add('px-2');
+                wordPlace[wordId-1].classList.add('checked');
+               word.classList.add('hidden');
+            }
+
+        })
+    }else{
+        const selectors = document.querySelectorAll('#principal-container-frase > div > select')
+        selectors.forEach((selector, index)=>{
+            selector.value = index+1
+            selector.classList.remove('notChecked')
+            selector.classList.add('checked')
+            
+        })
+    }
+}
+function checkResult() {
+    const elementsChecked = document.getElementsByClassName('checked'); 
+    const elementsNotChecked = document.getElementsByClassName('notChecked');
+    for (let index = 0; index < elementsChecked.length; index++) {
+        const element = elementsChecked[index];
+        element.style.backgroundColor = 'rgb(74 222 128)';
+    }
+
+    for (let index = 0; index < elementsNotChecked.length; index++) {
+        
+        const element = elementsNotChecked[index];
+        element.style.backgroundColor = 'rgb(248 113 113)';
+    }
+}
+
+function restartGame () {
+    principalContainer.innerHTML = '';
+    createPhraseDOM();
+    tamanhoDeTela > 767 && createWordsList();
+}
+
+document.addEventListener("DOMContentLoaded", function (event) {
+    createPhraseDOM();
+    tamanhoDeTela > 767 && createWordsList();
+});
+</script>

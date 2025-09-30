@@ -1,0 +1,432 @@
+<style>
+    .container {
+    display: flex;
+    flex-flow: row wrap;
+
+}
+
+#dropper {
+    background-color: #73FF55;
+
+    color: grey;
+}
+
+.containerResp {
+    min-width: 100px;
+    min-height: 100px;
+    height: 100%;
+    margin: 10px;
+    border: 2px solid;
+    text-align: center;
+    padding: 10px;
+    flex-basis: 10%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    border-color: #14A9C1;
+    border-radius: 5px;
+    box-shadow: 5px 5px 7px 0px rgba(0, 0, 0, 0.64);
+}
+
+.feedbackwrapper {
+    border-color: #14A9C1;
+    border-radius: 5px;
+    box-shadow: 5px 5px 7px 0px rgba(0, 0, 0, 0.64);
+    border: 2px solid;
+    text-align: center;
+    margin: 15px 30% 15px 30%;
+}
+
+#divresp {
+    display: flex;
+    height: 100%;
+    flex-wrap: wrap;
+    margin: 10px;
+
+    text-align: center;
+    border-radius: 15px;
+    padding: 10px;
+    justify-content: space-around;
+
+}
+
+.container hr {
+    width: 100%;
+}
+
+.opcao {
+    margin: 5px;
+    border: 2px solid;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #51507A;
+    border-color: #14A9C1;
+    color: white;
+    box-shadow: 5px 5px 7px 0px rgba(0, 0, 0, 0.64);
+
+}
+
+.opcaoCorreta {
+    margin: 5px;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: green;
+    color: white;
+    box-shadow: 5px 5px 7px 0px rgba(0, 0, 0, 0.64);
+}
+
+.opcaoError {
+    margin: 5px;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: red;
+    color: white;
+    box-shadow: 5px 5px 7px 0px rgba(0, 0, 0, 0.64);
+}
+
+.btnWrapper {
+    text-align: center;
+    width: 100%;
+    display: block;
+
+}
+
+.resBtn {
+    border: none;
+    padding: 5px;
+    padding-right: 15px;
+    padding-left: 15px;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 5px;
+    background-color: #F8B624;
+}
+
+.resBtn2 {
+    border: none;
+    padding: 5px;
+    padding-right: 15px;
+    padding-left: 15px;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 5px;
+    background-color: #14A9C1;
+}
+
+.correct::after {
+    background-color: green;
+    color: white;
+    content: ' 	\2713';
+}
+
+.wrongers::after {
+    background-color: red;
+    color: white;
+    content: ' 	\274C';
+}
+
+.selected {
+    border-color: green;
+}
+
+.recebendo {
+    border-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='https://www.w3.org/2000/svg'%3E %3Cstyle%3Epath%7Banimation:stroke 5s infinite linear%3B%7D%40keyframes stroke%7Bto%7Bstroke-dashoffset:776%3B%7D%7D%3C/style%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%232d3561' /%3E%3Cstop offset='25%25' stop-color='%23c05c7e' /%3E%3Cstop offset='50%25' stop-color='%23f3826f' /%3E%3Cstop offset='100%25' stop-color='%23ffb961' /%3E%3C/linearGradient%3E %3Cpath d='M1.5 1.5 l97 0l0 97l-97 0 l0 -97' stroke-linecap='square' stroke='url(%23g)' stroke-width='3' stroke-dasharray='388'/%3E %3C/svg%3E") 1;
+
+}
+
+@media screen and (max-width: 782px) {
+    .containerResp {
+        flex-basis: 30%;
+        overflow-wrap: break-word;
+    }
+}
+</style>
+
+<div class="container">
+
+        <div class="btnWrapper">
+
+            <button onclick="checkResult()" class="resBtn mr-2 bg-amber-400 hover:bg-amber-500 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150">
+                Confira!
+            </button>
+            <button onclick="restartGame()" class="resBtn2 ml-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150">
+                Reiniciar!
+            </button>
+            <div class="feedbackwrapper">
+                <p id="feedbackGame">
+
+                </p>
+            </div>
+        </div>
+
+
+        <div id="div1" class="containerResp" ondrop="drop(event)" ontouchend="touchdrop(event)"
+            ondragover="allowDrop(event)"><span class="noOpcao">Narrativo</span></div>
+
+        <div id="div2" class="containerResp" ondrop="drop(event)" ontouchend="touchdrop(event)"
+            ondragover="allowDrop(event)"><span class="noOpcao">Descritivo</span></div>
+
+        <div id="div3" class="containerResp" ondrop="drop(event)" ontouchend="touchdrop(event)"
+            ondragover="allowDrop(event)"><span class="noOpcao">Expositivo</span></div>
+
+        <div id="div4" class="containerResp" ontouchend="touchdrop(event)" ondrop="drop(event)"
+            ondragover="allowDrop(event)"><span class="noOpcao">Argumentativo</span></div>
+
+        <div id="div5" class="containerResp" ontouchend="touchdrop(event)" ondrop="drop(event)"
+            ondragover="allowDrop(event)"><span class="noOpcao">Injuntivo</span></div>
+        <hr>
+
+
+        <div id="divresp" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag1"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag2"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag3"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag4"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag5"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag6"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag7"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag8"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag9"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag10"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag11"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag12"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag13"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag14"></span>
+            <span class="opcao" ontouchstart="touchdrag(event)" draggable="true" ondragstart="drag(event)"
+                ondragover="noAllowDrop(event)" id="drag15"></span>
+        </div>
+    </div>
+    <script src="https://cdn.tailwindcss.com"></script>  
+<script>
+    function allowDrop(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    return false;
+}
+
+function drag(ev) {
+
+    ev.dataTransfer.setData("text/plain", ev.target.id);
+
+}
+function touchdrag(ev) {
+    for (i = 0; i < document.getElementsByClassName("selected").length; i++) {
+        document.getElementsByClassName("selected")[i].classList.remove("selected");
+    }
+    if (ev.target.classList.contains("selected")) {
+        ev.target.classList.remove("selected");
+    } else { ev.target.classList.add("selected"); }
+    for (i = 0; i <= 4; i++) { document.getElementsByClassName("containerResp")[i].classList.add("recebendo"); }
+
+
+}
+function touchdrop(ev) {
+    if (ev.target.classList.contains("recebendo")) {
+        ev.target.appendChild(document.getElementsByClassName("selected")[0]);
+        document.getElementsByClassName("selected")[0].classList.remove("selected");
+        for (i = 0; i <= 4; i++) { document.getElementsByClassName("containerResp")[i].classList.remove("recebendo"); }
+
+    }
+
+}
+
+function noAllowDrop(ev) {
+    //  ev.stopPropagation();
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text/plain");
+
+    if (ev.srcElement.id.startsWith("div")) {
+        ev.target.appendChild(document.getElementById(data));
+    }
+    else {
+        ev.target.parentElement.appendChild(document.getElementById(data));
+    }
+    //  var newLn = document.createElement("br");  
+    //  ev.target.appendChild(newLn);
+}
+
+var respostas = [];
+respostas.push({
+    resposta: "Conto",
+    id: 1
+});
+respostas.push({
+    resposta: "Crônica",
+    id: 1
+});
+respostas.push({
+    resposta: "Romance",
+    id: 1
+});
+respostas.push({
+    resposta: "Biografia",
+    id: 1
+});
+respostas.push({
+    resposta: "Autobiografia",
+    id: 1
+});
+respostas.push({
+    resposta: "Cardápio",
+    id: 2
+});
+respostas.push({
+    resposta: "Relato descritivo",
+    id: 2
+});
+respostas.push({
+    resposta: "Texto didático",
+    id: 3
+});
+respostas.push({
+    resposta: "Palestra",
+    id: 3
+});
+respostas.push({
+    resposta: "Carta aberta",
+    id: 4
+});
+respostas.push({
+    resposta: "Tese",
+    id: 4
+});
+respostas.push({
+    resposta: "Artigo científico",
+    id: 4
+});
+respostas.push({
+    resposta: "Manual de instrução",
+    id: 5
+});
+respostas.push({
+    resposta: "Receita",
+    id: 5
+});
+respostas.push({
+    resposta: "Propaganda",
+    id: 5
+});
+
+document.addEventListener("DOMContentLoaded", function (e) {
+
+    shuffle(respostas);
+
+    for (i = 0; i < respostas.length; i++) {
+        var apender = document.getElementById("drag" + (i + 1));
+        apender.append(respostas[i].resposta);
+    }
+    document.getElementsByClassName("feedbackwrapper")[0].style = "display: none;"
+});
+
+function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (currentIndex != 0) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        // And swap it with the current element.
+        [array[currentIndex].id, array[randomIndex].id] = [
+            array[randomIndex].id, array[currentIndex].id];
+        [array[currentIndex].resposta, array[randomIndex].resposta] = [
+            array[randomIndex].resposta, array[currentIndex].resposta];
+    }
+
+    return array;
+}
+function restartGame() {
+    //shuffle(respostas);
+    document.getElementsByClassName("feedbackwrapper")[0].style = "display: none;";
+    for (i = 0; i < respostas.length; i++) {
+        var apender = document.getElementById("drag" + (i + 1));
+        apender.innerText = respostas[i].resposta;
+
+    }
+    var onResps = document.getElementsByClassName("containerResp");
+    var onDiv = document.getElementById("divresp");
+    for (i = 0; i < onResps.length; i++) {
+        var validSpan = onResps[i];
+
+        for (j = 0; j < validSpan.childNodes.length; j++) {
+            var currentOpcao = validSpan.childNodes[j];
+
+            if (currentOpcao.classList.contains("opcao")) {
+                currentOpcao.draggable = "true";
+                currentOpcao.className = "opcao";
+                onDiv.append(currentOpcao);
+                restartGame();
+            }
+
+        }
+    }
+}
+function checkResult() {
+
+    for (i = 1; i < 6; i++) {
+        var x = document.getElementById("div" + i);
+        for (j = 0; j < x.children.length; j++) {
+            for (k = 0; k < respostas.length; k++) {
+                if (respostas[k].resposta == x.children[j].textContent) {
+                    if (respostas[k].id == i) {
+                        x.children[j].classList.add("correct");
+                        x.children[j].classList.add("opcaoCorreta");
+                        x.children[j].draggable = false;
+                        x.children[j].ontouchstart = "";
+
+
+                    } else {
+                        x.children[j].classList.add("wrongers");
+                        x.children[j].classList.add("opcaoError");
+                        x.children[j].draggable = false;
+                        x.children[j].ontouchstart = "";
+                    }
+                }
+            }
+
+
+
+
+        }
+    }
+    var certo = document.getElementsByClassName("correct");
+    var errado = document.getElementsByClassName("wrongers");
+    var feedback = document.getElementById("feedbackGame");
+    var final = parseFloat((certo.length / respostas.length) * 100).toFixed(2);
+    var finalFeedback = "";
+    if (final < 20) {
+        finalFeedback = "Tente de novo! Voce acertou " + final + ("% das alternativas");
+    } else if (final < 60) {
+        finalFeedback = "Estamos melhorando! Você acertou " + final + ("% das alternativas");
+    } else if (final < 80) {
+        finalFeedback = "Quase lá! Você acertou " + final + ("% das alternativas");
+    } else if (final < 95) {
+        finalFeedback = "Parabéns! Você acertou " + final + ("% das alternativas");
+    } else {
+        finalFeedback = "Impressionante! Você acertou " + final + ("% das alternativas");
+    }
+    document.getElementsByClassName("feedbackwrapper")[0].style = "display: block;"
+    feedback.innerText = finalFeedback;
+}
+</script>

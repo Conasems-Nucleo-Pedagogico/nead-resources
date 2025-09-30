@@ -1,0 +1,9 @@
+{
+  "type": "game",
+  "titulo": "Roda da Fortuna",
+  "conteudo": "No jogo, os usuários utilizam o botão de clicar para girar a Roda da Fortuna e ver o conteúdo de cada uma das seções. Cada seção contém um título, e quando a roda da fortuna termina seu giro na seção, abre-se o “prêmio”, que é um card informativo em relação ao tópico para servir de fixação dos tópicos trabalhados",
+  "observacao": "",
+  "img": "wp-resources/roda-fortuna/roleta.jpg",
+  "src": "code.html"
+}
+

@@ -1,0 +1,272 @@
+  <style>
+ 
+
+    h1 {
+      text-align: center;
+    }
+
+    .grid {
+      display: block;
+    }
+
+    .grid-container {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.grid-col {
+  width: 50%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+
+    .quadro, .resposta {
+      background-color: #ffffff;
+      border: 2px dashed #ccc;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 8px;
+      overflow-y: auto;
+      font-family: "Montserrat", Sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: #000000;
+    }
+
+    .quadro.over {
+      background-color: #e0f7fa;
+    }
+
+    .resposta {
+      margin-top: 15px;
+      background-color: #e3f2fd;
+      cursor: move;
+      border: 2px solid #ff7117;
+    }
+
+    .resposta.dragging {
+      opacity: 0.5;
+    }
+
+    strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    @media (max-width: 1000px) {
+  #respostaGrid {
+    display: none;
+  }
+
+  .quadro select {
+    margin-top: 10px;
+    padding: 8px;
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .grid-col {
+  width: 500%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+}
+
+
+  </style>
+
+
+  <!-- Quadros -->
+  <div class="grid-container" id="quadroGrid">
+    <div class="grid-col" id="quadroGrid">
+        <div class="quadro" data-resposta="item1">
+      <strong>Quadro 1:</strong>
+      Um usuário chega à unidade de saúde para se vacinar contra a Covid-19, com receios sobre a vacina e apreensivo, com medo de que algo pudesse dar errado. Ansioso e resistente, durante a aplicação, ele desistiu da vacinação. Interrompeu o procedimento ao levantar-se antes da conclusão.
+    </div>
+    <div class="quadro" data-resposta="item2">
+      <strong>Quadro 2:</strong>
+      Senhor de 65 anos recebe a vacina contra a Dengue devido a uma prescrição médica.
+    </div>
+    <div class="quadro" data-resposta="item3">
+      <strong>Quadro 3:</strong>
+      Vacina BCG é administrada a uma criança prematura com peso inferior a 2 kg.
+    </div>
+    <div class="quadro" data-resposta="item4">
+      <strong>Quadro 4:</strong>
+      Idoso de 89 anos foi conduzido à unidade de saúde pelo filho para se vacinar contra a covid-19, mas recebeu, por engano, a vacina contra a influenza.
+    </div>
+    <div class="quadro" data-resposta="item5">
+      <strong>Quadro 5:</strong>
+      A administração da vacina penta aos 2, 4 e 6 meses de idade.
+    </div>
+    <div class="quadro" data-resposta="item6">
+      <strong>Quadro 6:</strong>
+      Uma gestante no final do 1º trimestre buscou a unidade de saúde para completar o esquema de difteria e tétano. No momento da aplicação, se esqueceu de informar que estava da 13ª semana...
+    </div>
+    </div>
+
+  <!-- Respostas -->
+  <div class="grid-col" id="respostaGrid">    
+    <div class="resposta" draggable="true" id="item1">
+      Um acolhimento adequado com calma e empatia, buscando identificar as necessidades do usuário e suas dúvidas e esclarecê-las de forma simples e respeitosa.
+    </div>
+    <div class="resposta" draggable="true" id="item2">
+      Ocorreu um uso off-label.
+    </div>
+    <div class="resposta" draggable="true" id="item3">
+      Trata-se de um erro de imunização.
+    </div>
+    <div class="resposta" draggable="true" id="item4">
+      Trata-se de um erro de imunização. Diante do caso, deve-se informar o idoso e seu filho sobre o equívoco... e notificar o erro no sistema.
+    </div>
+    <div class="resposta" draggable="true" id="item5">
+      Trata-se de uma prática correta e adequada, já que segue as recomendações do fabricante e do PNI.
+    </div>
+    <div class="resposta" draggable="true" id="item6">
+      A responsável pela vacinação pode evitar o erro de imunização e se desculpar-se pelo equívoco. Nesse caso foi preparada a dT, que era a vacina indicada.
+    </div>
+  </div>
+
+  
+    
+  </div>
+
+  <script>
+    const respostas = document.querySelectorAll('.resposta');
+    const quadros = document.querySelectorAll('.quadro');
+    let itemArrastado = null;
+
+    const feedbacks = {
+      item1: `Parabéns, você acertou!\nUma das etapas do processo de imunização é o acolhimento e nela deve ser criada uma relação de confiança entre todos os envolvidos no processo de vacinação...`,
+      item2: `Parabéns, você acertou!\nA Anvisa aprovou a vacina dengue (atenuada) para pessoas entre 4 e 60 anos...`,
+      item3: `Parabéns, você acertou!\nA decisão do PNI de adiar a vacinação com a BCG em crianças com peso inferior a 2 kg...`,
+      item4: `Parabéns, você acertou!\nDiante do erro ocorrido, é fundamental agir de forma rápida e segura...`,
+      item5: `Parabéns, você acertou!\nClique aqui e veja, no Calendário Nacional de Vacinação...`,
+      item6: `Parabéns, você acertou!\nEsse exemplo ilustra como a comunicação clara e detalhada é indispensável...`
+    };
+    
+
+    respostas.forEach(resposta => {
+      resposta.addEventListener('dragstart', () => {
+        itemArrastado = resposta;
+        resposta.classList.add('dragging');
+      });
+
+      resposta.addEventListener('dragend', () => {
+        itemArrastado = null;
+        resposta.classList.remove('dragging');
+      });
+    });
+
+    quadros.forEach(quadro => {
+      quadro.addEventListener('dragover', e => {
+        e.preventDefault();
+        quadro.classList.add('over');
+      });
+
+      quadro.addEventListener('dragleave', () => {
+        quadro.classList.remove('over');
+      });
+
+      quadro.addEventListener('drop', () => {
+        quadro.classList.remove('over');
+        if (itemArrastado) {
+          const respostaEsperada = quadro.dataset.resposta;
+          if (itemArrastado.id === respostaEsperada) {
+            quadro.appendChild(itemArrastado);
+            mostrarFeedback(itemArrastado.id, true);
+          } else {
+            mostrarFeedback(itemArrastado.id, false);
+          }
+        }
+      });
+    });
+
+    function mostrarFeedback(id, correto) {
+        // Escolhe o texto apropriado
+        const texto = correto
+            ? feedbacks[id] || 'Nenhum feedback disponível.'
+            : 'Ops! Essa resposta está incorreta. Tente novamente com atenção.';
+
+        // Aguarda o widget estar carregado dentro do popup
+        const intervalo = setInterval(() => {
+            const widget = document.getElementById('textoDragDrop');
+            if (widget) {
+            widget.innerHTML = texto.replace(/\n/g, '<br>');
+            clearInterval(intervalo);
+            }
+        }, 100);
+
+        // Abre o popup com ID 36884
+        if (typeof elementorProFrontend !== 'undefined') {
+            elementorProFrontend.modules.popup.showPopup({ id: 36884 });
+        } else {
+            console.warn("Elementor Pro não carregado.");
+        }
+        }
+
+        function isMobile() {
+    return window.innerWidth <= 1000;
+  }
+
+  if (isMobile()) {
+    const respostasTextos = {
+      item1: "Um acolhimento adequado com calma e empatia...",
+      item2: "Ocorreu um uso off-label.",
+      item3: "Trata-se de um erro de imunização.",
+      item4: "Trata-se de um erro de imunização. Diante do caso...",
+      item5: "Trata-se de uma prática correta e adequada...",
+      item6: "A responsável pela vacinação pode evitar o erro..."
+    };
+
+    const quadroElements = document.querySelectorAll('.quadro');
+
+    quadroElements.forEach(quadro => {
+      const select = document.createElement('select');
+      select.innerHTML = `<option value="">Selecione uma resposta</option>`;
+
+      // Cria opções
+      Object.entries(respostasTextos).forEach(([id, texto]) => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = texto;
+        select.appendChild(option);
+      });
+
+      // Evento ao selecionar uma resposta
+      select.addEventListener('change', function () {
+        if (!this.value) return;
+
+        const respostaEsperada = quadro.dataset.resposta;
+        const selecionado = this.value;
+
+        mostrarFeedback(selecionado, selecionado === respostaEsperada);
+
+        // Remove opção escolhida dos outros selects
+        document.querySelectorAll('select').forEach(outroSelect => {
+          if (outroSelect !== this) {
+            const opt = outroSelect.querySelector(`option[value="${selecionado}"]`);
+            if (opt) opt.remove();
+          }
+        });
+
+        // Desativa o select para impedir nova escolha
+        this.disabled = true;
+      });
+
+      quadro.appendChild(select);
+    });
+
+    // Oculta a área de drag-and-drop
+    document.getElementById('respostaGrid').style.display = 'none';
+  }
+
+
+  </script>
+
+

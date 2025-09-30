@@ -1,0 +1,277 @@
+<script src="https://cdn.tailwindcss.com"></script>
+<div class="flex flex-col justify-center items-center ">
+    <h1 class="font-bold text-2xl my-6">Legenda</h1>
+    <div id="legenda" class="mb-4"></div>
+    <div class="flex">
+      <div class="flex items-center my-2 mr-6">
+        <div class="bg-yellow-500 h-6 w-6 mr-2 rounded-lg"></div>
+        <p>Letra existe na palavra, mas não está na posição certa</p>
+      </div>
+      <div class="flex items-center my-2">
+        <div class="bg-green-400 h-6 w-6 mr-2 rounded-lg"></div>
+        <p>Letra correta!</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col justify-center items-center h-full">
+        <p id="auxiliary-text"></p>
+        <div id="principal-container"></div>
+        <div class="mt-4">
+            <button
+            onClick="checkPassword()"
+            type="button"
+            class="resBtn mr-2 bg-amber-400 hover:bg-amber-500 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150">
+                Enviar
+            </button>
+            <button
+              id="show-tip"
+              onClick="showTip()"
+              type="button"
+              class="resBtn2 ml-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150"
+              disabled
+            >
+              Mostrar dica
+            </button>
+        </div>
+        <button
+              id="show-tip"
+              onClick="restartGame()"
+              type="button"
+              class="resBtn2 ml-2 max-md:my-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-5 rounded shadow-md transition-colors duration-150"
+            >
+              Reiniciar 
+            </button>
+    </div>
+    
+<script>
+   const numeroDeLetrasQueASenhaTem = 5;
+const numeroDeTentativas = 5;
+let senha = 'viral'
+const textoAuxiliar = 'A raiva é uma doença infecciosa _________ aguda grave, que acomete mamíferos, inclusive o homem, e caracteriza-se como uma encefalite progressiva e aguda com letalidade de aproximadamente 100%. É causada pelo Vírus do gênero Lyssavirus, da família Rabhdoviridae.';
+const textoLegenda = `Encontre a palavra secreta. Para isso, você terá ${numeroDeTentativas} tentativas. Na ${numeroDeTentativas - 1}ª tentiva, você pode clicar no botão para ver a dica`
+
+let word = [];
+let currentLineId = 1;
+
+senha = senha.toUpperCase();
+
+function letterChecker(event, lettersInPassword){
+    const id = event.target.id;
+    const currentElementNumber = Number(id.split('letter')[1])
+    if (currentElementNumber === 1) {
+        currentLineId = Number(event.target.parentElement.id.split('-')[1])
+    }
+    const nextElementId = id.split('letter')[0] + 'letter' + (currentElementNumber + 1)
+    const value = event.data?.toUpperCase();
+    if (currentElementNumber < lettersInPassword && !notEventList.includes(event.data)
+    ) {
+        setTimeout(function () {
+            document.getElementById(nextElementId).focus();
+        }, 0);
+    }
+    
+    
+    if (value !== '') { 
+        word[currentElementNumber - 1] = value;
+    }
+}
+function pressEnter(event, lettersInPassword) {
+    const id = event.target.id;
+    const currentElementNumber = Number(id.split('letter')[1])
+
+    if (currentElementNumber === 1) {
+        currentLineId = Number(event.target.parentElement.id.split('-')[1])
+    }
+    const lastElementId = id.split('letter')[0] + 'letter' + (currentElementNumber - 1);
+    if (currentElementNumber === lettersInPassword && event.key === 'Enter') {
+        checkPassword()
+    }
+
+    if (event.key === 'Backspace') {
+        if (currentElementNumber !== 1) {
+            document.getElementById(id).value = '';
+            document.getElementById(lastElementId).focus();
+        }
+    }
+
+
+}
+
+const countLetter = (lettersList, letterToCount) => {
+    let count = lettersList.reduce(function (acc, letter) {
+        if (letterToCount === letter) {
+            acc = acc + 1
+        }
+        return acc;
+    }, 0)
+    
+    return count;
+}
+
+function checkPassword() {
+    const passwordInArray = senha.split('');
+
+
+    if (senha === word.join('')) {
+        for (let i = 1; i <= numeroDeLetrasQueASenhaTem; i++) {
+            const id = `line${currentLineId}-letter${i}`;
+            const element = document.getElementById(id);
+            element.classList.add('bg-green-400')
+            element.setAttribute('disabled', true)
+        }
+    } else {
+        word.forEach((letter, index) => {
+            const id = `line${currentLineId}-letter${index + 1}`;
+            const element = document.getElementById(id);
+
+            if (letter === passwordInArray[index]) {
+                element.classList.add('bg-green-400')
+                passwordInArray[index] = '';
+                word[index] = '';
+                element.setAttribute('disabled', true)
+            } else if (passwordInArray.includes(word[index])) {
+                const countLetterInPassword = countLetter(passwordInArray, letter);
+                const countLetterInWord = countLetter(word, letter);
+
+                if (countLetterInWord <= countLetterInPassword) {
+                    const indexOfLetterInPassword = passwordInArray.indexOf(letter);
+                    
+                    passwordInArray[indexOfLetterInPassword] = '';
+                    word[index] = '';
+
+                    element.classList.add('bg-yellow-500')
+                    element.setAttribute('disabled', true)
+
+                }
+
+
+            } else {
+                    element.setAttribute('disabled', true)
+                    element.classList.add('bg-slate-200')
+            }
+        })        
+        const nextLine = currentLineId + 1;
+        if (nextLine <= numeroDeTentativas) {
+            for (let index = 1; index <= 5; index++) {
+                const id = `line${nextLine}-letter${index}`;
+                const element = document.getElementById(id);
+                element.removeAttribute('disabled')
+            }
+
+            document.getElementById(`line${nextLine}-letter1`).focus();     
+        }
+
+        if (nextLine === (numeroDeTentativas - 1)) {
+            const buttonShowTip = document.getElementById('show-tip');
+            buttonShowTip.removeAttribute('disabled')
+        }
+    }
+
+}
+
+function createGrid(lettersInPassword, attempts) {
+    const container = document.getElementById("principal-container")
+
+    for (let i = 0; i < attempts; i++) {
+        const wordContainer = document.createElement('div')
+        wordContainer.setAttribute('id', `line-${i + 1}`)
+
+        for (let j = 0; j < lettersInPassword; j++) {
+            const input = document.createElement('input');
+            input.setAttribute('id', `line${i + 1}-letter${j + 1}`);
+            input.setAttribute('maxlength', '1');
+            input.setAttribute('onkeydown', `pressEnter(event, ${lettersInPassword})`)
+            input.addEventListener('input', (event)=>{
+                letterChecker(event, lettersInPassword);
+            })
+            input.setAttribute('oninput', "this.value = this.value.toUpperCase()");
+            
+            
+
+            input.setAttribute('class', 'input-styled w-12 h-12 text-center text-xl border')
+
+            if (i !== 0) {
+                input.setAttribute('disabled', true)
+            }
+
+            wordContainer.appendChild(input)
+        }
+
+        container.appendChild(wordContainer)
+        
+    }
+}
+
+function showTip() {
+    const element = document.getElementById('auxiliary-text');
+
+    element.innerText = textoAuxiliar;
+}
+
+function restartGame() {
+    for (let i = 0; i < numeroDeTentativas; i++) {
+        for (let j = 0; j < numeroDeLetrasQueASenhaTem; j++) {
+            const input = document.getElementById(`line${i + 1}-letter${j + 1}`);
+
+            input.value = '';
+            word = [];
+            input.setAttribute('class', 'input-styled w-12 text-center text-xl border p-2')
+
+            if (i !== 0) {
+                input.setAttribute('disabled', true)
+            } else {
+                input.removeAttribute('disabled')
+            }
+
+
+        }
+    }
+
+    document.getElementById('line1-letter1').focus();  
+}
+
+function writeSubtitle() {
+    const element = document.getElementById('legenda');
+
+    element.innerText = textoLegenda
+}
+
+document.addEventListener("DOMContentLoaded", function (event) {
+    createGrid(numeroDeLetrasQueASenhaTem, numeroDeTentativas)
+
+    document.getElementById('line1-letter1').focus();     
+
+    writeSubtitle()
+});
+
+const notEventList = [
+    'Dead',
+    'Alt', 
+    'Shift',
+    'Control',
+    'CapsLock',
+    'Tab',
+    'AltGraph',
+    'Escape',
+    '\\',
+    '|',
+    'Meta',
+    ' ',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '0',
+    ',',
+    'Backspace',
+    'Enter',
+    '',
+    null
+]
+</script>

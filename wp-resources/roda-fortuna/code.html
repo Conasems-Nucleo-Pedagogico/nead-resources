@@ -1,0 +1,187 @@
+<script src="winwheel.js"></script>
+<script	src="https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
+<style>
+body{
+padding:0;
+  margin: 0;
+}
+#tabelaRoleta{
+  border:0px;
+}
+.the_wheel{
+  background: url(wheel_back-1.webp) 50% 50% no-repeat; border:0px;
+}
+#roleta-wrapper{
+  display: flex;
+  flex-direction: column-reverse;
+  background-image: url(bg.webp);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
+      align-items: center;
+}
+.btn-roleta{
+  background-color: #F8B624;
+  border-radius: 50px;
+  margin: 0px 0px 0px 0px;
+  padding: 10px 10px 10px 10px;
+  cursor: pointer;
+  
+
+}
+.btn-roleta span{
+    color: white;
+}
+@media (max-width:921px){
+  .the_wheel{
+    background: url(wheel_back-1.webp) 50% 0% no-repeat;
+    background-size: contain;
+
+  }
+}
+</style>
+
+<div class="row">
+<div id="roleta-wrapper">
+  
+    <table id="tabelaRoleta">
+      <td width="438" height="582" class="the_wheel" align="center"
+        valign="center"
+        >
+        <canvas id="roleta" width="434" height="563">
+          <p style="{color: white}" align="center">Sorry, your browser
+            doesn't support canvas. Please try another.</p>
+        </canvas>
+      </td>
+      </tr>
+    </table>
+    <a class=" btn-roleta"
+													onclick="prizeSet();" style="
+                          align-self: center"; id="rouletteBtn">
+													<div class="premium-button-text-icon-wrapper">
+														<span>
+															GIRAR </span>
+													</div>
+												</a>
+  </div>
+    
+<script>
+    //configuração do gerador da roda, cada seção vai conter um fillStyle, com a cor do fundo que será preenchido, um text, que será o texto, pId é a conexão com o elementor, o pId é o Id do elementor popup que será aberto ao finalizar a roda.
+    let theWheel = new Winwheel({
+      'canvasId': 'roleta',
+      'numSegments': 6,
+      'responsive': true,
+      'segments':
+        [
+          { 'fillStyle': '#eae56f', 'text': 'Tuberculose', 'pId': '12504', 'buFill': '#eae56f' },
+          { 'fillStyle': '#89f26e', 'text': 'COVID-19', 'pId': '2121', 'buFill': '#89f26e' },
+          { 'fillStyle': '#7de6ef', 'text': 'Hanseníase', 'pId': '12504', 'buFill': '#7de6ef' },
+          { 'fillStyle': '#e7706f', 'text': 'Tétano acidental', 'pId': '12504', 'buFill': '#e7706f' },
+          { 'fillStyle': '#F26707', 'text': 'Difteria', 'pId': '12504', 'buFill': '#F26707' },
+          { 'fillStyle': '#76769B', 'text': 'Leptospirose', 'pId': '12504', 'buFill': '#76769B' }
+        ],
+      'animation':
+      {
+        'type': 'spinToStop',
+        'duration': 10,
+        'spins': 5,
+        'callbackSound': playSound,    // Specify function to call when sound is to be triggered.
+        'soundTrigger': 'pin',         // Pins trigger the sound for this animation.
+        'callbackFinished': alertPrize
+      },
+      'pins':    // Display pins, and if desired specify the number.
+      {
+        'responsive': true,
+        'number': 16
+      }
+    });
+    let finisher = 0;
+    let rodando = false;
+    let checker = [];
+
+    let audio = new Audio('tick.mp3');
+    function playSound() {
+      // Stop and rewind the sound (stops it if already playing).
+      audio.pause();
+      audio.currentTime = 0;
+
+      // Play the sound.
+      audio.play();
+    }
+    function alertPrize() {
+      rodando = false;
+      checker[theWheel.getIndicatedSegmentNumber()] = '1';
+      theWheel.getIndicatedSegment().text = theWheel.getIndicatedSegment().text + " ✓";
+      theWheel.getIndicatedSegment().fillStyle = '#54595F';
+      theWheel.getIndicatedSegment().textFillStyle = '#FBFEFE'
+      theWheel.draw();
+      botao = document.getElementById('rouletteBtn').children[0].children[0];
+
+      finisher++;
+      if (finisher == theWheel.numSegments) {
+        theWheel.segments.forEach((e) => {
+          if (e != null) {
+            e.textFillStyle = '#61CE70';
+            theWheel.draw();
+          }
+        })
+        botao.innerText = "REINICIAR";
+        botao.style.color = 'var( --e-global-color-a20f5c9 )';
+        botao.onclick = function () { resetWheel() };
+      }
+      botao.disabled = false;
+      poper = theWheel.getIndicatedSegment().pId
+      elementorProFrontend.modules.popup.showPopup({ id: poper })
+
+
+
+    }
+    function prizeSet() {
+      if (rodando == false && finisher < theWheel.numSegments) {
+        let prizeNumber = Math.ceil(Math.random() * theWheel.numSegments);
+        let angleNumber = theWheel.getRandomForSegment(prizeNumber);
+        let chosenSegment = theWheel.getIndicatedSegment(prizeNumber)
+        if (checker[prizeNumber] == null) {
+          theWheel.rotationAngle = theWheel.rotationAngle % 360;
+          theWheel.animation.duration = 10;
+          theWheel.animation.spins = 5;
+          theWheel.animation.stopAngle = angleNumber;
+          theWheel.startAnimation();
+          rodando = true;
+          botao = document.getElementById('rouletteBtn').children[0].children[0];
+          botao.disabled = true;
+        } else {
+          rodando = false
+          prizeSet();
+        }
+
+      }
+    }
+    function resetWheel() {
+      if (rodando == false) {
+        theWheel.segments.forEach((e) => {
+          if (e != null) {
+            e.fillStyle = e.buFill;
+            e.textFillStyle = null;
+            checker = [];
+            e.text = e.text.replace(" ✓", "");
+            finisher = 0;
+            botao = document.getElementById('rouletteBtn').children[0].children[0];
+            botao.innerText = "GIRAR";
+            botao.style.color = 'var( --e-global-color-a20f5c9 )';
+            botao.onclick = function () { prizeSet() };
+            theWheel.draw();
+
+          }
+        })
+      }
+    }
+    document.addEventListener('DOMContentLoaded', ()=>{
+      var lotser = 0; //pegar o ícone de mute no jogo
+      lotser.addEventListener('click', () => {
+        lotser.style = `filter : grayscale(${Number(!audio.muted)})`;
+        audio.muted = !audio.muted;
+      });
+    })
+  </script>

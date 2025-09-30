@@ -1,0 +1,297 @@
+<style>
+    .correct {
+        background-color: rgb(74 222 128) !important;
+    }
+    
+    .incorrect {
+        background-color: rgb(248 113 113) !important;
+    }
+    
+    .disabledButton {
+        background-color: #E1e1e1 !important;
+    }
+    
+    .disabledButton:hover {
+        background-color: #E1e1e1 !important;
+    }
+</style>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+ const equivalentResponse = {
+    '1': 'rural',
+    '2': 'urbano'
+}
+
+function hideElements() {
+    const hiddenElements = document.getElementsByClassName('hide-elements');
+
+    for (let index = 0; index < hiddenElements.length; index++) {
+        const element = hiddenElements[index];
+
+        element.style.display = "none";
+    }
+} 
+
+function handleCheckBox({ target }) {
+    // Sobe na árvore até achar o elemento com id no formato esperado
+    while (target && (!target.id || !target.id.startsWith('sec-'))) {
+        target = target.parentNode;
+    }
+    
+    const idSplited = target.id.split('-');
+    const targetSection = idSplited[1];
+    const targetColumn = idSplited[3];
+    const opositeTargetButtonNumber = idSplited[idSplited.length - 1] === '1' ? 2 : 1;
+
+    const buttonsCheckeds = document.getElementsByClassName(`sec-${targetSection}-button`);
+    let elementWithCheckedClass = null;
+
+    for (let index = 0; index < buttonsCheckeds.length; index++) {
+        const element = buttonsCheckeds[index];
+        const classList = [...element.classList];
+
+        if (classList.includes('checked')) {
+            elementWithCheckedClass = element;
+            break;
+        }
+    }
+
+    if (!elementWithCheckedClass) {
+        const idChecked = `sec-${targetSection}-col-${targetColumn}-button-${opositeTargetButtonNumber}`
+        const elementChecked = document.getElementById(idChecked);
+
+        target.style.display = 'none'
+        elementChecked.style.display = 'block'
+        elementChecked.classList.add('checked')
+    } else {
+        const elementAlreadyClickedSlited = elementWithCheckedClass.id.split('-');
+        const opositeElementAlreadyClicked = document.getElementById(`sec-${elementAlreadyClickedSlited[1]}-col-${elementAlreadyClickedSlited[3]}-button-${elementAlreadyClickedSlited[5] === '1' ? 2 : 1}`)
+
+        elementWithCheckedClass.style.display = 'none';
+        elementWithCheckedClass.classList.remove('checked')
+        opositeElementAlreadyClicked.style.display = 'block'
+
+        const idChecked = `sec-${targetSection}-col-${targetColumn}-button-${opositeTargetButtonNumber}`
+        const elementChecked = document.getElementById(idChecked);
+
+        target.style.display = 'none'
+        elementChecked.style.display = 'block'
+        elementChecked.classList.add('checked')
+    }
+}
+
+function checkResult() {
+    const checkedElements = document.getElementsByClassName('checked');
+
+    for (let index = 0; index < checkedElements.length; index++) {
+        const element = checkedElements[index];
+        const valueElement = element.getAttribute('value');
+        const parentSection = element.closest('.parent-section');
+        const response = parentSection.getAttribute('res') === '1' ? equivalentResponse['1'] : equivalentResponse['2'];
+
+
+        if (valueElement === response) {
+            parentSection.classList.add('correct');
+        } else {
+            parentSection.classList.add('incorrect');
+        }
+    }
+
+    const checkButton = document.getElementById('check-button').children[0].children[0];
+
+    checkButton.setAttribute('disabled', true);
+    checkButton.classList.add('disabledButton')
+}
+
+function restart() {
+    const elementsCircle = document.getElementsByClassName('circle');
+    const checkButton = document.getElementById('check-button').children[0].children[0];
+    checkButton.removeAttribute('disabled');
+    checkButton.classList.remove('disabledButton')
+
+    for (let index = 0; index < elementsCircle.length; index++) {
+        const element = elementsCircle[index];
+        element.style.display = 'block'
+
+        const parentSection = element.closest('.parent-section');
+        parentSection.classList.remove('correct', 'incorrect')
+    }
+
+    const hiddenElements = document.getElementsByClassName('hide-elements');
+
+    for (let index = 0; index < hiddenElements.length; index++) {
+        const element = hiddenElements[index];
+
+        element.classList.remove('checked');
+    }
+    
+    hideElements();
+}
+
+function solveGame() {
+    restart();
+
+    const parentSections = document.getElementsByClassName('parent-section');
+
+    for (let index = 0; index < parentSections.length; index++) {
+        const element = parentSections[index];
+        const response = element.getAttribute('res');
+
+        const circleButton = document.getElementById(`sec-${index + 1}-col-${response}-button-1`)
+        const checkedButton = document.getElementById(`sec-${index + 1}-col-${response}-button-2`)
+        circleButton.style.display = 'none';
+        checkedButton.style.display = 'block';
+        checkedButton.classList.add('checked')
+    }
+
+    // Após preencher automaticamente, marcar como corretas (verde)
+    const checkedElements = document.getElementsByClassName('checked');
+    for (let i = 0; i < checkedElements.length; i++) {
+        const el = checkedElements[i];
+        const parentSection = el.closest('.parent-section');
+        parentSection.classList.remove('incorrect');
+        parentSection.classList.add('correct');
+    }
+
+    // Desabilita o botão Conferir como no fluxo normal
+    const checkButton = document.getElementById('check-button').children[0].children[0];
+    checkButton.setAttribute('disabled', true);
+    checkButton.classList.add('disabledButton')
+}
+
+document.addEventListener("DOMContentLoaded", function (event) {
+    hideElements();
+});
+
+</script>
+
+
+<div class="w-full max-w-5xl mx-auto p-4 md:p-6">
+    <div class="grid grid-cols-12 gap-2 mb-3 text-xs md:text-sm font-semibold text-sky-700">
+        <div class="col-span-2 text-center">RURAL</div>
+        <div class="col-span-2 text-center">URBANO</div>
+        <div class="col-span-8">DESCRIÇÃO</div>
+    </div>
+
+    <!-- Linha 1 (Resposta correta: Rural -> res="1") -->
+    <div class="parent-section grid grid-cols-12 gap-2 items-start bg-sky-50 rounded-md p-3 mb-3" res="1">
+        <!-- Rural -->
+        <div class="col-span-2 flex justify-center">
+            <div class="flex items-center gap-2">
+                <button id="sec-1-col-1-button-1" value="rural" onclick="handleCheckBox(event)" class="circle sec-1-button w-6 h-6 rounded-full border-2 border-sky-700"></button>
+                <button id="sec-1-col-1-button-2" value="rural" onclick="handleCheckBox(event)" class="hide-elements sec-1-button hidden w-6 h-6 rounded-full border-2 border-sky-700 bg-white text-sky-700 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Urbano -->
+        <div class="col-span-2 flex justify-center">
+            <div class="flex items-center gap-2">
+                <button id="sec-1-col-2-button-1" value="urbano" onclick="handleCheckBox(event)" class="circle sec-1-button w-6 h-6 rounded-full border-2 border-sky-700"></button>
+                <button id="sec-1-col-2-button-2" value="urbano" onclick="handleCheckBox(event)" class="hide-elements sec-1-button hidden w-6 h-6 rounded-full border-2 border-sky-700 bg-white text-sky-700 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Descrição -->
+        <div class="col-span-8 text-slate-700">
+            É uma área onde os seres humanos interagem com os elementos naturais em uma situação de produção agrícola e pecuária.
+        </div>
+    </div>
+
+    <!-- Linha 2 (Resposta correta: Urbano -> res="2") -->
+    <div class="parent-section grid grid-cols-12 gap-2 items-start bg-sky-100 rounded-md p-3 mb-3" res="2">
+        <!-- Rural -->
+        <div class="col-span-2 flex justify-center">
+            <div class="flex items-center gap-2">
+                <button id="sec-2-col-1-button-1" value="rural" onclick="handleCheckBox(event)" class="circle sec-2-button w-6 h-6 rounded-full border-2 border-sky-700"></button>
+                <button id="sec-2-col-1-button-2" value="rural" onclick="handleCheckBox(event)" class="hide-elements sec-2-button hidden w-6 h-6 rounded-full border-2 border-sky-700 bg-white text-sky-700 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Urbano -->
+        <div class="col-span-2 flex justify-center">
+            <div class="flex items-center gap-2">
+                <button id="sec-2-col-2-button-1" value="urbano" onclick="handleCheckBox(event)" class="circle sec-2-button w-6 h-6 rounded-full border-2 border-sky-700"></button>
+                <button id="sec-2-col-2-button-2" value="urbano" onclick="handleCheckBox(event)" class="hide-elements sec-2-button hidden w-6 h-6 rounded-full border-2 border-sky-700 bg-white text-sky-700 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Descrição -->
+        <div class="col-span-8 text-slate-700">
+            Costuma reunir atividades vinculadas ao setor secundário (indústria e produção de energia) e ao setor terciário (comércio e serviços).
+        </div>
+    </div>
+
+    <!-- Linha 3 (Resposta correta: Rural -> res="1") -->
+    <div class="parent-section grid grid-cols-12 gap-2 items-start bg-sky-50 rounded-md p-3 mb-3" res="1">
+        <!-- Rural -->
+        <div class="col-span-2 flex justify-center">
+            <div class="flex items-center gap-2">
+                <button id="sec-3-col-1-button-1" value="rural" onclick="handleCheckBox(event)" class="circle sec-3-button w-6 h-6 rounded-full border-2 border-sky-700"></button>
+                <button id="sec-3-col-1-button-2" value="rural" onclick="handleCheckBox(event)" class="hide-elements sec-3-button hidden w-6 h-6 rounded-full border-2 border-sky-700 bg-white text-sky-700 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Urbano -->
+        <div class="col-span-2 flex justify-center">
+            <div class="flex items-center gap-2">
+                <button id="sec-3-col-2-button-1" value="urbano" onclick="handleCheckBox(event)" class="circle sec-3-button w-6 h-6 rounded-full border-2 border-sky-700"></button>
+                <button id="sec-3-col-2-button-2" value="urbano" onclick="handleCheckBox(event)" class="hide-elements sec-3-button hidden w-6 h-6 rounded-full border-2 border-sky-700 bg-white text-sky-700 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Descrição -->
+        <div class="col-span-8 text-slate-700">
+            Engloba, predominantemente, atividades vinculadas ao setor primário (extrativismo, agricultura e pecuária).
+        </div>
+    </div>
+
+    <!-- Linha 4 (Resposta correta: Urbano -> res="2") -->
+    <div class="parent-section grid grid-cols-12 gap-2 items-start bg-sky-100 rounded-md p-3 mb-6" res="2">
+        <!-- Rural -->
+        <div class="col-span-2 flex justify-center">
+            <div class="flex items-center gap-2">
+                <button id="sec-4-col-1-button-1" value="rural" onclick="handleCheckBox(event)" class="circle sec-4-button w-6 h-6 rounded-full border-2 border-sky-700"></button>
+                <button id="sec-4-col-1-button-2" value="rural" onclick="handleCheckBox(event)" class="hide-elements sec-4-button hidden w-6 h-6 rounded-full border-2 border-sky-700 bg-white text-sky-700 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Urbano -->
+        <div class="col-span-2 flex justify-center">
+            <div class="flex items-center gap-2">
+                <button id="sec-4-col-2-button-1" value="urbano" onclick="handleCheckBox(event)" class="circle sec-4-button w-6 h-6 rounded-full border-2 border-sky-700"></button>
+                <button id="sec-4-col-2-button-2" value="urbano" onclick="handleCheckBox(event)" class="hide-elements sec-4-button hidden w-6 h-6 rounded-full border-2 border-sky-700 bg-white text-sky-700 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Descrição -->
+        <div class="col-span-8 text-slate-700">
+            Espaços naturais (florestas, matas, dunas, campos, montanhas, lagos, rios, mares) são menores.
+        </div>
+    </div>
+
+    <!-- Ações -->
+    <div class="flex items-center justify-center gap-4">
+        <div id="check-button">
+            <div>
+                <button type="button" onclick="checkResult()" class="px-5 py-2 rounded-md bg-amber-400 hover:bg-amber-500 text-slate-900 font-semibold shadow">
+                    Conferir
+                </button>
+            </div>
+        </div>
+        <button type="button" onclick="solveGame()" class="px-5 py-2 rounded-md bg-yellow-500 hover:bg-yellow-600 text-white font-semibold shadow">
+            Solucionar
+        </button>
+        <button type="button" onclick="restart()" class="px-5 py-2 rounded-md bg-sky-600 hover:bg-sky-700 text-white font-semibold shadow">
+            Reiniciar
+        </button>
+    </div>
+</div>

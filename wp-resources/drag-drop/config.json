@@ -1,0 +1,9 @@
+{
+  "type": "game",
+  "titulo": "Arrasta e Solta",
+  "conteudo": "Desafia o estudante a associar frases apropriadas a diferentes respostas ao arrastá-las para caixas correspondentes. Essa dinâmica interativa promove um feedback contextual das frases, incentivando uma abordagem prática e visual do aprendizado. Ao proporcionar um ambiente lúdico, o jogo não apenas torna a experiência educativa mais agradável, mas também fortalece a retenção de informações e o desenvolvimento de habilidades cognitivas, como o raciocínio lógico e a análise crítica.",
+  "observacao": "",
+  "img": "wp-resources/drag-drop/Screenshot.png",
+  "src": "code.html"
+}
+

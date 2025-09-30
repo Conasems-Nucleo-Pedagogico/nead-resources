@@ -6,6 +6,73 @@ document.addEventListener('DOMContentLoaded', function() {
     renderTypeFilter();
     loadCards();
 });
+//utilsGame
+function hasSelectInList(selectId) {
+    const selectExist = timelineSelect.findIndex(function(opcao) {
+        return opcao.selectId === selectId ? true : false;
+    });
+
+    return selectExist;
+}
+
+function addSelectOptions(select, oldValue) {
+    const option = select.querySelector('#position-' + oldValue);
+    option.classList.remove('hidden');
+}
+
+function removeSelectOptions(select, value) {
+    const options = select.options;
+
+    for (let index = 0; index < options.length; index++) {
+        const option = options[index].value;
+
+        if (option === value) {
+            options[index].classList.add('hidden');
+            break;
+        }
+    }
+}
+
+// Função para embaralhar o array de forma aleatória
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    return array;
+}
+
+function returnsRandomColor() {
+    return `#${Math.floor(Math.random() * 256 * 256 * 256 - 1).toString(16)}55`;
+}
+
+function areTheElementsAllTheSame (array) {
+    if (array.length === 0) {
+        return true;
+    }
+
+    for (let i = 1; i < array.length; i++) {
+        if (array[i] !== array[0]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text/plain", ev.target.id);
+}
+
+// Adicione a função allowDrop
+function allowDrop(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+}
+
+
+
 
 // Configuração do filtro por tipo (editar conforme necessidade)
 const TYPE_FILTER_CONFIG = {
@@ -193,10 +260,10 @@ function applyTypeFilter(selected) {
     cards.forEach(card => {
         const cardType = card.dataset.type || '';
         if (selected === TYPE_FILTER_CONFIG.allValue || selected === '' || selected == null) {
-            card.style.display = 'block';
+            card.style.display = 'flex';
             card.style.animation = 'fadeIn 0.3s ease';
         } else if (cardType === selected) {
-            card.style.display = 'block';
+            card.style.display = 'flex';
             card.style.animation = 'fadeIn 0.3s ease';
         } else {
             card.style.display = 'none';
@@ -312,7 +379,7 @@ function filterResources(searchTerm) {
         const description = card.querySelector('p').textContent.toLowerCase();
         
         if (title.includes(term) || description.includes(term)) {
-            card.style.display = 'block';
+            card.style.display = 'flex';
             card.style.animation = 'fadeIn 0.5s ease';
         } else {
             card.style.display = 'none';
@@ -421,7 +488,7 @@ async function abrirPainelVisualizacao(resourceId, cardTitle) {
                         conteudo.classList.remove('em-breve');
                         
                         // Ajustar layout para iframe
-                        conteudo.style.display = 'block';
+                        conteudo.style.display = 'flex';
                         conteudo.style.alignItems = 'flex-start';
                         conteudo.style.justifyContent = 'flex-start';
                         conteudo.style.textAlign = 'center';
@@ -449,7 +516,7 @@ async function abrirPainelVisualizacao(resourceId, cardTitle) {
                         // Para outros tipos de arquivo, mostrar como texto
                         conteudo.innerHTML = `<pre style="text-align: left; white-space: pre-wrap; font-family: monospace; margin: 0;">${escapeHtml(srcContent)}</pre>`;
                         conteudo.classList.remove('em-breve');
-                        conteudo.style.display = 'block';
+                        conteudo.style.display = 'flex';
                         conteudo.style.alignItems = 'flex-start';
                         conteudo.style.justifyContent = 'flex-start';
                         conteudo.style.textAlign = 'left';
