@@ -1,4 +1,5 @@
 {
+  "type": "resource",
   "titulo": "CARDS ANIMADOS (LINEAR)",
   "conteudo": "A animação dos cards funciona como uma prancheta, onde o último elemento da pilha vem para a frente e o primeiro vai para trás.",
   "observacao": "IMPORTANTE: A lógica da mudança de cards é linear, ou seja, a navegação só é possível para o próximo card ou para o card anterior.",

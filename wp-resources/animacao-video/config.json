@@ -1,4 +1,5 @@
 {
+  "type": "resource",
   "titulo": "ANIMAÇÃO DE VÍDEO",
   "conteudo": "Vídeo em um box animado que, ao ser clicado, expande e reproduz o vídeo.",
   "observacao": "IMPORTANTE: Esse recurso funciona apenas para vídeos que podem ser utilizados sem áudio.",

@@ -3,10 +3,19 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Página de Recursos Educacionais carregada!');
-    
-    // Carregar cards dinamicamente
+    renderTypeFilter();
     loadCards();
 });
+
+// Configuração do filtro por tipo (editar conforme necessidade)
+const TYPE_FILTER_CONFIG = {
+    allValue: 'all',
+    allLabel: 'Todos',
+    types: [
+        { value: 'resource', label: 'Recursos Interativos' },
+        { value: 'game', label: 'Jogos' }
+    ]
+};
 
 // Função para carregar a lista de recursos do index.json
 async function getAvailableResources() {
@@ -96,6 +105,9 @@ async function loadCards() {
         // Criar e adicionar cada card
         validCards.forEach(config => {
             const cardElement = createCard(config);
+            if (config.type) {
+                cardElement.dataset.type = String(config.type);
+            }
             container.appendChild(cardElement);
         });
 
@@ -116,6 +128,7 @@ function createCard(config) {
     const card = document.createElement('div');
     card.className = 'card';
     card.dataset.resourceId = config.resourceId;
+    if (config.type) card.dataset.type = String(config.type);
     
     const observacaoHTML = config.observacao ? 
         (config.observacao.includes('IMPORTANTE') ? 
@@ -135,6 +148,60 @@ function createCard(config) {
     `;
     
     return card;
+}
+
+// Renderizar caixa de filtro por tipo
+function renderTypeFilter() {
+    const bar = document.getElementById('filters-bar');
+    if (!bar) return;
+
+    bar.innerHTML = '';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'filter-group';
+
+    const label = document.createElement('label');
+    label.textContent = 'Filtrar por tipo:';
+    label.setAttribute('for', 'type-filter');
+
+    const select = document.createElement('select');
+    select.id = 'type-filter';
+
+    const optAll = document.createElement('option');
+    optAll.value = TYPE_FILTER_CONFIG.allValue;
+    optAll.textContent = TYPE_FILTER_CONFIG.allLabel;
+    select.appendChild(optAll);
+
+    TYPE_FILTER_CONFIG.types.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.value;
+        opt.textContent = t.label;
+        select.appendChild(opt);
+    });
+
+    select.addEventListener('change', function() {
+        applyTypeFilter(this.value);
+    });
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(select);
+    bar.appendChild(wrapper);
+}
+
+function applyTypeFilter(selected) {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        const cardType = card.dataset.type || '';
+        if (selected === TYPE_FILTER_CONFIG.allValue || selected === '' || selected == null) {
+            card.style.display = 'block';
+            card.style.animation = 'fadeIn 0.3s ease';
+        } else if (cardType === selected) {
+            card.style.display = 'block';
+            card.style.animation = 'fadeIn 0.3s ease';
+        } else {
+            card.style.display = 'none';
+        }
+    });
 }
 
 // Inicializar funcionalidades dos cards

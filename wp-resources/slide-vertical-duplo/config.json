@@ -1,4 +1,5 @@
 {
+  "type": "resource",
   "titulo": "SLIDER VERTICAL DUPLO",
   "conteudo": "Slider com duas colunas: uma exibe o conteúdo principal e outra mostra navegação lateral. O controle é feito através de botões que movimentam ambas as colunas de forma sincronizada, criando um efeito visual único.",
   "observacao": "Suporte para navegação por teclado (setas) e touch/swipe em dispositivos móveis.",

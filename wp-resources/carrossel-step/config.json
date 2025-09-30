@@ -1,4 +1,5 @@
 {
+  "type": "resource",
   "titulo": "CARROSSEL STEP",
   "conteudo": "Carrossel em que os cards são expandidos um de cada vez ao serem clicados.",
   "observacao": "",

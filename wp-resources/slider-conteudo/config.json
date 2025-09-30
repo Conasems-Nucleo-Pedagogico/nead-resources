@@ -1,4 +1,5 @@
 {
+  "type": "resource",
   "titulo": "SLIDER COM CONTEÚDO",
   "conteudo": "Slider com fundo gradiente, que vai do tom mais claro ao mais intenso. O usuário arrasta o slider e aparecem caixas de conteúdo. A ideia é fornecer informações relacionadas à gravidade de um determinado assunto.",
   "observacao": "",

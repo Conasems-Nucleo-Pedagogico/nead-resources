@@ -1,4 +1,5 @@
 {
+  "type": "resource",
   "titulo": "STEPS COM CONTEÚDO",
   "conteudo": "É uma linha do tempo que pode ser usada tanto para etapas quanto para eventos importantes em um determinado período. A ideia é que o usuário navegue pelos passos e apareçam caixas de conteúdo relacionadas a cada etapa.",
   "observacao": "",
