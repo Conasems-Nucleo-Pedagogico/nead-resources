@@ -1,0 +1,571 @@
+<div class="poc-decision-widget">
+    <div class="poc-decision-layout">
+        <section class="poc-situations-panel">
+            <span class="poc-eyebrow">Escolha uma situação</span>
+            <h3>Qual necessidade aparece no cuidado?</h3>
+
+            <div class="poc-situations-list">
+                <button type="button" class="poc-situation" data-id="glicemia">
+                    Monitorar glicemia
+                </button>
+
+                <button type="button" class="poc-situation" data-id="gravidez">
+                    Confirmar gestação
+                </button>
+
+                <button type="button" class="poc-situation" data-id="oximetria">
+                    Avaliar oxigenação
+                </button>
+
+                <button type="button" class="poc-situation" data-id="ists">
+                    Apoiar diagnóstico de ISTs
+                </button>
+
+                <button type="button" class="poc-situation" data-id="trmtb">
+                    Investigar tuberculose
+                </button>
+
+                <button type="button" class="poc-situation" data-id="ecg">
+                    Apoiar avaliação cardíaca
+                </button>
+
+                <button type="button" class="poc-situation" data-id="retinografo">
+                    Rastrear alterações oculares
+                </button>
+
+                <button type="button" class="poc-situation" data-id="ultrassom">
+                    Apoiar exame de imagem
+                </button>
+            </div>
+        </section>
+
+        <section class="poc-analysis-panel" aria-live="polite">
+            <div class="poc-analysis-device">
+                <div class="poc-analysis-screen">
+                    <div class="poc-analysis-scan" aria-hidden="true"></div>
+
+                    <span class="poc-analysis-label">POC</span>
+                    <strong class="poc-analysis-status">Selecione uma situação</strong>
+
+                    <div class="poc-analysis-dots" aria-hidden="true">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="poc-result-card" aria-live="polite">
+            <div class="poc-result-empty">
+                <h3>Conheça a tecnologia indicada</h3>
+                <p>
+                    Clique em uma situação para visualizar a tecnologia POC correspondente e sua aplicação no cuidado.
+                </p>
+            </div>
+
+            <div class="poc-result-content">
+                <h3 class="poc-result-title"></h3>
+                <p class="poc-result-text"></p>
+
+
+            </div>
+        </aside>
+    </div>
+</div>
+
+<style>
+    .poc-decision-layout {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 28px;
+    align-items: center;
+}
+
+/* painel de botões: 40% */
+.poc-situations-panel {
+    grid-column: 1 / span 4;
+}
+
+/* scanner: ocupa os 60% restantes, mas centralizado */
+.poc-analysis-panel {
+    grid-column: 5 / span 6;
+    display: none;
+    justify-items: center;
+    align-items: center;
+    gap: 14px;
+}
+
+/* resultado: também ocupa os 60% restantes */
+.poc-result-card {
+    grid-column: 5 / span 6;
+    position: relative;
+    min-height: 300px;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 10px 10px 0 #213B74, 0 18px 44px rgba(0, 0, 0, 0.10);
+}
+
+    .poc-situations-panel,
+    .poc-result-card {
+        background: #ffffff;
+        border-radius: 30px;
+        padding: 28px;
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.12);
+        border: 1px solid rgba(15, 61, 46, 0.12);
+
+    }
+
+    .poc-eyebrow,
+    .poc-result-badge {
+        display: inline-block;
+        margin-bottom: 12px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(248, 202, 51, 0.24);
+        color: #213B74;
+        font-size: 14px;
+        font-weight: 900;
+    }
+
+    .poc-situations-panel h3,
+    .poc-result-empty h3,
+    .poc-result-title {
+        margin: 0 0 14px;
+        color: #213B74;
+        font-size: 23px;
+        line-height: 1.2;
+        font-weight: 900;
+    }
+
+    .poc-situations-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .poc-situation {
+        width: 100%;
+        border: 2px solid #213B74;
+        border-radius: 18px;
+        padding: 13px 16px;
+        background: #E8EBEA;
+        color: #171717;
+        font-family: 'Nunito', Arial, sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        text-align: left;
+        cursor: pointer;
+        transition:
+            transform 0.2s ease,
+            background 0.2s ease,
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .poc-situation:hover,
+    .poc-situation.active {
+        transform: translateX(4px);
+        background: #F8CA33;
+        border-color: #F8CA33;
+        box-shadow: 0 8px 18px rgba(15, 61, 46, 0.16);
+    }
+
+    .poc-situation:focus-visible {
+        outline: 3px solid rgba(248, 202, 51, 0.65);
+        outline-offset: 3px;
+    }
+
+    .poc-analysis-panel {
+        display: none;
+        justify-items: center;
+        gap: 14px;
+    }
+
+    .poc-analysis-device {
+        width: min(100%, 360px);
+    min-height: 320px;
+    padding: 16px;
+    border-radius: 38px;
+    background: #213B74;
+    box-shadow: 0 18px 36px rgba(33, 59, 116, 0.24);
+    transition: transform 0.25s ease;
+    }
+
+    .poc-analysis-screen {
+        position: relative;
+        min-height: 288px;
+        border-radius: 24px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.9)),
+            radial-gradient(circle at top, rgba(248, 202, 51, 0.35), transparent 50%);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        padding: 24px;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    .poc-analysis-label {
+        width: 72px;
+        height: 72px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #0F3D2E;
+        color: #ffffff;
+        font-size: 21px;
+        font-weight: 900;
+        position: relative;
+        z-index: 2;
+        transition: transform 0.25s ease;
+    }
+
+    .poc-analysis-status {
+        color: #0F3D2E;
+        font-size: 18px;
+        line-height: 1.25;
+        position: relative;
+        z-index: 2;
+    }
+
+    .poc-analysis-dots {
+        display: flex;
+        gap: 6px;
+        position: relative;
+        z-index: 2;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .poc-analysis-dots span {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #F8CA33;
+        animation: pocDot 1s ease-in-out infinite;
+    }
+
+    .poc-analysis-dots span:nth-child(2) {
+        animation-delay: 0.15s;
+    }
+
+    .poc-analysis-dots span:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    /* Scanner começa invisível */
+    .poc-analysis-scan {
+        position: absolute;
+        left: 0;
+        top: -45%;
+        width: 100%;
+        height: 44%;
+        background: linear-gradient(180deg,
+                transparent,
+                rgba(248, 202, 51, 0.42),
+                transparent);
+        opacity: 0;
+        transform: translateY(0);
+        pointer-events: none;
+    }
+
+    /* Scanner só aparece durante a análise */
+    .poc-decision-widget.is-analyzing .poc-analysis-scan {
+        opacity: 1;
+        animation: pocScan 0.95s ease-in-out 2;
+    }
+
+    .poc-decision-widget.is-analyzing .poc-analysis-device {
+        animation: pocPulse 0.9s ease-in-out 2;
+    }
+
+    .poc-decision-widget.is-analyzing .poc-analysis-label {
+        transform: scale(1.05);
+    }
+
+    .poc-decision-widget.is-analyzing .poc-analysis-dots {
+        opacity: 1;
+    }
+
+    .poc-result-card {
+        position: relative;
+        min-height: 300px;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 10px 10px 0 #213B74, 0 18px 44px rgba(0, 0, 0, 0.10);
+
+    }
+
+    .poc-result-card::before {
+        content: "";
+        position: absolute;
+        left: -13px;
+        top: 50%;
+        width: 26px;
+        height: 26px;
+        background: #ffffff;
+        transform: translateY(-50%) rotate(45deg);
+        border-left: 1px solid rgba(15, 61, 46, 0.12);
+        border-bottom: 1px solid rgba(15, 61, 46, 0.12);
+    }
+
+    .poc-result-empty p,
+    .poc-result-text {
+        margin: 0;
+        color: #171717;
+        font-size: 17px;
+        line-height: 1.5;
+        font-weight: 400;
+    }
+
+    .poc-result-content {
+        display: none;
+        opacity: 0;
+    }
+
+    .poc-result-card.has-result .poc-result-empty {
+        display: none;
+    }
+
+    .poc-result-card.has-result .poc-result-content {
+        display: block;
+        opacity: 1;
+        animation: pocResultIn 0.4s ease both;
+    }
+
+    .poc-decision-widget.is-analyzing .poc-result-content {
+        opacity: 0;
+    }
+
+    .poc-result-title {
+        color: #213B74;
+        font-size: 25px;
+    }
+
+    @keyframes pocDot {
+
+        0%,
+        100% {
+            transform: translateY(0);
+            opacity: 0.5;
+        }
+
+        50% {
+            transform: translateY(-5px);
+            opacity: 1;
+        }
+    }
+
+    @keyframes pocScan {
+        from {
+            transform: translateY(0);
+        }
+
+        to {
+            transform: translateY(360%);
+        }
+    }
+
+    @keyframes pocPulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.025);
+        }
+    }
+
+    @keyframes pocResultIn {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .poc-decision-layout {
+            grid-template-columns: 1fr;
+            gap: 22px;
+        }
+
+        .poc-situations-panel,
+        .poc-analysis-panel,
+        .poc-result-card {
+            grid-column: 1;
+        }
+
+        .poc-analysis-panel {
+            flex-direction: column;
+        }
+
+        .poc-analysis-device {
+            width: min(100%, 280px);
+            min-height: 220px;
+        }
+
+        .poc-analysis-screen {
+            min-height: 200px;
+        }
+
+        .poc-result-card {
+            width: 100%;
+            min-height: auto;
+            box-shadow: 0 8px 0 #213B74, 0 18px 44px rgba(0, 0, 0, 0.10);
+        }
+
+        .poc-result-card::before {
+            left: 50%;
+            top: -13px;
+            transform: translateX(-50%) rotate(45deg);
+            border-left: 1px solid rgba(15, 61, 46, 0.12);
+            border-top: 1px solid rgba(15, 61, 46, 0.12);
+            border-bottom: 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .poc-situations-panel,
+        .poc-result-card {
+            padding: 22px;
+            border-radius: 26px;
+        }
+
+        .poc-situations-panel h3,
+        .poc-result-title {
+            font-size: 22px;
+        }
+
+        .poc-result-text {
+            font-size: 16px;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        const pocData = {
+            glicemia: {
+                title: "Glicemia capilar",
+                text: "Permite medir rapidamente os níveis de glicose no sangue, auxiliando o monitoramento do diabetes e a identificação de alterações glicêmicas.",
+            },
+            gravidez: {
+                title: "Teste rápido de gravidez",
+                text: "Permite confirmar a gestação de forma rápida, favorecendo o início oportuno do acompanhamento pré-natal."
+            },
+            oximetria: {
+                title: "Oximetria de pulso",
+                text: "Avalia a saturação de oxigênio e a frequência cardíaca, auxiliando o acompanhamento de pessoas com doenças respiratórias e outras condições clínicas."
+            },
+            ists: {
+                title: "Testes rápidos para ISTs",
+                text: "Possibilitam a triagem rápida de infecções sexualmente transmissíveis, contribuindo para o diagnóstico precoce e o início oportuno do tratamento."
+            },
+            trmtb: {
+                title: "Teste Rápido Molecular para Tuberculose (TRM-TB)",
+                text: "Permite identificar a tuberculose pulmonar em poucas horas, agilizando o diagnóstico e o início do tratamento.",
+            },
+            ecg: {
+                title: "Eletrocardiograma portátil (ECG)",
+                text: "Auxilia na avaliação de alterações cardíacas, como arritmias e dor torácica, podendo contar com emissão remota de laudos especializados.",
+            },
+            retinografo: {
+                title: "Retinógrafo portátil",
+                text: "Realiza imagens do fundo do olho para auxiliar na detecção precoce de doenças que podem levar à perda da visão."
+            },
+            ultrassom: {
+                title: "Ultrassonografia POC",
+                text: "Utiliza sondas conectadas a dispositivos móveis para obtenção de imagens em tempo real, apoiando avaliações clínicas e o acompanhamento de gestantes."
+            }
+        };
+
+        function initPocDecisionWidget() {
+            const screenSize = window.innerWidth;
+
+            document.querySelectorAll(".poc-decision-widget").forEach(function (widget) {
+                if (widget.dataset.initialized === "true") return;
+                widget.dataset.initialized = "true";
+
+                const buttons = widget.querySelectorAll(".poc-situation");
+                const title = widget.querySelector(".poc-result-title");
+                const text = widget.querySelector(".poc-result-text");
+                const card = widget.querySelector(".poc-result-card");
+                const status = widget.querySelector(".poc-analysis-status");
+                const analysisPanel = widget.querySelector('.poc-analysis-panel');
+
+                let timer = null;
+
+                function selectItem(id) {
+                    const item = pocData[id];
+
+                    if (!item) return;
+
+                    card.style.display = 'none'
+                    analysisPanel.style.display = 'grid'
+
+                    buttons.forEach(function (button) {
+                        button.classList.toggle("active", button.dataset.id === id);
+                    });
+
+                    clearTimeout(timer);
+
+                    if (screenSize < 921) {
+                         analysisPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+
+                    widget.classList.add("is-analyzing");
+                    card.classList.remove("has-result");
+
+                    status.textContent = "Analisando a situação...";
+
+                    timer = setTimeout(function () {
+                        title.textContent = item.title;
+                        text.textContent = item.text;
+
+                        card.classList.add("has-result");
+
+                        status.textContent = "Tecnologia identificada";
+
+                        widget.classList.remove("is-analyzing");
+                        analysisPanel.style.display = 'none';
+                        card.style.display = 'flex';
+                    }, 1500);
+
+
+                }
+
+                buttons.forEach(function (button) {
+                    button.addEventListener("click", function () {
+                        selectItem(button.dataset.id);
+                    });
+                });
+            });
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initPocDecisionWidget);
+        } else {
+            initPocDecisionWidget();
+        }
+
+        window.addEventListener("load", function () {
+            setTimeout(initPocDecisionWidget, 300);
+        });
+    })();
+</script>
