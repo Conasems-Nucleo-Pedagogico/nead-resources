@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Timeline educacional reutilizável</title>
+</head>
+<body>
+
+<!--
+  COMPONENTE: Timeline vertical animada pelo scroll
+
+  Para reutilizar:
+  1. Copie este arquivo para um widget HTML (ou carregue seu CSS/JS uma vez).
+  2. Crie um elemento vazio para cada timeline.
+  3. Altere apenas o objeto "timelineData" no fim do arquivo.
+
+  O componente aceita várias instâncias na mesma página:
+  EducationalTimeline.create("#meu-elemento", minhaConfiguracao);
+-->
+
+<div id="timeline-aps"></div>
+
+<style>
+  .eduTimeline,
+  .eduTimeline * {
+    box-sizing: border-box;
+  }
+
+  .eduTimeline {
+    --etl-blue: #294b8f;
+    --etl-blue-dark: #213b74;
+    --etl-green: #0e4a38;
+    --etl-yellow: #f8ca33;
+    --etl-gray: #c3c3c3;
+    --etl-text: #182230;
+    width: min(100%, 1180px);
+    margin: 0 auto;
+    padding: 32px 24px 60px;
+    overflow: hidden;
+    color: var(--etl-text);
+    font-family: "Nunito", Arial, sans-serif;
+  }
+
+  .eduTimeline__roadmap {
+    position: relative;
+    width: 100%;
+    min-height: var(--etl-min-height, 1650px);
+    margin: 0 auto;
+    padding: 65px 0 30px;
+  }
+
+  .eduTimeline__svg {
+    position: absolute;
+    z-index: 1;
+    top: 35px;
+    bottom: 115px;
+    left: 50%;
+    width: 40px;
+    height: calc(100% - 150px);
+    overflow: visible;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .eduTimeline__road,
+  .eduTimeline__progress {
+    fill: none;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .eduTimeline__road {
+    stroke: var(--etl-gray);
+    stroke-width: 3;
+    stroke-dasharray: 10 10;
+  }
+
+  .eduTimeline__progress {
+    stroke: var(--etl-yellow);
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+
+  .eduTimeline__step {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 80px 1fr;
+    min-height: 330px;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.55s ease,
+      transform 0.65s cubic-bezier(0.2, 0.75, 0.25, 1);
+  }
+
+  .eduTimeline__step--left {
+    transform: translateX(-45px);
+  }
+
+  .eduTimeline__step--right {
+    transform: translateX(45px);
+  }
+
+  .eduTimeline__step.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .eduTimeline__card {
+    position: relative;
+    width: min(100%, 470px);
+    padding: 27px;
+    overflow: hidden;
+    border-radius: 26px;
+    color: #fff;
+    background: var(--etl-blue);
+    box-shadow: 0 18px 40px rgba(33, 59, 116, 0.17);
+  }
+
+  .eduTimeline__step--result .eduTimeline__card {
+    background: var(--etl-green);
+  }
+
+  .eduTimeline__step--left .eduTimeline__card {
+    grid-column: 1;
+    justify-self: end;
+  }
+
+  .eduTimeline__step--right .eduTimeline__card {
+    grid-column: 3;
+    justify-self: start;
+  }
+
+  .eduTimeline__marker {
+    position: relative;
+    z-index: 4;
+    display: grid;
+    grid-column: 2;
+    grid-row: 1;
+    width: 54px;
+    aspect-ratio: 1;
+    place-items: center;
+    justify-self: center;
+    border: 7px solid #fff;
+    border-radius: 50%;
+    color: #111;
+    background: var(--etl-yellow);
+    box-shadow: 0 5px 18px rgba(33, 59, 116, 0.22);
+    font-size: 18px;
+    font-weight: 900;
+    transform: scale(0.65);
+    transition: transform 0.45s 0.1s cubic-bezier(0.2, 0.9, 0.3, 1.35);
+  }
+
+  .eduTimeline__step.is-visible .eduTimeline__marker {
+    transform: scale(1);
+  }
+
+  .eduTimeline__step--left .eduTimeline__card::before,
+  .eduTimeline__step--right .eduTimeline__card::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 42px;
+    height: 3px;
+    background: var(--etl-yellow);
+    transform: translateY(-50%) scaleX(0);
+    transition: transform 0.45s 0.2s ease;
+  }
+
+  .eduTimeline__step--left .eduTimeline__card::before {
+    right: -42px;
+    transform-origin: right;
+  }
+
+  .eduTimeline__step--right .eduTimeline__card::before {
+    left: -42px;
+    transform-origin: left;
+  }
+
+  .eduTimeline__step.is-visible .eduTimeline__card::before {
+    transform: translateY(-50%) scaleX(1);
+  }
+
+  .eduTimeline__cardHeader {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 18px;
+  }
+
+  .eduTimeline__icon {
+    display: grid;
+    flex: 0 0 auto;
+    width: 50px;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .eduTimeline__icon img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
+  .eduTimeline__card h3 {
+    margin: 0;
+    color: var(--etl-yellow);
+    font-size: 23px;
+    line-height: 1.25;
+  }
+
+  .eduTimeline__card p {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .eduTimeline__card .eduTimeline__lead {
+    margin-bottom: 12px;
+    font-size: 17px;
+    font-weight: 900;
+  }
+
+  .eduTimeline__example {
+    margin-top: 16px !important;
+    font-weight: 800;
+  }
+
+  .eduTimeline__relation {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    width: min(100%, 470px);
+    min-height: 128px;
+    margin: 15px auto 20px;
+    padding: 20px 25px;
+    place-items: center;
+    border: 2px dashed var(--etl-blue-dark);
+    border-radius: 20px;
+    color: var(--etl-blue-dark);
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(33, 59, 116, 0.11);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(25px) scale(0.96);
+    transition: opacity 0.55s ease,
+      transform 0.6s cubic-bezier(0.2, 0.75, 0.25, 1);
+  }
+
+  .eduTimeline__relation.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .eduTimeline__relation--green {
+    border-color: var(--etl-green);
+    color: var(--etl-green);
+  }
+
+  .eduTimeline__relationVerb {
+    display: inline-flex;
+    padding: 7px 14px;
+    border-radius: 999px;
+    color: #111;
+    background: var(--etl-yellow);
+    font-size: 15px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .eduTimeline__relation p {
+    margin: 9px 0 0;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .eduTimeline__arrow {
+    position: absolute;
+    left: 50%;
+    bottom: -34px;
+    display: grid;
+    width: 34px;
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 50%;
+    color: #111;
+    background: var(--etl-yellow);
+    font-size: 21px;
+    font-weight: 900;
+    transform: translateX(-50%);
+  }
+
+  .eduTimeline__conclusion {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    width: min(100%, 980px);
+    margin: 70px auto 0;
+    padding: 21px 27px;
+    align-items: center;
+    gap: 7px;
+    border-radius: 18px;
+    color: #141414;
+    background: var(--etl-yellow);
+    box-shadow: 0 15px 35px rgba(33, 59, 116, 0.13);
+    text-align: center;
+    font-size: 17px;
+    line-height: 1.55;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .eduTimeline__conclusion.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 921px) {
+    .eduTimeline {
+      padding-inline: 18px;
+    }
+
+    .eduTimeline__roadmap {
+      min-height: auto;
+      padding-top: 30px;
+      padding-left: 50px;
+    }
+
+    .eduTimeline__svg {
+      top: 20px;
+      bottom: 105px;
+      left: 22px;
+      width: 30px;
+      height: calc(100% - 125px);
+    }
+
+    .eduTimeline__step {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      margin-bottom: 62px;
+    }
+
+    .eduTimeline__step--left,
+    .eduTimeline__step--right {
+      transform: translateX(35px);
+    }
+
+    .eduTimeline__step--left .eduTimeline__card,
+    .eduTimeline__step--right .eduTimeline__card {
+      grid-column: 1;
+      justify-self: stretch;
+      width: 100%;
+    }
+
+    .eduTimeline__marker {
+      position: absolute;
+      top: 32px;
+      left: -50px;
+      width: 48px;
+      grid-column: auto;
+    }
+
+    .eduTimeline__step--left .eduTimeline__card::before,
+    .eduTimeline__step--right .eduTimeline__card::before {
+      top: 56px;
+      right: auto;
+      left: -28px;
+      width: 28px;
+      transform-origin: left;
+    }
+
+    .eduTimeline__relation {
+      width: 100%;
+      margin: 0 0 65px;
+      padding: 18px;
+      transform: translateX(30px);
+    }
+
+    .eduTimeline__relation.is-visible {
+      transform: translateX(0);
+    }
+
+    .eduTimeline__relation::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: -50px;
+      width: 50px;
+      height: 3px;
+      background: var(--etl-yellow);
+    }
+
+    .eduTimeline__arrow {
+      display: none;
+    }
+
+    .eduTimeline__conclusion {
+      margin-top: 25px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .eduTimeline {
+      padding: 28px 14px 45px;
+    }
+
+    .eduTimeline__card,
+    .eduTimeline__relation,
+    .eduTimeline__conclusion {
+      font-size: 15px;
+    }
+
+    .eduTimeline__card {
+      padding: 21px;
+      border-radius: 22px;
+    }
+
+    .eduTimeline__cardHeader {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .eduTimeline__card h3 {
+      font-size: 20px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eduTimeline *,
+    .eduTimeline *::before,
+    .eduTimeline *::after {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    "use strict";
+
+    const VIEWBOX_HEIGHT = 1000;
+
+    function resolveElement(target) {
+      return typeof target === "string"
+        ? document.querySelector(target)
+        : target;
+    }
+
+    function renderStep(item, stepNumber) {
+      const side = item.side || (stepNumber % 2 ? "left" : "right");
+      const resultClass = item.variant === "result"
+        ? " eduTimeline__step--result"
+        : "";
+      const icon = item.icon
+        ? `<span class="eduTimeline__icon" aria-hidden="true"><img src="${item.icon}" alt=""></span>`
+        : "";
+      const example = item.example
+        ? `<p class="eduTimeline__example">${item.example}</p>`
+        : "";
+
+      return `
+        <article class="eduTimeline__step eduTimeline__step--${side}${resultClass}">
+          <span class="eduTimeline__marker" aria-hidden="true">${item.number || stepNumber}</span>
+          <div class="eduTimeline__card">
+            <div class="eduTimeline__cardHeader">
+              ${icon}
+              <h3>${item.title || ""}</h3>
+            </div>
+            ${item.lead ? `<p class="eduTimeline__lead">${item.lead}</p>` : ""}
+            ${item.text ? `<p>${item.text}</p>` : ""}
+            ${example}
+          </div>
+        </article>`;
+    }
+
+    function renderRelation(item) {
+      const colorClass = item.variant === "green"
+        ? " eduTimeline__relation--green"
+        : "";
+
+      return `
+        <div class="eduTimeline__relation${colorClass}">
+          <span class="eduTimeline__relationVerb">${item.label || ""}</span>
+          ${item.text ? `<p>${item.text}</p>` : ""}
+          <span class="eduTimeline__arrow" aria-hidden="true">↓</span>
+        </div>`;
+    }
+
+    function renderTimeline(config) {
+      let stepNumber = 0;
+      const items = (config.items || []).map((item) => {
+        if (item.type === "relation") return renderRelation(item);
+        stepNumber += 1;
+        return renderStep(item, stepNumber);
+      }).join("");
+      const conclusion = config.conclusion
+        ? `<div class="eduTimeline__conclusion"><strong>${config.conclusion.label || "Conclusão:"}</strong><span>${config.conclusion.text || ""}</span></div>`
+        : "";
+
+      return `
+        <section class="eduTimeline">
+          <div class="eduTimeline__roadmap">
+            <svg class="eduTimeline__svg" viewBox="0 0 200 1000" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+              <path class="eduTimeline__road" d="M100,0 V1000"></path>
+              <path class="eduTimeline__progress" d="M100,0 V0"></path>
+            </svg>
+            ${items}
+            ${conclusion}
+          </div>
+        </section>`;
+    }
+
+    function applyTheme(root, colors) {
+      const variables = {
+        blue: "--etl-blue",
+        blueDark: "--etl-blue-dark",
+        green: "--etl-green",
+        yellow: "--etl-yellow",
+        gray: "--etl-gray",
+        text: "--etl-text"
+      };
+
+      Object.entries(colors || {}).forEach(([name, value]) => {
+        if (variables[name]) root.style.setProperty(variables[name], value);
+      });
+    }
+
+    function create(target, config) {
+      const mount = resolveElement(target);
+      if (!mount) throw new Error("EducationalTimeline: elemento não encontrado.");
+
+      mount.innerHTML = renderTimeline(config);
+
+      const root = mount.querySelector(".eduTimeline");
+      const progressPath = root.querySelector(".eduTimeline__progress");
+      const animatedItems = root.querySelectorAll(
+        ".eduTimeline__step, .eduTimeline__relation, .eduTimeline__conclusion"
+      );
+      const options = Object.assign({
+        scrollContainer: null,
+        start: 0.2,
+        desktopSpeed: 1.8,
+        mobileSpeed: 1.3,
+        breakpoint: 921,
+        revealPoint: 0.8
+      }, config.scroll || {});
+      const scrollElement = resolveElement(options.scrollContainer) || root;
+
+      applyTheme(root, config.colors);
+
+      const stepsCount = (config.items || []).filter(
+        (item) => item.type !== "relation"
+      ).length;
+      const relationsCount = (config.items || []).filter(
+        (item) => item.type === "relation"
+      ).length;
+      const conclusionHeight = config.conclusion ? 170 : 60;
+      const estimatedHeight = Math.max(
+        500,
+        stepsCount * 330 + relationsCount * 163 + conclusionHeight
+      );
+      root.style.setProperty(
+        "--etl-min-height",
+        `${estimatedHeight}px`
+      );
+
+      let active = true;
+
+      function update() {
+        if (!active || !root.isConnected) {
+          active = false;
+          return;
+        }
+
+        const rect = scrollElement.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const speed = window.innerWidth > options.breakpoint
+          ? options.desktopSpeed
+          : options.mobileSpeed;
+        const rawProgress = (
+          (viewportHeight * options.start - rect.top) /
+          Math.max(1, rect.height)
+        ) * speed;
+        const progress = Math.max(0, Math.min(1, rawProgress));
+
+        progressPath.setAttribute(
+          "d",
+          `M100,0 V${progress * VIEWBOX_HEIGHT}`
+        );
+
+        animatedItems.forEach((item) => {
+          const isVisible =
+            item.getBoundingClientRect().top <
+            viewportHeight * options.revealPoint;
+          item.classList.toggle("is-visible", isVisible);
+        });
+
+        requestAnimationFrame(update);
+      }
+
+      requestAnimationFrame(update);
+
+      return {
+        element: root,
+        destroy: function () {
+          active = false;
+          mount.innerHTML = "";
+        }
+      };
+    }
+
+    window.EducationalTimeline = { create };
+  })();
+
+  /* ================================================================
+     EDITE SOMENTE ESTE OBJETO PARA CRIAR OUTRA TIMELINE
+     Os campos "text" e "example" aceitam HTML, como <strong>.
+     ================================================================ */
+  const timelineData = {
+    colors: {
+      blue: "#294b8f",
+      blueDark: "#213b74",
+      green: "#0e4a38",
+      yellow: "#f8ca33",
+      gray: "#c3c3c3"
+    },
+
+    scroll: {
+      // Use "#tela19" no Elementor; null usa o próprio componente.
+      scrollContainer: null,
+      start: 0.2,
+      desktopSpeed: 1.8,
+      mobileSpeed: 1.3,
+      breakpoint: 921,
+      revealPoint: 0.8
+    },
+
+    items: [
+      {
+        type: "step",
+        title: "Dados Estruturados",
+        lead: "A base de tudo na APS.",
+        text: "O cadastro do território, o registro da rotina e o mapeamento das condições de saúde fornecem a matéria-prima para a gestão clínica.",
+        example: "Exemplo: Ficha de cadastro individual, registro de consultas e histórico de condições crônicas.",
+        icon: "https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/medical-record-1.png",
+        side: "left"
+      },
+      {
+        type: "relation",
+        label: "Subsidiam",
+        text: "Os dados estruturados <strong>orientam o monitoramento</strong> e a organização dos processos de cuidado."
+      },
+      {
+        type: "step",
+        title: "Processos e Ações",
+        lead: "A conformidade e a rotina de cuidados.",
+        text: "Os indicadores de processo monitoram diretamente <strong>como o cuidado é prestado</strong> pelas equipes a partir dos dados gerados.",
+        example: "Exemplo: Percentual de gestantes com pré-natal adequado; consultas de rotina realizadas.",
+        icon: "https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/grafico-preditivo.png",
+        side: "right"
+      },
+      {
+        type: "relation",
+        label: "Geram impacto",
+        text: "Processos assistenciais consistentes <strong>produzem efeitos nos resultados</strong> de saúde.",
+        variant: "green"
+      },
+      {
+        type: "step",
+        title: "Resultados de Saúde",
+        lead: "O impacto final na população.",
+        text: "Avaliam os <strong>efeitos finais das intervenções</strong> clínicas, de sobrevida e satisfação, embora também sejam influenciados por fatores externos.",
+        example: "Exemplo: Queda na taxa de internações por condições sensíveis; aumento da expectativa de vida.",
+        icon: "https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/aceitar.png",
+        side: "left",
+        variant: "result"
+      }
+    ],
+
+    conclusion: {
+      label: "Conclusão:",
+      text: "não há bons resultados na APS sem processos assistenciais consistentes, e não há processos seguros sem dados integrados e de qualidade."
+    }
+  };
+
+  EducationalTimeline.create("#timeline-aps", timelineData);
+</script>
+
+</body>
+</html>

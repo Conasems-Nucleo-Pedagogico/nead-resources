@@ -29,6 +29,7 @@
     "checkbox",
     "roda-fortuna",
     "drag-drop",
-    "scanner-resource"
+    "scanner-resource",
+    "timeLineScroll"
   ]
 }
