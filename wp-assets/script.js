@@ -80,7 +80,8 @@ const TYPE_FILTER_CONFIG = {
     allLabel: 'Todos',
     types: [
         { value: 'resource', label: 'Recursos Interativos' },
-        { value: 'game', label: 'Jogos' }
+        { value: 'game', label: 'Jogos' },
+        {value: 'clinicalCase', label: "Casos Clínicos"}
     ]
 };
 

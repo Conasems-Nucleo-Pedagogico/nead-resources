@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Componente interativo - Câncer de ovário</title>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 48px 24px;
+        background: #f8fafc;
+      }
+
+      .nead-interactive-root,
+      .nead-interactive-root * {
+        box-sizing: border-box;
+      }
+
+      .nead-interactive {
+        --ni-primary: #9d5c8f;
+        --ni-primary-dark: #6d3f63;
+        --ni-accent: #f59e0b;
+        --ni-success: #22c55e;
+        --ni-warning: #f59e0b;
+        --ni-danger: #ef4444;
+
+        --ni-bg: #ffffff;
+        --ni-soft-bg: #faf7fb;
+        --ni-muted-bg: #f1f5f9;
+        --ni-card-bg: #ffffff;
+
+        --ni-text: #1f2937;
+        --ni-muted-text: #64748b;
+        --ni-border: #e5e7eb;
+
+        --ni-font-family: "Nunito", Arial, sans-serif;
+
+        --ni-radius-md: 1rem;
+        --ni-radius-lg: 1.5rem;
+        --ni-radius-xl: 2rem;
+
+        --ni-shadow: 0 1rem 2.5rem rgba(15, 23, 42, 0.08);
+
+        width: min(100%, 1180px);
+        margin: 0 auto;
+        color: var(--ni-text);
+        font-family: var(--ni-font-family);
+      }
+
+      .nead-interactive__layout {
+        display: grid;
+        grid-template-columns: minmax(16rem, 0.85fr) minmax(20rem, 1.25fr);
+        gap: 1.5rem;
+        width: 100%;
+      }
+
+      .nead-interactive__card {
+        overflow: hidden;
+        border: 1px solid var(--ni-border);
+        border-radius: var(--ni-radius-xl);
+        background: var(--ni-card-bg);
+        box-shadow: var(--ni-shadow);
+      }
+
+      .nead-interactive__panel {
+        padding: 1.25rem;
+      }
+
+      .nead-interactive__eyebrow {
+        margin: 0 0 0.35rem;
+        color: var(--ni-primary-dark);
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .nead-interactive__title {
+        margin: 0;
+        color: var(--ni-text);
+        font-size: clamp(1.35rem, 2vw, 1.75rem);
+        font-weight: 900;
+        line-height: 1.15;
+      }
+
+      .nead-interactive__subtitle {
+        margin: 0.6rem 0 1.25rem;
+        color: var(--ni-muted-text);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .nead-interactive__option-list {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .nead-interactive__option {
+        width: 100%;
+        border: 1px solid var(--ni-border);
+        border-radius: var(--ni-radius-md);
+        background: #ffffff;
+        color: var(--ni-text);
+        cursor: pointer;
+        display: flex;
+        gap: 0.85rem;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 1rem;
+        text-align: left;
+        font: inherit;
+        transition:
+          border-color 180ms ease,
+          background-color 180ms ease,
+          transform 180ms ease,
+          box-shadow 180ms ease;
+      }
+
+      .nead-interactive__option:hover,
+      .nead-interactive__option:focus-visible {
+        border-color: color-mix(in oklab, var(--ni-primary) 70%, white);
+        background: color-mix(in oklab, var(--ni-primary) 10%, white);
+        outline: none;
+        transform: translateY(-1px);
+      }
+
+      .nead-interactive__option[aria-pressed="true"] {
+        border-color: var(--ni-primary);
+        background: color-mix(in oklab, var(--ni-primary) 14%, white);
+        box-shadow: 0 0 0 3px
+          color-mix(in oklab, var(--ni-primary) 18%, transparent);
+      }
+
+      .nead-interactive__option-content {
+        min-width: 0;
+      }
+
+      .nead-interactive__option-title {
+        display: block;
+        color: var(--ni-text);
+        font-size: 0.95rem;
+        font-weight: 850;
+        line-height: 1.25;
+      }
+
+      .nead-interactive__option-description {
+        display: block;
+        margin-top: 0.35rem;
+        color: var(--ni-muted-text);
+        font-size: 0.82rem;
+        line-height: 1.4;
+      }
+
+      .nead-interactive__option-badge {
+        flex: 0 0 auto;
+        border: 1px solid var(--ni-border);
+        border-radius: 999px;
+        padding: 0.25rem 0.55rem;
+        color: var(--ni-muted-text);
+        font-size: 0.7rem;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .nead-interactive__option[aria-pressed="true"]
+        .nead-interactive__option-badge {
+        border-color: var(--ni-primary);
+        background: var(--ni-primary);
+        color: #ffffff;
+      }
+
+      .nead-interactive__response {
+        min-height: 34rem;
+      }
+
+      .nead-interactive__empty {
+        min-height: 34rem;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        background:
+          radial-gradient(
+            circle at 50% 35%,
+            color-mix(in oklab, var(--ni-primary) 16%, transparent),
+            transparent 28%
+          ),
+          var(--ni-soft-bg);
+        text-align: center;
+      }
+
+      .nead-interactive__empty-icon {
+        width: 4rem;
+        height: 4rem;
+        display: grid;
+        place-items: center;
+        margin: 0 auto 1rem;
+        border-radius: 1.25rem;
+        background: color-mix(in oklab, var(--ni-primary) 14%, white);
+        color: var(--ni-primary-dark);
+        font-size: 1.7rem;
+        font-weight: 900;
+      }
+
+      .nead-interactive__empty-title {
+        margin: 0;
+        color: var(--ni-text);
+        font-size: 1.05rem;
+        font-weight: 900;
+      }
+
+      .nead-interactive__empty-text {
+        max-width: 24rem;
+        margin: 0.5rem auto 0;
+        color: var(--ni-muted-text);
+        font-size: 0.92rem;
+        line-height: 1.5;
+      }
+
+      .nead-interactive__workarea {
+        padding: 1.35rem;
+      }
+
+      .nead-interactive__empty[hidden],
+      .nead-interactive__workarea[hidden],
+      .nead-interactive__map-area[hidden],
+      .nead-interactive__instruction[hidden],
+      .nead-interactive__result[hidden] {
+        display: none !important;
+      }
+
+      .nead-interactive__map-header {
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+
+      .nead-interactive__map-title {
+        margin: 0;
+        color: var(--ni-text);
+        font-size: 1.2rem;
+        font-weight: 900;
+      }
+
+      .nead-interactive__map-help {
+        margin: 0.35rem 0 0;
+        color: var(--ni-muted-text);
+        font-size: 0.9rem;
+        line-height: 1.45;
+      }
+
+      .nead-interactive__map {
+        position: relative;
+        width: min(100%, var(--ni-map-width, 27rem));
+        margin: 0 auto;
+        overflow: hidden;
+        border: 1px solid var(--ni-border);
+        border-radius: var(--ni-radius-lg);
+        background: var(--ni-muted-bg);
+      }
+
+      .nead-interactive__map-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: var(--ni-map-ratio, 2 / 3);
+        object-fit: contain;
+      }
+
+      .nead-interactive__map-svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .nead-interactive__region {
+        fill: color-mix(in oklab, var(--ni-primary) 15%, transparent);
+        stroke: rgba(255, 255, 255, 0.9);
+        stroke-width: 3;
+        cursor: pointer;
+        transition:
+          fill 180ms ease,
+          stroke 180ms ease,
+          stroke-width 180ms ease,
+          filter 180ms ease;
+      }
+
+      .nead-interactive__region:hover,
+      .nead-interactive__region:focus-visible {
+        fill: color-mix(in oklab, var(--ni-accent) 42%, transparent);
+        stroke: var(--ni-accent);
+        outline: none;
+        filter: drop-shadow(
+          0 0 0.4rem color-mix(in oklab, var(--ni-accent) 30%, transparent)
+        );
+      }
+
+      .nead-interactive__region.is-selected {
+        fill: color-mix(in oklab, var(--ni-accent) 58%, transparent);
+        stroke: var(--ni-accent);
+        stroke-width: 5;
+      }
+
+      .nead-interactive__instruction {
+        margin: 1rem 0 0;
+        padding: 1rem;
+        border: 1px solid
+          color-mix(in oklab, var(--ni-primary) 30%, transparent);
+        border-radius: var(--ni-radius-md);
+        background: color-mix(in oklab, var(--ni-primary) 10%, white);
+        color: var(--ni-primary-dark);
+        font-size: 0.92rem;
+        font-weight: 800;
+        text-align: center;
+      }
+
+      .nead-interactive__result {
+        margin-top: 1rem;
+        border: 1px solid var(--ni-border);
+        border-radius: var(--ni-radius-lg);
+        background: #ffffff;
+        overflow: hidden;
+      }
+
+      .nead-interactive__result-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid var(--ni-border);
+        background: var(--ni-soft-bg);
+      }
+
+      .nead-interactive__avatar {
+        width: 3.6rem;
+        height: 3.6rem;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        object-fit: cover;
+        background: var(--ni-muted-bg);
+      }
+
+      .nead-interactive__result-kicker {
+        margin: 0 0 0.2rem;
+        color: var(--ni-primary-dark);
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .nead-interactive__result-title {
+        margin: 0;
+        color: var(--ni-text);
+        font-size: 1rem;
+        font-weight: 900;
+        line-height: 1.25;
+      }
+
+      .nead-interactive__result-context {
+        margin: 0.25rem 0 0;
+        color: var(--ni-muted-text);
+        font-size: 0.85rem;
+      }
+
+      .nead-interactive__result-body {
+        display: grid;
+        gap: 1rem;
+        padding: 1.1rem;
+      }
+
+      .nead-interactive__finding {
+        padding: 1rem;
+        border-radius: var(--ni-radius-md);
+        background: var(--ni-soft-bg);
+      }
+
+      .nead-interactive__finding-title {
+        margin: 0 0 0.4rem;
+        color: var(--ni-text);
+        font-size: 0.9rem;
+        font-weight: 900;
+      }
+
+      .nead-interactive__finding-text {
+        margin: 0;
+        color: var(--ni-muted-text);
+        font-size: 0.92rem;
+        line-height: 1.55;
+      }
+
+      .nead-interactive__finding--reaction {
+        border-left: 4px solid var(--ni-primary);
+      }
+
+      .nead-interactive__finding--description {
+        border-left: 4px solid var(--ni-accent);
+      }
+
+      .nead-interactive__finding--impact {
+        border-left: 4px solid var(--ni-warning);
+      }
+
+      @media (max-width: 767px) {
+        body {
+          padding: 24px 12px;
+        }
+
+        .nead-interactive__layout {
+          grid-template-columns: 1fr;
+        }
+
+        .nead-interactive__response,
+        .nead-interactive__empty {
+          min-height: 0;
+        }
+
+        .nead-interactive__card {
+          border-radius: var(--ni-radius-lg);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="nead-interactive-demo" class="nead-interactive-root"></div>
+
+    <script>
+      class NeadInteractiveExplorer {
+        constructor(root, config) {
+          this.root =
+            typeof root === "string" ? document.querySelector(root) : root;
+
+          this.config = config;
+          this.selectedAction = null;
+          this.selectedRegionId = null;
+          this.currentResult = null;
+
+          if (!this.root) {
+            throw new Error(
+              "Elemento raiz do componente interativo não encontrado."
+            );
+          }
+
+          this.render();
+          this.bindEvents();
+        }
+
+        render() {
+          const c = this.config;
+
+          this.root.innerHTML = `
+            <section class="nead-interactive" aria-label="${this.escape(
+              c.ariaLabel || c.title || "Componente interativo"
+            )}">
+              <div class="nead-interactive__layout">
+                <article class="nead-interactive__card nead-interactive__panel">
+                  ${
+                    c.eyebrow
+                      ? `<p class="nead-interactive__eyebrow">${this.escape(
+                          c.eyebrow
+                        )}</p>`
+                      : ""
+                  }
+
+                  <h2 class="nead-interactive__title">${this.escape(
+                    c.title || "Atividade interativa"
+                  )}</h2>
+
+                  ${
+                    c.subtitle
+                      ? `<p class="nead-interactive__subtitle">${this.escape(
+                          c.subtitle
+                        )}</p>`
+                      : ""
+                  }
+
+                  <div class="nead-interactive__option-list">
+                    ${c.actions
+                      .map((action) => this.renderActionButton(action))
+                      .join("")}
+                  </div>
+                </article>
+
+                <article class="nead-interactive__card nead-interactive__response">
+                  <div class="nead-interactive__empty">
+                    <div>
+                      <div class="nead-interactive__empty-icon">${this.escape(
+                        c.emptyIcon || "✓"
+                      )}</div>
+
+                      <p class="nead-interactive__empty-title">${this.escape(
+                        c.emptyTitle || "Selecione uma opção"
+                      )}</p>
+
+                      <p class="nead-interactive__empty-text">${this.escape(
+                        c.emptyText ||
+                          "Escolha uma ação na lista para visualizar a resposta ou explorar a imagem."
+                      )}</p>
+                    </div>
+                  </div>
+
+                  <div class="nead-interactive__workarea" hidden>
+                    <div class="nead-interactive__map-area" hidden>
+                      <div class="nead-interactive__map-header">
+                        <h3 class="nead-interactive__map-title">${this.escape(
+                          c.mapTitle || "Mapa interativo"
+                        )}</h3>
+
+                        <p class="nead-interactive__map-help">${this.escape(
+                          c.mapInstruction ||
+                            "Selecione uma região para visualizar os achados."
+                        )}</p>
+                      </div>
+
+                      <div class="nead-interactive__map">
+                        <img
+                          class="nead-interactive__map-image"
+                          src="${this.escape(c.imageSrc || "")}"
+                          alt="${this.escape(
+                            c.imageAlt || "Imagem interativa"
+                          )}"
+                        />
+
+                        <svg
+                          class="nead-interactive__map-svg"
+                          viewBox="${this.escape(
+                            c.svgViewBox || "0 0 1024 1536"
+                          )}"
+                          preserveAspectRatio="${this.escape(
+                            c.preserveAspectRatio || "xMidYMid meet"
+                          )}"
+                          aria-label="${this.escape(
+                            c.svgAriaLabel || "Regiões selecionáveis"
+                          )}"
+                        >
+                          ${c.svgMarkup || ""}
+                        </svg>
+                      </div>
+
+                      <p class="nead-interactive__instruction">
+                        ${this.escape(
+                          c.regionInstruction ||
+                            "Escolha uma região para consultar os achados."
+                        )}
+                      </p>
+                    </div>
+
+                    <div class="nead-interactive__result" aria-live="polite" hidden>
+                      <div class="nead-interactive__result-header">
+                        ${
+                          c.avatarSrc
+                            ? `<img class="nead-interactive__avatar" src="${this.escape(
+                                c.avatarSrc
+                              )}" alt="${this.escape(
+                                c.avatarAlt || "Imagem do personagem"
+                              )}" />`
+                            : ""
+                        }
+
+                        <div>
+                          <p class="nead-interactive__result-kicker">${this.escape(
+                            c.resultKicker || "Resultado"
+                          )}</p>
+
+                          <h3 class="nead-interactive__result-title"></h3>
+                          <p class="nead-interactive__result-context"></p>
+                        </div>
+                      </div>
+
+                      <div class="nead-interactive__result-body">
+                        <div class="nead-interactive__finding nead-interactive__finding--reaction">
+                          <h4 class="nead-interactive__finding-title">${this.escape(
+                            c.reactionLabel || "Reação observada"
+                          )}</h4>
+
+                          <p class="nead-interactive__finding-text" data-result-reaction></p>
+                        </div>
+
+                        <div class="nead-interactive__finding nead-interactive__finding--description">
+                          <h4 class="nead-interactive__finding-title">${this.escape(
+                            c.descriptionLabel || "Descrição"
+                          )}</h4>
+
+                          <p class="nead-interactive__finding-text" data-result-description></p>
+                        </div>
+
+                        <div class="nead-interactive__finding nead-interactive__finding--impact" data-impact-block hidden>
+                          <h4 class="nead-interactive__finding-title">${this.escape(
+                            c.impactLabel || "Impacto para a decisão"
+                          )}</h4>
+
+                          <p class="nead-interactive__finding-text" data-result-impact></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+          `;
+        }
+
+        renderActionButton(action) {
+          const badge = action.badge
+            ? `<span class="nead-interactive__option-badge">${this.escape(
+                action.badge
+              )}</span>`
+            : "";
+
+          return `
+            <button
+              class="nead-interactive__option"
+              type="button"
+              data-action-id="${this.escape(action.id)}"
+              aria-pressed="false"
+            >
+              <span class="nead-interactive__option-content">
+                <strong class="nead-interactive__option-title">${this.escape(
+                  action.title
+                )}</strong>
+
+                ${
+                  action.description
+                    ? `<span class="nead-interactive__option-description">${this.escape(
+                        action.description
+                      )}</span>`
+                    : ""
+                }
+              </span>
+
+              ${badge}
+            </button>
+          `;
+        }
+
+        bindEvents() {
+          this.root.addEventListener("click", (event) => {
+            const actionButton = event.target.closest("[data-action-id]");
+            const region = event.target.closest(
+              ".nead-interactive__region[data-region]"
+            );
+
+            if (actionButton) {
+              this.selectAction(actionButton.dataset.actionId);
+              return;
+            }
+
+            if (region) {
+              this.selectRegion(region.dataset.region);
+            }
+          });
+
+          this.root.addEventListener("keydown", (event) => {
+            const region = event.target.closest(
+              ".nead-interactive__region[data-region]"
+            );
+
+            if (!region) return;
+
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              this.selectRegion(region.dataset.region);
+            }
+          });
+        }
+
+        selectAction(actionId) {
+          const action = this.config.actions.find(
+            (item) => item.id === actionId
+          );
+
+          if (!action) return;
+
+          this.selectedAction = action;
+          this.selectedRegionId = null;
+          this.currentResult = null;
+
+          this.root.querySelector(".nead-interactive__empty").hidden = true;
+          this.root.querySelector(".nead-interactive__workarea").hidden = false;
+
+          this.root.querySelectorAll("[data-action-id]").forEach((button) => {
+            button.setAttribute(
+              "aria-pressed",
+              String(button.dataset.actionId === actionId)
+            );
+          });
+
+          this.root
+            .querySelectorAll(".nead-interactive__region")
+            .forEach((region) => {
+              region.classList.remove("is-selected");
+            });
+
+          const mapArea = this.root.querySelector(
+            ".nead-interactive__map-area"
+          );
+
+          const instruction = this.root.querySelector(
+            ".nead-interactive__instruction"
+          );
+
+          const resultPanel = this.root.querySelector(
+            ".nead-interactive__result"
+          );
+
+          mapArea.hidden = !action.requiresRegion;
+          instruction.hidden = !action.requiresRegion;
+          resultPanel.hidden = true;
+
+          if (!action.requiresRegion) {
+            this.showResult({
+              result: action.generalResult,
+              contextLabel: action.generalResultLabel || "Resultado geral",
+            });
+          }
+        }
+
+        selectRegion(regionId) {
+          if (!this.selectedAction || !this.selectedAction.requiresRegion) {
+            return;
+          }
+
+          this.selectedRegionId = regionId;
+
+          this.root
+            .querySelectorAll(".nead-interactive__region")
+            .forEach((region) => {
+              region.classList.toggle(
+                "is-selected",
+                region.dataset.region === regionId
+              );
+            });
+
+          const instruction = this.root.querySelector(
+            ".nead-interactive__instruction"
+          );
+
+          instruction.hidden = true;
+
+          const result =
+            this.selectedAction.resultsByRegion?.[regionId] ||
+            this.config.defaultResult;
+
+          this.showResult({
+            result,
+            contextLabel: this.config.regionLabels?.[regionId] || regionId,
+          });
+        }
+
+        showResult({ result, contextLabel }) {
+          if (!result) return;
+
+          this.currentResult = {
+            ...result,
+            actionId: this.selectedAction?.id,
+            actionTitle: this.selectedAction?.title,
+            regionId: this.selectedRegionId,
+            contextLabel,
+          };
+
+          const panel = this.root.querySelector(".nead-interactive__result");
+          const title = panel.querySelector(".nead-interactive__result-title");
+          const context = panel.querySelector(
+            ".nead-interactive__result-context"
+          );
+          const reaction = panel.querySelector("[data-result-reaction]");
+          const description = panel.querySelector("[data-result-description]");
+          const impactBlock = panel.querySelector("[data-impact-block]");
+          const impact = panel.querySelector("[data-result-impact]");
+
+          title.textContent = this.selectedAction?.title || "";
+          context.textContent = contextLabel || "";
+
+          reaction.textContent =
+            result.reaction ||
+            result.patientReaction ||
+            "Sem reação registrada.";
+
+          description.textContent =
+            result.description ||
+            result.clinicalDescription ||
+            "Sem descrição registrada.";
+
+          if (result.impact) {
+            impactBlock.hidden = false;
+            impact.textContent = result.impact;
+          } else {
+            impactBlock.hidden = true;
+            impact.textContent = "";
+          }
+
+          panel.hidden = false;
+        }
+
+        escape(value = "") {
+          return String(value).replace(/[&<>'"]/g, (char) => {
+            const entities = {
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              "'": "&#39;",
+              '"': "&quot;",
+            };
+
+            return entities[char];
+          });
+        }
+      }
+
+      const ovarianCancerExamConfig = {
+        eyebrow: "03 · Exame físico",
+        title: "Avaliação abdominal e pélvica interativa",
+        subtitle:
+          "Explore sinais clínicos relevantes em uma paciente com distensão abdominal progressiva, saciedade precoce e dor pélvica inespecífica.",
+
+        emptyIcon: "⌕",
+        emptyTitle: "Escolha uma etapa do exame",
+        emptyText:
+          "Selecione uma manobra para observar achados, reações da paciente e pistas clínicas para o raciocínio diagnóstico.",
+
+        resultKicker: "Achado clínico",
+        reactionLabel: "Relato ou reação da paciente",
+        descriptionLabel: "Descrição do achado",
+        impactLabel: "Impacto para o raciocínio",
+
+        mapTitle: "Mapa abdominal e pélvico",
+        mapInstruction:
+          "Selecione a região anatômica onde deseja realizar a avaliação.",
+        regionInstruction:
+          "Escolha uma região do abdome ou pelve para consultar os achados.",
+
+        imageSrc: "./assets/abdomenFeminino.png",
+        imageAlt:
+          "Ilustração do abdome feminino com roupa para avaliação abdominal e pélvica",
+
+        avatarSrc: "./assets/paciente.webp",
+        avatarAlt: "Imagem da paciente do caso clínico",
+
+        svgViewBox: "0 0 1024 1536",
+        preserveAspectRatio: "xMidYMid meet",
+
+        regionLabels: {
+          epigastrium: "Epigástrio",
+          rightFlank: "Flanco direito",
+          leftFlank: "Flanco esquerdo",
+          mesogastrium: "Mesogástrio",
+          hypogastrium: "Hipogástrio",
+          rightIliacFossa: "Fossa ilíaca direita",
+          leftIliacFossa: "Fossa ilíaca esquerda",
+          rightAdnexalRegion: "Região anexial direita",
+          leftAdnexalRegion: "Região anexial esquerda",
+          suprapubicRegion: "Região suprapúbica",
+        },
+
+        svgMarkup: `
+          <g aria-label="Regiões abdominais e pélvicas">
+            <path class="nead-interactive__region" data-region="epigastrium" tabindex="0" role="button" aria-label="Epigástrio"
+              d="M350 350 C395 330, 470 325, 512 325 C554 325, 630 330, 674 350 L664 545 C610 530, 560 524, 512 524 C464 524, 414 530, 360 545 Z"></path>
+
+            <path class="nead-interactive__region" data-region="rightFlank" tabindex="0" role="button" aria-label="Flanco direito"
+              d="M196 430 C250 395, 306 370, 350 350 L360 545 L360 735 C310 715, 250 690, 190 650 C175 570, 178 495, 196 430 Z"></path>
+
+            <path class="nead-interactive__region" data-region="mesogastrium" tabindex="0" role="button" aria-label="Mesogástrio"
+              d="M360 545 C415 530, 465 524, 512 524 C559 524, 610 530, 664 545 L655 760 C600 785, 555 795, 512 795 C469 795, 424 785, 369 760 Z"></path>
+
+            <path class="nead-interactive__region" data-region="leftFlank" tabindex="0" role="button" aria-label="Flanco esquerdo"
+              d="M674 350 C718 370, 774 395, 828 430 C846 495, 849 570, 834 650 C774 690, 714 715, 664 735 L664 545 Z"></path>
+
+            <path class="nead-interactive__region" data-region="rightIliacFossa" tabindex="0" role="button" aria-label="Fossa ilíaca direita"
+              d="M190 650 C250 690, 310 715, 360 735 L369 760 L382 930 C320 910, 248 880, 165 835 C165 760, 174 700, 190 650 Z"></path>
+
+            <path class="nead-interactive__region" data-region="hypogastrium" tabindex="0" role="button" aria-label="Hipogástrio"
+              d="M369 760 C424 785, 469 795, 512 795 C555 795, 600 785, 655 760 L642 965 C595 990, 552 1002, 512 1002 C472 1002, 429 990, 382 965 Z"></path>
+
+            <path class="nead-interactive__region" data-region="leftIliacFossa" tabindex="0" role="button" aria-label="Fossa ilíaca esquerda"
+              d="M664 735 C714 715, 774 690, 834 650 C850 700, 859 760, 859 835 C776 880, 704 910, 642 930 L655 760 Z"></path>
+
+            <ellipse class="nead-interactive__region" data-region="rightAdnexalRegion" tabindex="0" role="button" aria-label="Região anexial direita"
+              cx="394" cy="885" rx="112" ry="82"></ellipse>
+
+            <ellipse class="nead-interactive__region" data-region="leftAdnexalRegion" tabindex="0" role="button" aria-label="Região anexial esquerda"
+              cx="630" cy="885" rx="112" ry="82"></ellipse>
+
+            <ellipse class="nead-interactive__region" data-region="suprapubicRegion" tabindex="0" role="button" aria-label="Região suprapúbica"
+              cx="512" cy="965" rx="120" ry="72"></ellipse>
+          </g>
+        `,
+
+        defaultResult: {
+          reaction: "A paciente refere apenas desconforto leve nessa região.",
+          description:
+            "Sem massa palpável, dor focal importante ou sinal clínico relevante na região examinada.",
+          impact:
+            "A ausência de achado focal nessa área ajuda a direcionar a investigação para regiões mais sintomáticas.",
+        },
+
+        actions: [
+          {
+            id: "general-inspection",
+            title: "Inspeção abdominal",
+            description:
+              "Observar distensão, assimetria, circulação colateral, cicatrizes e desconforto em repouso.",
+            badge: "Geral",
+            requiresRegion: false,
+            generalResult: {
+              reaction:
+                "A paciente relata sensação de abdome pesado e roupas mais apertadas nos últimos meses.",
+              description:
+                "Abdome discretamente distendido, sem sinais de irritação peritoneal evidente à inspeção.",
+              impact:
+                "Distensão progressiva e sensação de aumento abdominal são achados importantes em um quadro pélvico/abdominal subagudo.",
+            },
+          },
+          {
+            id: "superficial-palpation",
+            title: "Palpação superficial",
+            description:
+              "Avaliar dor, sensibilidade, defesa e desconforto nas regiões abdominais e pélvicas.",
+            badge: "Região",
+            requiresRegion: true,
+            resultsByRegion: {
+              epigastrium: {
+                reaction:
+                  "Sinto mais uma pressão do que dor. Fico cheia rápido quando como.",
+                description: "Desconforto epigástrico leve, sem defesa abdominal.",
+                impact:
+                  "A saciedade precoce é uma pista clínica relevante e deve ser valorizada junto aos sintomas pélvicos.",
+              },
+              mesogastrium: {
+                reaction:
+                  "É uma sensação de estufamento, como se a barriga estivesse sempre cheia.",
+                description:
+                  "Sensibilidade difusa leve, sem dor localizada intensa.",
+                impact:
+                  "O achado reforça a queixa de distensão abdominal, mas não aponta isoladamente para uma região específica.",
+              },
+              hypogastrium: {
+                reaction:
+                  "Aqui embaixo incomoda mais, principalmente no fim do dia.",
+                description:
+                  "Desconforto hipogástrico leve a moderado, sem defesa.",
+                impact:
+                  "Desconforto pélvico persistente deve orientar avaliação ginecológica e investigação complementar.",
+              },
+              leftIliacFossa: {
+                reaction:
+                  "Desse lado sinto um peso maior, mas não é uma dor aguda.",
+                description:
+                  "Sensibilidade leve em fossa ilíaca esquerda, sem defesa localizada.",
+                impact:
+                  "Dor em peso ou desconforto persistente em região pélvica pode ser pista de massa anexial.",
+              },
+              leftAdnexalRegion: {
+                reaction:
+                  "Aí é onde sinto mais incômodo, como uma pressão interna.",
+                description:
+                  "Desconforto localizado em região anexial esquerda à palpação superficial.",
+                impact:
+                  "Achado importante para direcionar o raciocínio para doença anexial e necessidade de exame ginecológico/imagem.",
+              },
+            },
+          },
+          {
+            id: "deep-palpation",
+            title: "Palpação profunda",
+            description:
+              "Pesquisar massas, dor profunda, mobilidade e limites de estruturas palpáveis.",
+            badge: "Região",
+            requiresRegion: true,
+            resultsByRegion: {
+              mesogastrium: {
+                reaction: "Sinto pressão, mas não chega a ser uma dor forte.",
+                description:
+                  "Palpação profunda com desconforto difuso, sem massa central bem delimitada.",
+                impact:
+                  "Desconforto difuso pode acompanhar distensão abdominal, mas precisa ser correlacionado com achados pélvicos.",
+              },
+              hypogastrium: {
+                reaction:
+                  "Aqui embaixo incomoda bastante quando aperta fundo.",
+                description:
+                  "Dor profunda hipogástrica leve a moderada, sem defesa peritoneal.",
+                impact:
+                  "Dor pélvica subaguda reforça necessidade de investigação ginecológica.",
+              },
+              leftAdnexalRegion: {
+                reaction: "Aí dói e parece que aperta por dentro.",
+                description:
+                  "Palpação profunda sugere resistência/massa pélvica mal delimitada em topografia anexial esquerda.",
+                impact:
+                  "Achado de maior relevância no exame. Sugere massa anexial e exige investigação por imagem e avaliação especializada.",
+              },
+              rightAdnexalRegion: {
+                reaction: "Desse lado incomoda menos.",
+                description:
+                  "Sem massa evidente em região anexial direita à palpação.",
+                impact:
+                  "A assimetria dos achados ajuda a localizar a principal suspeita no lado contralateral.",
+              },
+              suprapubicRegion: {
+                reaction:
+                  "Sinto pressão, como se a bexiga estivesse sempre cheia.",
+                description:
+                  "Desconforto suprapúbico, sem sinais de abdome agudo.",
+                impact:
+                  "Sintomas compressivos podem ocorrer em massas pélvicas e devem ser correlacionados com queixas urinárias.",
+              },
+            },
+          },
+          {
+            id: "ascites-assessment",
+            title: "Pesquisar sinais de ascite",
+            description:
+              "Avaliar macicez móvel, onda líquida e sinais indiretos de líquido livre abdominal.",
+            badge: "Geral",
+            requiresRegion: false,
+            generalResult: {
+              reaction:
+                "A paciente relata aumento progressivo do volume abdominal e sensação de peso.",
+              description:
+                "Exame sugere possível líquido livre abdominal discreto, sem sinais de instabilidade.",
+              impact:
+                "Ascite em contexto de massa anexial ou sintomas persistentes é achado de alerta e aumenta a prioridade da investigação.",
+            },
+          },
+          {
+            id: "lymph-node-assessment",
+            title: "Avaliar linfonodos periféricos",
+            description:
+              "Palpar cadeias inguinais e supraclaviculares em busca de linfonodomegalias.",
+            badge: "Geral",
+            requiresRegion: false,
+            generalResult: {
+              reaction:
+                "A paciente não refere dor durante a palpação dos linfonodos.",
+              description:
+                "Sem linfonodomegalias periféricas evidentes ao exame simplificado.",
+              impact:
+                "A ausência de linfonodos palpáveis não exclui doença pélvica, mas compõe a avaliação clínica inicial.",
+            },
+          },
+        ],
+      };
+
+      document.addEventListener("DOMContentLoaded", function () {
+        new NeadInteractiveExplorer(
+          "#nead-interactive-demo",
+          ovarianCancerExamConfig
+        );
+      });
+    </script>
+  </body>
+</html>
