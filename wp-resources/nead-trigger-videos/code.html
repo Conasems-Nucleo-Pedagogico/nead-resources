@@ -1,0 +1,534 @@
+<style>
+    .patient-360 {
+        --patient-position: 50% 50%;
+
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        min-height: 100vh;
+        overflow: hidden;
+        isolation: isolate;
+        background: #171717;
+    }
+
+    /* Vídeo usado como background */
+    .patient-360__video {
+        position: absolute;
+        z-index: 0;
+        inset: 0;
+
+        width: 100%;
+        height: 100%;
+
+        object-fit: cover;
+        object-position: var(--patient-position);
+
+        transition:
+            opacity 300ms ease,
+            transform 500ms ease;
+    }
+
+    /* Escurecimento para melhorar a leitura dos botões */
+    .patient-360__overlay {
+        position: absolute;
+        z-index: 1;
+        inset: 0;
+
+        pointer-events: none;
+
+        background:
+            linear-gradient(to top,
+                rgba(0, 0, 0, 0.75) 0%,
+                rgba(0, 0, 0, 0.15) 55%,
+                rgba(0, 0, 0, 0) 100%);
+    }
+
+    .patient-360,
+    .patient-360 * {
+        box-sizing: border-box;
+    }
+
+    .patient-360__interface {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+        padding: 5%
+    }
+
+    /* Caixa de vidro que agrupa título, descrição e botões */
+    .patient-360__content-box {
+        position: relative;
+        width: min(760px, 40%);
+        padding: clamp(22px, 3vw, 36px);
+        overflow: hidden;
+
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 24px;
+
+        background: rgba(16, 20, 18, 0.38);
+        -webkit-backdrop-filter: blur(18px) saturate(125%);
+        backdrop-filter: blur(18px) saturate(125%);
+
+        box-shadow:
+            0 18px 55px rgba(0, 0, 0, 0.34),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    /* Brilho suave nas bordas da caixa */
+    .patient-360__content-box::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.12),
+            rgba(255, 255, 255, 0.02) 45%,
+            rgba(255, 255, 255, 0.07)
+        );
+    }
+
+    .patient-360__content-box > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .patient-360__title {
+        max-width: 680px;
+        margin: 0 0 8px;
+
+        color: #ffffff;
+        font-size: clamp(24px, 4vw, 42px);
+        line-height: 1.1;
+    }
+
+    .patient-360__description {
+        max-width: 680px;
+        margin: 0 0 24px;
+
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    .patient-360__buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .patient-360__button,
+    .patient-360__retry {
+        appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 999px;
+        padding: 12px 20px;
+
+        color: #ffffff;
+        background: rgba(20, 20, 20, 0.65);
+        backdrop-filter: blur(8px);
+
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+
+        transition:
+            background-color 200ms ease,
+            border-color 200ms ease,
+            transform 200ms ease;
+    }
+
+    .patient-360__button:hover,
+    .patient-360__button:focus-visible,
+    .patient-360__retry:hover,
+    .patient-360__retry:focus-visible {
+        background: rgba(20, 20, 20, 0.9);
+        border-color: #ffffff;
+        transform: translateY(-2px);
+    }
+
+    .patient-360__button.is-active {
+        color: #171717;
+        background: #ffffff;
+        border-color: #ffffff;
+    }
+
+    .patient-360__retry {
+        align-self: flex-start;
+        margin-top: 16px;
+        background: #ffffff;
+        color: #171717;
+    }
+
+    .patient-360__status {
+        min-height: 24px;
+        margin: 14px 0 0;
+
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 14px;
+    }
+
+    .patient-360.is-loading .patient-360__video {
+        opacity: 0.6;
+        transform: scale(1.01);
+    }
+
+    .patient-360 [hidden] {
+        display: none !important;
+    }
+
+    @media (max-width: 767px) {
+        .patient-360 {
+            height: 100vh;
+            min-height: 100vh;
+        }
+
+        .patient-360__interface {
+            width: 100%;
+            padding: 18px;
+        }
+
+        .patient-360__content-box {
+            width: 100%;
+            padding: 20px 18px;
+            border-radius: 18px;
+            -webkit-backdrop-filter: blur(14px) saturate(120%);
+            backdrop-filter: blur(14px) saturate(120%);
+        }
+
+        .patient-360__buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .patient-360__button {
+            width: 100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+        .patient-360__video,
+        .patient-360__button,
+        .patient-360__retry {
+            transition: none;
+        }
+    }
+</style>
+
+<div class="patient-360"
+    data-idle-video="https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/monica1.webm">
+    <video class="patient-360__video"
+        src="https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/monica1.webm"
+        autoplay muted loop playsinline preload="auto"></video>
+
+    <div class="patient-360__overlay"></div>
+
+    <div class="patient-360__interface">
+        <div class="patient-360__content-box">
+            <h2 class="patient-360__title">
+                Converse com a paciente
+            </h2>
+
+            <p class="patient-360__description">
+                Selecione uma etapa para ouvir o relato da paciente.
+            </p>
+
+            <div class="patient-360__buttons" role="group" aria-label="Etapas do atendimento">
+                <button type="button" class="patient-360__button"
+                    data-patient-video="https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/monica3.webm"
+                    data-label="Escuta qualificada" aria-pressed="false">
+                    Teste
+                </button>
+
+                <!-- <button type="button" class="patient-360__button"
+                    data-patient-video="https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/TesteBG-Video.webm"
+                    data-label="Consulta médica" aria-pressed="false">
+                    Consulta médica
+                </button> -->
+
+                <!-- <button type="button" class="patient-360__button"
+                    data-patient-video="https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/TesteBG-Video.webm"
+                    data-label="Histórico da paciente" aria-pressed="false">
+                    Histórico
+                </button> -->
+            </div>
+
+            <!-- Aparece somente se o navegador bloquear a primeira tentativa -->
+            <button type="button" class="patient-360__retry" hidden>
+                ▶ Reproduzir resposta com áudio
+            </button>
+
+            <p class="patient-360__status" aria-live="polite"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        function initializePatient360(scope = document) {
+            const components = scope.querySelectorAll(".patient-360");
+
+            components.forEach((component) => {
+                if (component.dataset.initialized === "true") {
+                    return;
+                }
+
+                component.dataset.initialized = "true";
+
+                const video = component.querySelector(".patient-360__video");
+                const buttons = [
+                    ...component.querySelectorAll("[data-patient-video]"),
+                ];
+                const retryButton = component.querySelector(
+                    ".patient-360__retry",
+                );
+                const status = component.querySelector(
+                    ".patient-360__status",
+                );
+
+                if (!video) {
+                    return;
+                }
+
+                const idleVideo =
+                    component.dataset.idleVideo || video.currentSrc || video.src;
+
+                let currentLabel = "";
+                let requestId = 0;
+
+                function setStatus(message = "") {
+                    if (status) {
+                        status.textContent = message;
+                    }
+                }
+
+                function setActiveButton(activeButton = null) {
+                    buttons.forEach((button) => {
+                        const isActive = button === activeButton;
+
+                        button.classList.toggle("is-active", isActive);
+                        button.setAttribute(
+                            "aria-pressed",
+                            String(isActive),
+                        );
+                    });
+                }
+
+                function playVideo({
+                    src,
+                    withAudio = false,
+                    loop = false,
+                    label = "",
+                }) {
+                    if (!src) {
+                        return;
+                    }
+
+                    requestId += 1;
+                    const currentRequest = requestId;
+
+                    currentLabel = label;
+
+                    component.classList.add("is-loading");
+
+                    if (retryButton) {
+                        retryButton.hidden = true;
+                    }
+
+                    setStatus(
+                        label ? `Carregando: ${label}...` : "",
+                    );
+
+                    /*
+                     * É importante chamar play() diretamente nesta função,
+                     * que é acionada pelo clique.
+                     */
+                    video.pause();
+                    video.loop = loop;
+
+                    video.muted = !withAudio;
+                    video.defaultMuted = !withAudio;
+
+                    video.src = src;
+                    video.load();
+
+                    const playPromise = video.play();
+
+                    if (
+                        playPromise &&
+                        typeof playPromise.catch === "function"
+                    ) {
+                        playPromise.catch((error) => {
+                            if (currentRequest !== requestId) {
+                                return;
+                            }
+
+                            component.classList.remove("is-loading");
+
+                            if (withAudio && retryButton) {
+                                retryButton.hidden = false;
+
+                                setStatus(
+                                    "Toque em “Reproduzir resposta com áudio”.",
+                                );
+                            } else {
+                                setStatus("");
+                            }
+
+                            console.warn(
+                                "O navegador bloqueou a reprodução:",
+                                error,
+                            );
+                        });
+                    }
+                }
+
+                buttons.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        const src = button.dataset.patientVideo;
+                        const label =
+                            button.dataset.label ||
+                            button.textContent.trim();
+
+                        setActiveButton(button);
+
+                        playVideo({
+                            src,
+                            withAudio: true,
+                            loop: false,
+                            label,
+                        });
+                    });
+                });
+
+                if (retryButton) {
+                    retryButton.addEventListener("click", () => {
+                        video.muted = false;
+                        video.defaultMuted = false;
+
+                        const playPromise = video.play();
+
+                        if (
+                            playPromise &&
+                            typeof playPromise.then === "function"
+                        ) {
+                            playPromise
+                                .then(() => {
+                                    retryButton.hidden = true;
+                                    setStatus(
+                                        currentLabel
+                                            ? `Reproduzindo: ${currentLabel}`
+                                            : "",
+                                    );
+                                })
+                                .catch(() => {
+                                    setStatus(
+                                        "Não foi possível iniciar o vídeo. Verifique o volume e tente novamente.",
+                                    );
+                                });
+                        }
+                    });
+                }
+
+                video.addEventListener("playing", () => {
+                    component.classList.remove("is-loading");
+
+                    if (retryButton) {
+                        retryButton.hidden = true;
+                    }
+
+                    setStatus(
+                        currentLabel
+                            ? `Reproduzindo: ${currentLabel}`
+                            : "",
+                    );
+                });
+
+                video.addEventListener("waiting", () => {
+                    component.classList.add("is-loading");
+
+                    if (currentLabel) {
+                        setStatus(`Carregando: ${currentLabel}...`);
+                    }
+                });
+
+                /*
+                 * Quando a resposta acaba, volta ao vídeo inicial,
+                 * mudo e em looping.
+                 */
+                video.addEventListener("ended", () => {
+                    setActiveButton();
+                    currentLabel = "";
+
+                    playVideo({
+                        src: idleVideo,
+                        withAudio: false,
+                        loop: true,
+                    });
+                });
+
+                /*
+                 * Tenta iniciar o vídeo ambiente.
+                 * Como está mudo, normalmente o autoplay é permitido.
+                 */
+                video.muted = true;
+                video.defaultMuted = true;
+                video.loop = true;
+
+                const initialPlay = video.play();
+
+                if (
+                    initialPlay &&
+                    typeof initialPlay.catch === "function"
+                ) {
+                    initialPlay.catch(() => {
+                        /*
+                         * Em economia de bateria ou economia de dados,
+                         * o poster permanece visível.
+                         */
+                    });
+                }
+            });
+        }
+
+        function startPatient360() {
+            initializePatient360(document);
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener(
+                "DOMContentLoaded",
+                startPatient360,
+                { once: true },
+            );
+        } else {
+            startPatient360();
+        }
+
+        /*
+         * Ajuda o componente a funcionar também quando o Elementor
+         * renderiza novamente o widget dentro do editor.
+         */
+        window.addEventListener("elementor/frontend/init", () => {
+            if (!window.elementorFrontend?.hooks) {
+                return;
+            }
+
+            window.elementorFrontend.hooks.addAction(
+                "frontend/element_ready/html.default",
+                ($scope) => {
+                    initializePatient360($scope[0]);
+                },
+            );
+        });
+    })();
+</script>
