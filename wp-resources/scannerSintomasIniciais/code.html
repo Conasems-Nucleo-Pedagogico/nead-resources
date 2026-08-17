@@ -1,0 +1,1891 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Componente interativo - Scanner com hotspot</title>
+
+    <style>
+        :root {
+            --clinical-primary: #0F3D2E;
+            --clinical-primary-dark: #172B54;
+            --clinical-accent: #F8CA33;
+            --clinical-hotspot: #84B85F;
+            --clinical-danger: #E23A43;
+
+            --clinical-text: #1D2433;
+            --clinical-muted: #687083;
+
+            --clinical-surface: #FFFFFF;
+            --clinical-soft: #F6F8FB;
+            --clinical-border: rgba(33, 59, 116, 0.14);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            color: var(--clinical-text);
+
+            background:
+                radial-gradient(circle at 12% 20%,
+                    rgba(33, 59, 116, 0.07),
+                    transparent 30%),
+                radial-gradient(circle at 85% 14%,
+                    rgba(248, 202, 51, 0.1),
+                    transparent 24%),
+                #F5F7FA;
+
+            font-family: "Nunito", Arial, sans-serif;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .prototype-shell {
+            width: min(1240px, calc(100% - 30px));
+            margin: 0 auto;
+            padding: 36px 0 60px;
+        }
+
+        .prototype-header {
+            margin-bottom: 22px;
+        }
+
+        .prototype-kicker {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            margin-bottom: 8px;
+
+            color: #0F3D2E;
+
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+       
+
+        .prototype-header h1 {
+            margin: 0;
+
+            color: #0F3D2E;
+
+            font-size: clamp(25px, 3vw, 35px);
+            line-height: 1.15;
+            font-weight: 900;
+        }
+
+        .clinical-resource {
+            padding: clamp(18px, 3vw, 32px);
+
+            border: 1px solid var(--clinical-border);
+            border-radius: 30px;
+
+            background: rgba(255, 255, 255, 0.97);
+
+            box-shadow:
+                0 24px 70px rgba(26, 39, 66, 0.12);
+        }
+
+        .clinical-resource__top {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            align-items: end;
+
+            margin-bottom: 24px;
+        }
+
+        .clinical-resource__title {
+            margin: 0 0 6px;
+
+            color: var(--clinical-primary);
+
+            font-size: clamp(22px, 2.6vw, 31px);
+            line-height: 1.2;
+            font-weight: 900;
+        }
+
+        .clinical-resource__description {
+            max-width: 780px;
+            margin: 0;
+
+            color: var(--clinical-muted);
+
+            font-size: 16px;
+            line-height: 1.55;
+        }
+
+        .clinical-progress {
+            min-width: 160px;
+            padding: 12px 15px;
+
+            border: 1px solid var(--clinical-border);
+            border-radius: 17px;
+
+            background: #FFFFFF;
+
+            box-shadow:
+                0 8px 20px rgba(33, 59, 116, 0.08);
+        }
+
+        .clinical-progress__label {
+            display: block;
+
+            margin-bottom: 5px;
+
+            color: var(--clinical-muted);
+
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .clinical-progress__value {
+            color: var(--clinical-primary);
+
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .clinical-progress__track {
+            height: 6px;
+            margin-top: 9px;
+
+            overflow: hidden;
+
+            border-radius: 999px;
+
+            background: #E7ECF3;
+        }
+
+        .clinical-progress__fill {
+            width: 0;
+            height: 100%;
+
+            border-radius: inherit;
+
+            background: var(--clinical-accent);
+
+            transition:
+                width 400ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* =========================================================
+       ÁREA PRINCIPAL
+       ========================================================= */
+
+        .clinical-layout {
+            display: grid;
+            grid-template-columns:
+                minmax(0, 1.55fr) minmax(310px, 0.72fr);
+
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        /* =========================================================
+       IMAGEM
+       ========================================================= */
+
+        .clinical-viewer {
+            position: relative;
+            isolation: isolate;
+
+            min-height: 590px;
+
+            overflow: hidden;
+
+            border-radius: 26px;
+
+            background:
+                linear-gradient(135deg,
+                    #DDE4ED,
+                    #EEF2F6);
+
+            box-shadow:
+                inset 0 0 0 1px rgba(33, 59, 116, 0.1);
+        }
+
+        .clinical-viewer__image {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+            object-position: center;
+
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .clinical-viewer__shade {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+
+            pointer-events: none;
+
+            background:
+                linear-gradient(180deg,
+                    rgba(22, 43, 84, 0.04),
+                    rgba(22, 43, 84, 0.08));
+        }
+
+        /* =========================================================
+       SCANNER
+       ========================================================= */
+
+        .clinical-scan {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: -16%;
+            z-index: 8;
+
+            height: 92px;
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            background:
+                linear-gradient(180deg,
+                    rgba(248, 202, 51, 0),
+                    rgba(248, 202, 51, 0.05) 25%,
+                    rgba(248, 202, 51, 0.35) 50%,
+                    rgba(248, 202, 51, 0.08) 74%,
+                    rgba(248, 202, 51, 0));
+
+            filter:
+                drop-shadow(0 0 14px rgba(248, 202, 51, 0.55));
+        }
+
+        .clinical-scan::after {
+            content: "";
+
+            position: absolute;
+            left: 7%;
+            right: 7%;
+            top: 50%;
+
+            height: 2px;
+
+            border-radius: 999px;
+
+            background:
+                rgba(248, 202, 51, 0.95);
+
+            box-shadow:
+                0 0 9px rgba(248, 202, 51, 0.9),
+                0 0 24px rgba(248, 202, 51, 0.5);
+        }
+
+        .clinical-scan__label {
+            position: absolute;
+            left: 50%;
+            top: 22px;
+
+            padding: 7px 12px;
+
+            border: 1px solid rgba(33, 59, 116, 0.12);
+            border-radius: 999px;
+
+            color: var(--clinical-primary-dark);
+
+            background:
+                rgba(255, 255, 255, 0.94);
+
+            font-size: 12px;
+            font-weight: 900;
+            white-space: nowrap;
+
+            transform: translateX(-50%);
+        }
+
+        .clinical-resource.is-scanning .clinical-scan {
+            opacity: 1;
+
+            animation:
+                clinicalScan 5s cubic-bezier(0.45, 0.05, 0.35, 1) forwards;
+        }
+
+        @keyframes clinicalScan {
+            from {
+                top: -16%;
+            }
+
+            to {
+                top: 104%;
+            }
+        }
+
+        /* =========================================================
+       HOTSPOTS
+       ========================================================= */
+
+        .clinical-hotspot {
+            --x: 50%;
+            --y: 50%;
+
+            position: absolute;
+
+            left: var(--x);
+            top: var(--y);
+
+            z-index: 12;
+
+            display: grid;
+            place-items: center;
+
+            width: 36px;
+            height: 36px;
+
+            padding: 0;
+
+            border:
+                3px solid rgba(255, 255, 255, 0.96);
+            border-radius: 50%;
+
+            color: #FFFFFF;
+
+            background:
+                var(--clinical-hotspot);
+
+            box-shadow:
+                0 7px 20px rgba(54, 89, 45, 0.22);
+
+            cursor: pointer;
+
+            opacity: 0;
+
+            transform:
+                translate(-50%, -50%) scale(0.55);
+
+            transition:
+                opacity 280ms ease,
+                transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+                background-color 220ms ease,
+                box-shadow 220ms ease;
+        }
+
+        .clinical-hotspot.is-revealed {
+            opacity: 1;
+
+            transform:
+                translate(-50%, -50%) scale(1);
+
+            animation:
+                hotspotPulse 2.4s ease-in-out infinite;
+        }
+
+        .clinical-hotspot:hover,
+        .clinical-hotspot:focus-visible {
+            transform:
+                translate(-50%, -50%) scale(1.14);
+
+            outline: none;
+        }
+
+        .clinical-hotspot.is-visited {
+            background:
+                var(--clinical-primary);
+
+            animation: none;
+
+            box-shadow:
+                0 7px 20px rgba(33, 59, 116, 0.25);
+        }
+
+        .clinical-hotspot.is-active {
+            background:
+                var(--clinical-accent);
+
+            box-shadow:
+                0 0 0 8px rgba(248, 202, 51, 0.25),
+                0 8px 20px rgba(33, 59, 116, 0.2);
+        }
+
+        .clinical-hotspot__check {
+            display: none;
+
+            color: #FFFFFF;
+
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .clinical-hotspot.is-visited .clinical-hotspot__check {
+            display: block;
+        }
+
+        .clinical-hotspot.is-active .clinical-hotspot__check {
+            color:
+                var(--clinical-primary);
+        }
+
+        @keyframes hotspotPulse {
+
+            0%,
+            100% {
+                box-shadow:
+                    0 7px 20px rgba(54, 89, 45, 0.22),
+                    0 0 0 0 rgba(132, 184, 95, 0.42);
+            }
+
+            50% {
+                box-shadow:
+                    0 7px 20px rgba(54, 89, 45, 0.22),
+                    0 0 0 11px rgba(132, 184, 95, 0);
+            }
+        }
+
+        /* Posições relativas à imagem.
+       Altere somente --x e --y em cada aula. */
+
+        [data-symptom="tontura"] {
+            --x: 38%;
+            --y: 26%;
+        }
+
+        [data-symptom="nervosa"] {
+            --x: 60%;
+            --y: 24%;
+        }
+
+        [data-symptom="falta-ar"] {
+            --x: 51%;
+            --y: 48%;
+        }
+
+        [data-symptom="dor-peito"] {
+            --x: 41%;
+            --y: 76%;
+        }
+
+        [data-symptom="taquicardia"] {
+            --x: 60%;
+            --y: 76%;
+        }
+
+        .clinical-viewer__tip {
+            position: absolute;
+            left: 50%;
+            bottom: 18px;
+            z-index: 9;
+
+            max-width: calc(100% - 30px);
+
+            padding: 9px 14px;
+
+            border-radius: 999px;
+
+            color: #FFFFFF;
+
+            background:
+                rgba(22, 43, 84, 0.9);
+
+            box-shadow:
+                0 8px 22px rgba(22, 43, 84, 0.16);
+
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+
+            transform: translateX(-50%);
+
+            transition:
+                opacity 250ms ease;
+        }
+
+        .clinical-viewer__tip.is-hidden {
+            opacity: 0;
+        }
+
+        /* =========================================================
+       PRONTUÁRIO LATERAL
+       ========================================================= */
+
+        .clinical-record {
+            display: flex;
+            flex-direction: column;
+
+            min-height: 590px;
+            overflow: hidden;
+
+            border:
+                1px solid var(--clinical-border);
+            border-radius: 26px;
+
+            background:
+                var(--clinical-surface);
+
+            box-shadow:
+                0 12px 32px rgba(33, 59, 116, 0.08);
+        }
+
+        .clinical-record__header {
+            padding: 22px 20px 18px;
+
+            color: #FFFFFF;
+
+            background:
+                linear-gradient(135deg,
+                    var(--clinical-primary),
+                    var(--clinical-primary-dark));
+        }
+
+        .clinical-record__eyebrow {
+            display: block;
+
+            margin-bottom: 5px;
+
+            color:
+                var(--clinical-accent);
+
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .clinical-record__title {
+            margin: 0;
+
+            font-size: 21px;
+            line-height: 1.2;
+            font-weight: 900;
+        }
+
+        .clinical-record__description {
+            margin: 7px 0 0;
+
+            color:
+                rgba(255, 255, 255, 0.78);
+
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .clinical-record__body {
+            flex: 1;
+
+            padding: 16px;
+        }
+
+        .clinical-record__empty {
+            display: grid;
+            place-items: center;
+
+            min-height: 130px;
+
+            padding: 18px;
+
+            border:
+                1px dashed rgba(33, 59, 116, 0.18);
+            border-radius: 18px;
+
+            color:
+                var(--clinical-muted);
+
+            background:
+                var(--clinical-soft);
+
+            text-align: center;
+
+            transition:
+                opacity 220ms ease;
+        }
+
+        .clinical-record__empty strong {
+            display: block;
+
+            margin-bottom: 4px;
+
+            color:
+                var(--clinical-primary);
+
+            font-size: 14px;
+        }
+
+        .clinical-record__empty span {
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .clinical-record__empty.is-hidden {
+            display: none;
+        }
+
+        .clinical-record__list {
+            display: grid;
+            gap: 9px;
+
+            margin: 0;
+            padding: 0;
+
+            list-style: none;
+        }
+
+        .clinical-record-item {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 11px;
+            align-items: start;
+
+            padding: 13px 14px;
+
+            border:
+                1px solid rgba(33, 59, 116, 0.11);
+            border-radius: 16px;
+
+            background: #FFFFFF;
+
+            box-shadow:
+                0 6px 16px rgba(33, 59, 116, 0.06);
+
+            opacity: 0;
+
+            transform:
+                translateX(12px);
+
+            animation:
+                recordItemIn 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .clinical-record-item.is-active {
+            border-color:
+                rgba(248, 202, 51, 0.85);
+
+            background:
+                rgba(248, 202, 51, 0.08);
+
+            box-shadow:
+                0 8px 22px rgba(33, 59, 116, 0.09);
+        }
+
+        @keyframes recordItemIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .clinical-record-item__icon {
+            display: grid;
+            place-items: center;
+
+            width: 30px;
+            height: 30px;
+
+            border-radius: 50%;
+
+            color: #FFFFFF;
+
+            background:
+                var(--clinical-primary);
+
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .clinical-record-item__label {
+            display: block;
+
+            margin-bottom: 2px;
+
+            color:
+                var(--clinical-muted);
+
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        .clinical-record-item__text {
+            color:
+                var(--clinical-primary);
+
+            font-size: 14px;
+            line-height: 1.38;
+            font-weight: 900;
+        }
+
+        .clinical-record__footer {
+            padding:
+                14px 16px 17px;
+
+            border-top:
+                1px solid var(--clinical-border);
+
+            background:
+                #FBFCFD;
+        }
+
+        .clinical-record__status {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+
+            color:
+                var(--clinical-muted);
+
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .clinical-record__status-dot {
+            width: 8px;
+            height: 8px;
+
+            flex: 0 0 auto;
+
+            border-radius: 50%;
+
+            background:
+                #B6BCC7;
+        }
+
+        .clinical-record__status.is-complete {
+            color:
+                var(--clinical-primary);
+
+            font-weight: 800;
+        }
+
+        .clinical-record__status.is-complete .clinical-record__status-dot {
+            background:
+                var(--clinical-hotspot);
+        }
+
+        /* =========================================================
+       FINALIZAÇÃO
+       ========================================================= */
+
+        .clinical-complete {
+            display: grid;
+            grid-template-columns:
+                auto 1fr;
+            gap: 13px;
+            align-items: center;
+
+            max-height: 0;
+            margin-top: 0;
+            padding: 0 18px;
+
+            overflow: hidden;
+
+            border:
+                1px solid transparent;
+            border-radius: 20px;
+
+            opacity: 0;
+
+            transform:
+                translateY(10px);
+
+            transition:
+                max-height 500ms ease,
+                margin-top 300ms ease,
+                padding 300ms ease,
+                opacity 300ms ease,
+                transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 300ms ease;
+        }
+
+        .clinical-complete.is-visible {
+            max-height: 150px;
+            margin-top: 18px;
+            padding: 16px 18px;
+
+            border-color:
+                rgba(33, 59, 116, 0.12);
+
+            background:
+                #F7FAF8;
+
+            opacity: 1;
+
+            transform:
+                translateY(0);
+        }
+
+        .clinical-complete__icon {
+            display: grid;
+            place-items: center;
+
+            width: 44px;
+            height: 44px;
+
+            border-radius: 50%;
+
+            color: #FFFFFF;
+
+            background:
+                var(--clinical-primary);
+
+            font-size: 19px;
+            font-weight: 900;
+        }
+
+        .clinical-complete h3 {
+            margin: 0 0 3px;
+
+            color:
+                var(--clinical-primary);
+
+            font-size: 17px;
+            font-weight: 900;
+        }
+
+        .clinical-complete p {
+            margin: 0;
+
+            color:
+                #596273;
+
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        /* =========================================================
+       RESPONSIVO
+       ========================================================= */
+
+        @media (max-width: 900px) {
+            .clinical-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .clinical-viewer {
+                min-height: 560px;
+            }
+
+            .clinical-record {
+                min-height: auto;
+            }
+
+            .clinical-record__body {
+                min-height: 180px;
+            }
+        }
+
+
+        /* =========================================================
+           MOBILE — ACHADO IMEDIATO EM BOTTOM SHEET
+           Desktop/notebook permanecem inalterados.
+           ========================================================= */
+
+        .clinical-mobile-finding {
+            display: none;
+        }
+
+        @media (max-width: 680px) {
+            .clinical-viewer__tip {
+                width: 100%;
+            }
+            /*
+             * Mantém a imagem proporcional e preenchendo toda a área.
+             * O recorte acontece pelo object-fit: cover já existente.
+             */
+            .clinical-viewer {
+                height: clamp(500px, 68svh, 620px);
+                min-height: 0;
+            }
+
+            .clinical-viewer__image {
+                width: 100%;
+                height: 100% !important;
+
+                object-fit: cover;
+                object-position: center;
+            }
+
+            /*
+             * No celular, o prontuário lateral deixa de competir
+             * com a imagem durante a exploração.
+             */
+            .clinical-record {
+                display: none;
+            }
+
+            /*
+             * Bottom sheet com o achado selecionado.
+             */
+            .clinical-mobile-finding {
+                position: absolute;
+
+                left: 0;
+                right: 0;
+                bottom: 0;
+
+                z-index: 30;
+
+                display: block;
+
+                min-height: 150px;
+                padding:
+                    18px 20px
+                    calc(20px + env(safe-area-inset-bottom));
+
+                border-radius:
+                    22px 22px 0 0;
+
+                background:
+                    rgba(255, 255, 255, 0.97);
+
+                box-shadow:
+                    0 -14px 32px
+                    rgba(15, 61, 46, 0.18);
+
+                backdrop-filter:
+                    blur(12px);
+
+                -webkit-backdrop-filter:
+                    blur(12px);
+
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+
+                transform:
+                    translateY(105%);
+
+                transition:
+                    opacity 260ms ease,
+                    transform 340ms
+                        cubic-bezier(0.22, 1, 0.36, 1),
+                    visibility 260ms ease;
+            }
+
+            .clinical-mobile-finding.is-visible {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+
+                transform:
+                    translateY(0);
+            }
+
+            .clinical-mobile-finding__handle {
+                width: 44px;
+                height: 5px;
+
+                margin:
+                    0 auto 14px;
+
+                border-radius: 999px;
+
+                background:
+                    rgba(15, 61, 46, 0.18);
+            }
+
+            .clinical-mobile-finding__top {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 14px;
+            }
+
+            .clinical-mobile-finding__eyebrow {
+                display: block;
+
+                margin-bottom: 4px;
+
+                color:
+                    var(--clinical-muted);
+
+                font-size: 10px;
+                font-weight: 900;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+
+            .clinical-mobile-finding__title {
+                margin: 0;
+
+                color:
+                    var(--clinical-primary);
+
+                font-size: 20px;
+                line-height: 1.25;
+                font-weight: 900;
+            }
+
+            .clinical-mobile-finding__close {
+                display: grid;
+                place-items: center;
+
+                width: 34px;
+                height: 34px;
+
+                flex: 0 0 auto;
+
+                padding: 0;
+
+                border: 0;
+                border-radius: 50%;
+
+                color:
+                    var(--clinical-primary);
+
+                background:
+                    rgba(15, 61, 46, 0.07);
+
+                font-size: 20px;
+                line-height: 1;
+
+                cursor: pointer;
+            }
+
+            .clinical-mobile-finding__status {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                margin: 14px 0 0;
+
+                color:
+                    var(--clinical-primary);
+
+                font-size: 12px;
+                line-height: 1.4;
+                font-weight: 800;
+            }
+
+            .clinical-mobile-finding__status-icon {
+                display: grid;
+                place-items: center;
+
+                width: 23px;
+                height: 23px;
+
+                flex: 0 0 auto;
+
+                border-radius: 50%;
+
+                color: #FFFFFF;
+
+                background:
+                    var(--clinical-primary);
+
+                font-size: 12px;
+                font-weight: 900;
+            }
+
+            /*
+             * Quando a bottom sheet está aberta, sobe o aviso inferior
+             * para não ficar escondido atrás dela.
+             */
+            .clinical-viewer.has-mobile-finding
+                .clinical-viewer__tip {
+                opacity: 0;
+            }
+
+            .prototype-shell {
+                width:
+                    min(100% - 18px,
+                        620px);
+
+                padding-top: 20px;
+            }
+
+            .clinical-resource {
+                padding: 16px;
+
+                border-radius: 22px;
+            }
+
+            .clinical-resource__top {
+                grid-template-columns: 1fr;
+            }
+
+            .clinical-progress {
+                width: 100%;
+            }
+
+            .clinical-viewer {
+                min-height: 480px;
+
+                border-radius: 20px;
+            }
+
+            .clinical-record {
+                border-radius: 20px;
+            }
+
+            .clinical-hotspot {
+                width: 32px;
+                height: 32px;
+            }
+
+            [data-symptom="tontura"] {
+                --x: 34%;
+                --y: 26%;
+            }
+
+            [data-symptom="nervosa"] {
+                --x: 65%;
+                --y: 24%;
+            }
+
+            [data-symptom="falta-ar"] {
+                --x: 52%;
+                --y: 47%;
+            }
+
+            [data-symptom="dor-peito"] {
+                --x: 38%;
+                --y: 75%;
+            }
+
+            [data-symptom="taquicardia"] {
+                --x: 64%;
+                --y: 74%;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .clinical-scan,
+            .clinical-hotspot,
+            .clinical-progress__fill,
+            .clinical-record-item,
+            .clinical-complete {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+  </head>
+
+  <body>
+    <main class="prototype-shell">
+
+        <section class="clinical-resource" id="clinicalResource">
+            <div class="clinical-resource__top">
+                <div>
+                    <h2 class="clinical-resource__title">
+                        Mônica chega à UBS em busca de novo atendimento
+                    </h2>
+
+                    <p class="clinical-resource__description">
+                        Observe a paciente e explore os pontos de atenção.
+                        Cada achado identificado será registrado no prontuário
+                        lateral.
+                    </p>
+                </div>
+
+                <div class="clinical-progress" aria-live="polite">
+                    <span class="clinical-progress__label">
+                        Achados identificados
+                    </span>
+
+                    <strong class="clinical-progress__value" data-progress-value>
+                        0 de 5
+                    </strong>
+
+                    <div class="clinical-progress__track" aria-hidden="true">
+                        <div class="clinical-progress__fill" data-progress-fill></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clinical-layout">
+                <!-- IMAGEM + SCANNER -->
+                <div class="clinical-viewer">
+                    <img class="clinical-viewer__image" data-patient-image src="" alt="Paciente Mônica">
+
+                    <div class="clinical-viewer__shade" aria-hidden="true"></div>
+
+                    <div class="clinical-scan" aria-hidden="true">
+                        <span class="clinical-scan__label">
+                            Mapeando sinais e sintomas...
+                        </span>
+                    </div>
+
+                    <button type="button" class="clinical-hotspot" data-symptom="tontura" data-reveal-delay="1500"
+                        aria-label="Explorar sinal relacionado à tontura">
+                        <span class="clinical-hotspot__check">
+                            ✓
+                        </span>
+                    </button>
+
+                    <button type="button" class="clinical-hotspot" data-symptom="nervosa" data-reveal-delay="1600"
+                        aria-label="Explorar sinal relacionado ao nervosismo">
+                        <span class="clinical-hotspot__check">
+                            ✓
+                        </span>
+                    </button>
+
+                    <button type="button" class="clinical-hotspot" data-symptom="falta-ar" data-reveal-delay="2000"
+                        aria-label="Explorar sinal relacionado à falta de ar">
+                        <span class="clinical-hotspot__check">
+                            ✓
+                        </span>
+                    </button>
+
+                    <button type="button" class="clinical-hotspot" data-symptom="dor-peito" data-reveal-delay="2500"
+                        aria-label="Explorar sinal relacionado à dor no peito">
+                        <span class="clinical-hotspot__check">
+                            ✓
+                        </span>
+                    </button>
+
+                    <button type="button" class="clinical-hotspot" data-symptom="taquicardia" data-reveal-delay="2600"
+                        aria-label="Explorar sinal relacionado à taquicardia">
+                        <span class="clinical-hotspot__check">
+                            ✓
+                        </span>
+                    </button>
+
+                    <div
+                        class="clinical-mobile-finding"
+                        data-mobile-finding
+                        aria-live="polite"
+                        aria-hidden="true"
+                    >
+                        <div
+                            class="clinical-mobile-finding__handle"
+                            aria-hidden="true"
+                        ></div>
+
+                        <div class="clinical-mobile-finding__top">
+                            <div>
+                                <span class="clinical-mobile-finding__eyebrow">
+                                    Achado identificado
+                                </span>
+
+                                <h3
+                                    class="clinical-mobile-finding__title"
+                                    data-mobile-finding-title
+                                ></h3>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="clinical-mobile-finding__close"
+                                data-mobile-finding-close
+                                aria-label="Fechar achado"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <p class="clinical-mobile-finding__status">
+                            <span
+                                class="clinical-mobile-finding__status-icon"
+                                aria-hidden="true"
+                            >
+                                ✓
+                            </span>
+
+                            Adicionado aos achados do atendimento
+                        </p>
+                    </div>
+
+                    <div class="clinical-viewer__tip" data-viewer-tip>
+                        Clique nos pontos para registrar os achados.
+                    </div>
+                </div>
+
+                <!-- PRONTUÁRIO -->
+                <aside class="clinical-record" aria-label="Prontuário de sinais e sintomas">
+                    <header class="clinical-record__header">
+                        <span class="clinical-record__eyebrow">
+                            Atendimento atual
+                        </span>
+
+                        <h3 class="clinical-record__title">
+                            Achados do atendimento
+                        </h3>
+
+                        <p class="clinical-record__description">
+                            Os sinais identificados na exploração da paciente
+                            aparecerão aqui.
+                        </p>
+                    </header>
+
+                    <div class="clinical-record__body">
+                        <div class="clinical-record__empty" data-record-empty>
+                            <div>
+                                <strong>
+                                    Nenhum achado registrado
+                                </strong>
+
+                                <span>
+                                    Explore os pontos sobre a imagem da paciente.
+                                </span>
+                            </div>
+                        </div>
+
+                        <ul class="clinical-record__list" data-record-list></ul>
+                    </div>
+
+                    <footer class="clinical-record__footer">
+                        <div class="clinical-record__status" data-record-status>
+                            <span class="clinical-record__status-dot"></span>
+
+                            <span>
+                                Aguardando exploração dos sinais
+                            </span>
+                        </div>
+                    </footer>
+                </aside>
+            </div>
+
+            <div class="clinical-complete" data-clinical-complete aria-live="polite">
+                <div class="clinical-complete__icon">
+                    ✓
+                </div>
+
+                <div>
+                    <h3>
+                        Todos os sinais foram identificados
+                    </h3>
+
+                    <p>
+                        Você concluiu a exploração e registrou os cinco
+                        achados do atendimento.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        (() => {
+            /* =======================================================
+               CONFIGURAÇÃO DA AULA
+               ======================================================= */
+
+            const CLINICAL_RESOURCE_CONFIG = {
+                /*
+                 * Coloque aqui a URL da imagem hospedada no WordPress.
+                 */
+                imageUrl:
+                    "https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/CuidadoTesteCasoClinico.webp",
+
+                symptoms: {
+                    "tontura": {
+                        label: "Tontura",
+                    },
+
+                    "nervosa": {
+                        label: "Nervosismo",
+                    },
+
+                    "falta-ar": {
+                        label: "Falta de ar",
+                    },
+
+                    "dor-peito": {
+                        label:
+                            "Dor no peito, com irradiação para o braço esquerdo",
+                    },
+
+                    "taquicardia": {
+                        label: "Taquicardia",
+                    },
+                },
+            };
+
+            /* =======================================================
+               INICIALIZAÇÃO
+               ======================================================= */
+
+            const resource =
+                document.querySelector(
+                    "#clinicalResource"
+                );
+
+            if (!resource) {
+                return;
+            }
+
+            const patientImage =
+                resource.querySelector(
+                    "[data-patient-image]"
+                );
+
+            const hotspots = [
+                ...resource.querySelectorAll(
+                    ".clinical-hotspot"
+                ),
+            ];
+
+            const progressValue =
+                resource.querySelector(
+                    "[data-progress-value]"
+                );
+
+            const progressFill =
+                resource.querySelector(
+                    "[data-progress-fill]"
+                );
+
+            const recordEmpty =
+                resource.querySelector(
+                    "[data-record-empty]"
+                );
+
+            const recordList =
+                resource.querySelector(
+                    "[data-record-list]"
+                );
+
+            const recordStatus =
+                resource.querySelector(
+                    "[data-record-status]"
+                );
+
+            const completeBox =
+                resource.querySelector(
+                    "[data-clinical-complete]"
+                );
+
+            const viewerTip =
+                resource.querySelector(
+                    "[data-viewer-tip]"
+                );
+
+            const viewer =
+                resource.querySelector(
+                    ".clinical-viewer"
+                );
+
+            const mobileFinding =
+                resource.querySelector(
+                    "[data-mobile-finding]"
+                );
+
+            const mobileFindingTitle =
+                resource.querySelector(
+                    "[data-mobile-finding-title]"
+                );
+
+            const mobileFindingClose =
+                resource.querySelector(
+                    "[data-mobile-finding-close]"
+                );
+
+            const isMobile = () =>
+                window.matchMedia(
+                    "(max-width: 680px)"
+                ).matches;
+
+            const visited =
+                new Set();
+
+            let scannerStarted =
+                false;
+
+            let activeSymptom =
+                null;
+
+            /* Imagem recebida via configuração */
+            patientImage.src =
+                CLINICAL_RESOURCE_CONFIG.imageUrl;
+
+            /* =======================================================
+               PRONTUÁRIO
+               ======================================================= */
+
+            function createRecordItem(
+                symptomId
+            ) {
+                const symptom =
+                    CLINICAL_RESOURCE_CONFIG
+                        .symptoms[symptomId];
+
+                if (!symptom) {
+                    return null;
+                }
+
+                const item =
+                    document.createElement(
+                        "li"
+                    );
+
+                item.className =
+                    "clinical-record-item";
+
+                item.dataset.recordSymptom =
+                    symptomId;
+
+                item.innerHTML = `
+          <span
+            class="clinical-record-item__icon"
+          >
+            ✓
+          </span>
+
+          <div>
+            <span
+              class="clinical-record-item__label"
+            >
+              Achado identificado
+            </span>
+
+            <div
+              class="clinical-record-item__text"
+            >
+              ${symptom.label}
+            </div>
+          </div>
+        `;
+
+                return item;
+            }
+
+            function setActiveRecord(
+                symptomId
+            ) {
+                resource
+                    .querySelectorAll(
+                        ".clinical-record-item"
+                    )
+                    .forEach(
+                        (item) => {
+                            item.classList.toggle(
+                                "is-active",
+                                item.dataset
+                                    .recordSymptom ===
+                                symptomId
+                            );
+                        }
+                    );
+            }
+
+            function registerSymptom(
+                symptomId
+            ) {
+                if (
+                    visited.has(
+                        symptomId
+                    )
+                ) {
+                    return;
+                }
+
+                const item =
+                    createRecordItem(
+                        symptomId
+                    );
+
+                if (!item) {
+                    return;
+                }
+
+                visited.add(
+                    symptomId
+                );
+
+                recordEmpty.classList.add(
+                    "is-hidden"
+                );
+
+                recordList.appendChild(
+                    item
+                );
+
+                updateProgress();
+            }
+
+            function showMobileFinding(
+                symptomId
+            ) {
+                if (
+                    !isMobile() ||
+                    !mobileFinding ||
+                    !mobileFindingTitle
+                ) {
+                    return;
+                }
+
+                const symptom =
+                    CLINICAL_RESOURCE_CONFIG
+                        .symptoms[symptomId];
+
+                if (!symptom) {
+                    return;
+                }
+
+                mobileFindingTitle.textContent =
+                    symptom.label;
+
+                mobileFinding.classList.add(
+                    "is-visible"
+                );
+
+                mobileFinding.setAttribute(
+                    "aria-hidden",
+                    "false"
+                );
+
+                viewer?.classList.add(
+                    "has-mobile-finding"
+                );
+            }
+
+            function hideMobileFinding() {
+                if (!mobileFinding) {
+                    return;
+                }
+
+                mobileFinding.classList.remove(
+                    "is-visible"
+                );
+
+                mobileFinding.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+                viewer?.classList.remove(
+                    "has-mobile-finding"
+                );
+            }
+
+            mobileFindingClose?.addEventListener(
+                "click",
+                hideMobileFinding
+            );
+
+            /* =======================================================
+               HOTSPOTS
+               ======================================================= */
+
+            function activateSymptom(
+                symptomId
+            ) {
+                activeSymptom =
+                    symptomId;
+
+                hotspots.forEach(
+                    (hotspot) => {
+                        const isCurrent =
+                            hotspot.dataset
+                                .symptom ===
+                            symptomId;
+
+                        hotspot.classList.toggle(
+                            "is-active",
+                            isCurrent
+                        );
+                    }
+                );
+
+                const currentHotspot =
+                    resource.querySelector(
+                        `.clinical-hotspot[data-symptom="${CSS.escape(
+                            symptomId
+                        )}"]`
+                    );
+
+                currentHotspot?.classList.add(
+                    "is-visited"
+                );
+
+                registerSymptom(
+                    symptomId
+                );
+
+                setActiveRecord(
+                    symptomId
+                );
+
+                viewerTip.classList.add(
+                    "is-hidden"
+                );
+
+                showMobileFinding(
+                    symptomId
+                );
+            }
+
+            hotspots.forEach(
+                (hotspot) => {
+                    hotspot.addEventListener(
+                        "click",
+                        () => {
+                            activateSymptom(
+                                hotspot.dataset.symptom
+                            );
+                        }
+                    );
+                }
+            );
+
+            /* =======================================================
+               PROGRESSO
+               ======================================================= */
+
+            function updateProgress() {
+                const total =
+                    hotspots.length;
+
+                const count =
+                    visited.size;
+
+                progressValue.textContent =
+                    `${count} de ${total}`;
+
+                progressFill.style.width =
+                    `${(count / total) * 100}%`;
+
+                if (
+                    count === 0
+                ) {
+                    recordStatus.classList.remove(
+                        "is-complete"
+                    );
+
+                    recordStatus.innerHTML = `
+            <span
+              class="clinical-record__status-dot"
+            ></span>
+
+            <span>
+              Aguardando exploração dos sinais
+            </span>
+          `;
+
+                    return;
+                }
+
+                if (
+                    count < total
+                ) {
+                    recordStatus.classList.remove(
+                        "is-complete"
+                    );
+
+                    recordStatus.innerHTML = `
+            <span
+              class="clinical-record__status-dot"
+            ></span>
+
+            <span>
+              ${count} de ${total} achados registrados
+            </span>
+          `;
+
+                    return;
+                }
+
+                recordStatus.classList.add(
+                    "is-complete"
+                );
+
+                recordStatus.innerHTML = '';
+
+                completeBox.classList.add(
+                    "is-visible"
+                );
+
+                viewerTip.classList.add(
+                    "is-hidden"
+                );
+            }
+
+            /* =======================================================
+               SCANNER
+               ======================================================= */
+
+            function startScanner() {
+                if (
+                    scannerStarted
+                ) {
+                    return;
+                }
+
+                scannerStarted =
+                    true;
+
+                resource.classList.add(
+                    "is-scanning"
+                );
+
+                hotspots.forEach(
+                    (hotspot) => {
+                        const delay =
+                            Number(
+                                hotspot.dataset
+                                    .revealDelay ||
+                                0
+                            );
+
+                        window.setTimeout(
+                            () => {
+                                hotspot.classList.add(
+                                    "is-revealed"
+                                );
+                            },
+                            delay
+                        );
+                    }
+                );
+
+                window.setTimeout(
+                    () => {
+                        resource.classList.remove(
+                            "is-scanning"
+                        );
+                    },
+                    5000
+                );
+            }
+
+            window.addEventListener(
+                "resize",
+                () => {
+                    if (!isMobile()) {
+                        hideMobileFinding();
+                    }
+                }
+            );
+
+            const observer =
+                new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach(
+                            (entry) => {
+                                if (
+                                    !entry.isIntersecting
+                                ) {
+                                    return;
+                                }
+
+                                startScanner();
+
+                                observer.disconnect();
+                            }
+                        );
+                    },
+                    {
+                        threshold: 0.35,
+                    }
+                );
+
+            observer.observe(
+                resource
+            );
+
+            updateProgress();
+        })();
+    </script>
+  </body>
+</html>

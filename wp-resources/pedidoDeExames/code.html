@@ -1,0 +1,1551 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Componente interativo - Pedido de exames</title>
+
+    <style>
+    .exam-results-widget {
+        --p: #0F3D2E;
+        --pd: #08271D;
+        --a: #F8CA33;
+        --g: #2E7D32;
+        --r: #B42318;
+        --text: #202532;
+        --muted: #687083;
+        --border: rgba(15, 61, 46, 0.14);
+
+        width: 100%;
+        color: var(--text);
+        font-family: "Nunito", Arial, sans-serif;
+    }
+
+    .exam-results-widget,
+    .exam-results-widget * {
+        box-sizing: border-box;
+    }
+
+    .exam-results-widget button {
+        font: inherit;
+    }
+
+
+
+    .exam-results-widget .shell {
+        width: min(1180px, calc(100% - 30px));
+        margin: auto;
+        padding: 36px 0 64px
+    }
+
+    .exam-results-widget .head {
+        margin-bottom: 22px
+    }
+
+    .exam-results-widget .kicker {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+        color: var(--p);
+        font-weight: 900
+    }
+
+    .exam-results-widget .kicker:before {
+        content: "";
+        width: 4px;
+        height: 38px;
+        border-radius: 99px;
+        background: var(--a)
+    }
+
+    .exam-results-widget .head h1 {
+        margin: 0;
+        color: var(--p);
+        font-size: clamp(25px, 3vw, 36px)
+    }
+
+    .exam-results-widget .resource {
+        position: relative;
+        overflow: hidden;
+        min-height: 650px;
+        border: 1px solid var(--border);
+        border-radius: 30px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, .98), rgba(249, 250, 252, .96));
+        box-shadow: 0 24px 70px rgba(26, 39, 66, .12)
+    }
+
+    .exam-results-widget .intro {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, .8fr);
+        min-height: 650px;
+        transition: opacity .36s, transform .52s cubic-bezier(.22, 1, .36, 1), visibility .36s
+    }
+
+    .exam-results-widget .resource.open .intro {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateX(-35px)
+    }
+
+    .exam-results-widget .intro-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: clamp(34px, 6vw, 74px)
+    }
+
+    .exam-results-widget .eyebrow {
+        display: inline-flex;
+        width: max-content;
+        margin-bottom: 15px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        color: var(--p);
+        background: rgba(248, 202, 51, .2);
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .06em
+    }
+
+    .exam-results-widget .intro-title {
+        margin: 0 0 14px;
+        color: var(--p);
+        font-size: clamp(30px, 4vw, 48px);
+        line-height: 1.08
+    }
+
+    .exam-results-widget .intro-text {
+        max-width: 620px;
+        margin: 0 0 26px;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.65
+    }
+
+    .exam-results-widget .open-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        width: max-content;
+        min-height: 50px;
+        padding: 13px 22px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--a);
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 10px 24px rgba(15, 61, 46, .18);
+        transition: .2s
+    }
+
+    .exam-results-widget .open-btn:hover {
+        transform: translateY(-2px)
+    }
+
+    .exam-results-widget .intro-visual {
+        position: relative;
+        min-height: 650px;
+        overflow: hidden;
+        background: linear-gradient(180deg, rgba(15, 61, 46, .08), rgba(15, 61, 46, .19)), #DDE6E1
+    }
+
+    .exam-results-widget .intro-visual img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover
+    }
+
+    .exam-results-widget .placeholder {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, .78), transparent 28%), linear-gradient(135deg, #DDE8E3, #C8D9D1)
+    }
+
+    .exam-results-widget .placeholder:before {
+        content: "Imagem do profissional";
+        display: grid;
+        place-items: center;
+        width: 190px;
+        height: 190px;
+        border: 2px dashed rgba(15, 61, 46, .24);
+        border-radius: 50%;
+        color: rgba(15, 61, 46, .52);
+        background: rgba(255, 255, 255, .52);
+        font-weight: 800
+    }
+
+    .exam-results-widget .intro-title {
+        font-size: 20px;
+        line-height: 1.35
+    }
+
+    .exam-results-widget .workspace {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 230px minmax(0, 1fr);
+        gap: 28px;
+        align-items: center;
+        padding: 34px;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateX(55px);
+        transition: opacity .42s .18s, transform .62s cubic-bezier(.22, 1, .36, 1) .12s, visibility .42s .18s;
+        background: linear-gradient(135deg, rgba(244, 247, 250, .98), rgba(255, 255, 255, .98))
+    }
+
+    .exam-results-widget .resource.open .workspace {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: none
+    }
+
+    .exam-results-widget .index {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 9px
+    }
+
+    .exam-results-widget .index-title {
+        margin: 0 0 6px;
+        color: var(--p);
+        font-size: 14px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .06em
+    }
+
+    .exam-results-widget .index-btn {
+        position: relative;
+        width: 100%;
+        padding: 13px 14px 13px 42px;
+        border: 1px solid rgba(15, 61, 46, .11);
+        border-radius: 14px 8px 8px 14px;
+        background: rgba(255, 255, 255, .9);
+        color: var(--p);
+        text-align: left;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 5px 14px rgba(15, 61, 46, .05);
+        transition: .22s
+    }
+
+    .exam-results-widget .index-btn:before {
+        content: "○";
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #98a1b2;
+        font-size: 18px
+    }
+
+    .exam-results-widget .index-btn:hover {
+        transform: translateX(4px)
+    }
+
+    .exam-results-widget .index-btn.active {
+        background: var(--a);
+        border-color: var(--a);
+        color: #171717;
+        transform: translateX(8px)
+    }
+
+    .exam-results-widget .index-btn.active:before {
+        content: "●";
+        color: var(--p)
+    }
+
+    .exam-results-widget .index-btn.visited:not(.active):before {
+        content: "✓";
+        color: var(--g);
+        font-weight: 900
+    }
+
+    .exam-results-widget .progress {
+        margin-top: 12px;
+        padding: 12px 13px;
+        border-radius: 14px;
+        background: rgba(15, 61, 46, .05);
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45
+    }
+
+    .exam-results-widget .progress strong {
+        color: var(--p)
+    }
+
+    .exam-results-widget .stack-wrap {
+        position: relative;
+        min-height: 560px;
+        display: grid;
+        place-items: center
+    }
+
+    .exam-results-widget .stack {
+        position: relative;
+        width: min(720px, 100%);
+        height: 510px;
+        perspective: 1200px
+    }
+
+    .exam-results-widget .sheet {
+        position: absolute;
+        inset: 0;
+        padding: 38px 42px 34px;
+        overflow: hidden;
+        border: 1px solid rgba(15, 61, 46, .13);
+        border-radius: 16px;
+        background: linear-gradient(180deg, #fff, #fcfcfd);
+        box-shadow: 0 18px 42px rgba(15, 61, 46, .14);
+        opacity: 0;
+        transform: translateY(34px) translateX(22px) rotate(1.5deg) scale(.965);
+        pointer-events: none;
+        transition: opacity .34s, transform .52s cubic-bezier(.22, 1, .36, 1), box-shadow .34s
+    }
+
+    .exam-results-widget .sheet:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 10px;
+        background: var(--p)
+    }
+
+    .exam-results-widget .sheet.active {
+        z-index: 20;
+        opacity: 1;
+        pointer-events: auto;
+        transform: none;
+        box-shadow: 0 26px 58px rgba(15, 61, 46, .2)
+    }
+
+    .exam-results-widget .sheet.behind1 {
+        z-index: 10;
+        opacity: 1;
+        transform: translateY(14px) translateX(14px) rotate(1.1deg) scale(.982)
+    }
+
+    .exam-results-widget .sheet.behind2 {
+        z-index: 5;
+        opacity: 1;
+        transform: translateY(28px) translateX(27px) rotate(2deg) scale(.965)
+    }
+
+    .exam-results-widget .sheet-head {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+        align-items: start;
+        padding-bottom: 18px;
+        border-bottom: 1px solid rgba(15, 61, 46, .12)
+    }
+
+    .exam-results-widget .sheet-kicker {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .08em
+    }
+
+    .exam-results-widget .sheet-title {
+        margin: 0;
+        color: var(--p);
+        font-size: clamp(24px, 3vw, 34px)
+    }
+
+    .exam-results-widget .num {
+        display: grid;
+        place-items: center;
+        min-width: 42px;
+        height: 42px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: rgba(248, 202, 51, .28);
+        color: var(--p);
+        font-size: 13px;
+        font-weight: 900
+    }
+
+    .exam-results-widget .sheet-body {
+        position: relative;
+        min-height: 330px;
+        padding-top: 24px
+    }
+
+    .exam-results-widget .sheet.normal .sheet-body {
+        padding-bottom: 116px;
+    }
+
+    .exam-results-widget .result-label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--p);
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .07em
+    }
+
+    .exam-results-widget .result-text {
+        max-width: 610px;
+        margin: 0;
+        color: #343946;
+        font-size: 17px;
+        line-height: 1.68;
+        white-space: pre-line
+    }
+
+    .exam-results-widget .meta {
+        display: inline-flex;
+        margin-top: 22px;
+        padding: 8px 11px;
+        border-radius: 999px;
+        background: #f3f5f8;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800
+    }
+
+    .exam-results-widget .stamp {
+        position: absolute;
+        right: 26px;
+        bottom: 22px;
+        display: grid;
+        place-items: center;
+        width: 210px;
+        min-height: 82px;
+        padding: 12px;
+        border: 4px double rgba(15, 61, 46, .76);
+        border-radius: 11px;
+        color: rgba(15, 61, 46, .82);
+        font-size: 16px;
+        line-height: 1.2;
+        font-weight: 1000;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        opacity: 0;
+        transform: scale(1.45) rotate(-10deg);
+        pointer-events: none
+    }
+
+    .exam-results-widget .sheet.active.normal .stamp {
+        animation: stamp .52s cubic-bezier(.2, 1.3, .5, 1) .3s forwards
+    }
+
+    @keyframes stamp {
+        65% {
+            opacity: 1;
+            transform: scale(.94) rotate(-4deg)
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1) rotate(-4deg)
+        }
+    }
+
+    .exam-results-widget .ecg {
+        height: 88px;
+        margin: 24px 0 20px;
+        overflow: hidden;
+        border: 1px solid rgba(180, 35, 24, .08);
+        border-radius: 12px;
+        background: linear-gradient(rgba(213, 85, 85, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(213, 85, 85, .07) 1px, transparent 1px), linear-gradient(rgba(213, 85, 85, .12) 1px, transparent 1px), linear-gradient(90deg, rgba(213, 85, 85, .12) 1px, transparent 1px), #fffdfd;
+        background-size: 8px 8px, 8px 8px, 40px 40px, 40px 40px
+    }
+
+    .exam-results-widget .ecg svg {
+        width: 100%;
+        height: 100%
+    }
+
+    .exam-results-widget .ecg path {
+        fill: none;
+        stroke: var(--r);
+        stroke-width: 2.3;
+        vector-effect: non-scaling-stroke
+    }
+
+    .exam-results-widget .image-box {
+        margin: 22px 0 18px;
+        height: 190px;
+        overflow: hidden;
+        border-radius: 14px;
+        background: #EEF3F0
+    }
+
+    .exam-results-widget .image-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain
+    }
+
+    .exam-results-widget .img-placeholder {
+        display: grid;
+        place-items: center;
+        height: 190px;
+        margin: 22px 0 18px;
+        border: 2px dashed rgba(15, 61, 46, .15);
+        border-radius: 14px;
+        background: #F6F9F7;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+        text-align: center;
+        padding: 25px
+    }
+
+    .exam-results-widget .complete {
+        position: absolute;
+        left: 50%;
+        bottom: 16px;
+        z-index: 50;
+        padding: 10px 15px;
+        border: 1px solid rgba(15, 61, 46, .16);
+        border-radius: 999px;
+        background: rgba(245, 252, 246, .96);
+        color: var(--p);
+        font-size: 13px;
+        font-weight: 900;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-50%) translateY(8px);
+        transition: .3s
+    }
+
+    .exam-results-widget .complete.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%)
+    }
+
+    @media(max-width:900px) {
+        .exam-results-widget .intro {
+            grid-template-columns: 1fr
+        }
+
+        .exam-results-widget .intro-visual {
+            min-height: 280px;
+            order: -1
+        }
+
+        .exam-results-widget .workspace {
+            grid-template-columns: 1fr;
+            align-items: start
+        }
+
+        .exam-results-widget .index {
+            align-self: auto
+        }
+
+        .exam-results-widget .index-buttons {
+            display: flex !important;
+            flex-wrap: wrap
+        }
+
+        .exam-results-widget .index-btn {
+            width: auto
+        }
+
+        .exam-results-widget .stack-wrap {
+            min-height: 500px
+        }
+
+        .exam-results-widget .stack {
+            height: 460px
+        }
+    }
+
+    /* =========================================================
+       MOBILE / TABLET — EXAMES EM ACORDEÃO
+       Cada resultado abre logo abaixo do respectivo botão.
+       ========================================================= */
+
+    @media(max-width:921px) {
+        .exam-results-widget .workspace {
+            position: absolute;
+            inset: 0;
+
+            display: block;
+
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+
+            overflow-x: hidden;
+            overflow-y: visible;
+            overscroll-behavior: auto;
+
+            padding: 24px;
+
+            align-items: initial;
+        }
+
+        /*
+         * Evita estouro horizontal no acordeão mobile.
+         * Todos os níveis podem encolher dentro da largura disponível.
+         */
+        .exam-results-widget .index,
+        .exam-results-widget .index-buttons,
+        .exam-results-widget .mobile-exam-item,
+        .exam-results-widget .mobile-exam-item .sheet,
+        .exam-results-widget .mobile-exam-item .sheet-body {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        .exam-results-widget .mobile-exam-item .sheet-head {
+            grid-template-columns:
+                minmax(0, 1fr)
+                auto;
+
+            min-width: 0;
+        }
+
+        .exam-results-widget .mobile-exam-item .sheet-head > div {
+            min-width: 0;
+        }
+
+        .exam-results-widget .mobile-exam-item .sheet-title,
+        .exam-results-widget .mobile-exam-item .result-text {
+            max-width: 100%;
+
+            overflow-wrap: anywhere;
+            word-break: normal;
+        }
+
+        .exam-results-widget .mobile-exam-item .meta {
+            max-width: 100%;
+
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .exam-results-widget .mobile-exam-item .image-box,
+        .exam-results-widget .mobile-exam-item .image-box img,
+        .exam-results-widget .mobile-exam-item .ecg,
+        .exam-results-widget .mobile-exam-item .ecg svg {
+            max-width: 100%;
+        }
+
+        /*
+         * Depois que o usuário abre os resultados, o workspace
+         * entra no fluxo normal da página. Assim a altura do recurso
+         * acompanha automaticamente o exame que estiver expandido.
+         */
+        .exam-results-widget .resource.open {
+            min-height: 0;
+            height: auto;
+
+            overflow: visible;
+        }
+
+        .exam-results-widget .resource.open .intro {
+            display: none;
+        }
+
+        .exam-results-widget .resource.open .workspace {
+            position: relative;
+            inset: auto;
+
+            min-height: 0;
+            height: auto;
+
+            overflow: visible;
+        }
+
+        .exam-results-widget .index {
+            display: block;
+            width: 100%;
+        }
+
+        .exam-results-widget .index-buttons {
+            display: grid !important;
+            grid-template-columns: 1fr;
+            gap: 12px;
+
+            width: 100%;
+        }
+
+        .exam-results-widget .mobile-exam-item {
+            display: block;
+            width: 100%;
+
+            scroll-margin-top:
+                calc(var(--mobile-fixed-header, 310px) + 16px);
+        }
+
+        .exam-results-widget .mobile-exam-item .index-btn {
+            width: 100%;
+
+            padding: 14px 44px 14px 42px;
+
+            border-radius: 16px;
+
+            background: rgba(255, 255, 255, .94);
+
+            font-size: 14px;
+
+            transform: none;
+        }
+
+        .exam-results-widget .mobile-exam-item .index-btn:hover,
+        .exam-results-widget .mobile-exam-item .index-btn.active {
+            transform: none;
+        }
+
+        .exam-results-widget .mobile-exam-item .index-btn::after {
+            content: "+";
+
+            position: absolute;
+            right: 16px;
+            top: 50%;
+
+            color: var(--p);
+
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1;
+
+            transform: translateY(-50%);
+
+            transition:
+                transform .22s ease;
+        }
+
+        .exam-results-widget .mobile-exam-item .index-btn.active::after {
+            content: "−";
+        }
+
+        /*
+         * A pilha deixa de existir visualmente no mobile.
+         */
+        .exam-results-widget .stack-wrap {
+            display: none;
+        }
+
+        /*
+         * O card do exame passa a fazer parte do fluxo normal.
+         * Sem altura fixa, sem position:absolute e sem camadas.
+         */
+        .exam-results-widget .mobile-exam-item .sheet {
+            position: relative;
+            inset: auto;
+
+            display: none;
+
+            width: 100%;
+            height: auto;
+            min-height: 0;
+
+            margin: 10px 0 6px;
+            padding: 28px 22px 24px;
+
+            overflow: visible;
+
+            opacity: 1;
+
+            pointer-events: auto;
+
+            transform: none;
+
+            box-shadow:
+                0 14px 30px
+                rgba(15, 61, 46, .11);
+
+            transition: none;
+        }
+
+        .exam-results-widget .mobile-exam-item .sheet.active {
+            display: block;
+
+            opacity: 1;
+
+            transform: none;
+
+            animation:
+                mobileExamOpen
+                .28s
+                cubic-bezier(.22, 1, .36, 1)
+                both;
+        }
+
+        .exam-results-widget .mobile-exam-item .sheet.behind1,
+        .exam-results-widget .mobile-exam-item .sheet.behind2 {
+            display: none;
+        }
+
+        @keyframes mobileExamOpen {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .exam-results-widget .mobile-exam-item .sheet-body {
+            min-height: 0;
+
+            padding-top: 22px;
+            padding-bottom: 0;
+        }
+
+        .exam-results-widget .mobile-exam-item .sheet.normal .sheet-body {
+            padding-bottom: 0;
+        }
+
+        /*
+         * No mobile o carimbo fica no fluxo do documento.
+         * Assim nunca cobre resultado, imagem ou metadados.
+         */
+        .exam-results-widget .mobile-exam-item .stamp {
+            position: relative;
+
+            right: auto;
+            bottom: auto;
+
+            width: min(190px, 72%);
+            min-height: 68px;
+
+            margin:
+                26px 0
+                4px auto;
+
+            font-size: 13px;
+        }
+
+        /*
+         * Imagem de exame sem altura rígida do card.
+         * A imagem mantém uma área confortável e o card cresce.
+         */
+        .exam-results-widget .mobile-exam-item .image-box {
+            height: auto;
+            min-height: 190px;
+        }
+
+        .exam-results-widget .mobile-exam-item .image-box img {
+            display: block;
+
+            width: 100%;
+            height: auto;
+            max-height: 360px;
+
+            object-fit: contain;
+        }
+
+        .exam-results-widget .progress {
+            margin:
+                18px 0 4px;
+        }
+
+        /*
+         * Como a pilha foi removida, a mensagem final também entra
+         * no fluxo e não sobrepõe nada.
+         */
+        .exam-results-widget .complete {
+            position: relative;
+
+            left: auto;
+            bottom: auto;
+
+            display: none;
+
+            width: fit-content;
+            max-width: 100%;
+
+            margin:
+                22px auto 0;
+
+            opacity: 1;
+            visibility: visible;
+
+            transform: none;
+        }
+
+        .exam-results-widget .complete.show {
+            display: block;
+
+            opacity: 1;
+            visibility: visible;
+
+            transform: none;
+        }
+    }
+
+
+    @media(max-width:921px) {
+        .exam-results-widget {
+            /*
+     * Ajuste para a altura real do seu header fixo.
+     * Pode testar 305px / 315px etc.
+     */
+            --mobile-fixed-header: 310px;
+        }
+
+        .exam-results-widget .index,
+        .exam-results-widget .stack-wrap {
+            scroll-margin-top:
+                calc(var(--mobile-fixed-header) + 16px);
+        }
+
+        .exam-results-widget .shell {
+            width: min(100% - 18px, 620px);
+            padding-top: 20px
+        }
+
+        .exam-results-widget .resource,
+        .exam-results-widget .intro {
+            min-height: 780px
+        }
+
+        .exam-results-widget .resource {
+            border-radius: 22px
+        }
+
+        .exam-results-widget .intro-content {
+            padding: 28px 22px 38px
+        }
+
+        .exam-results-widget .workspace {
+            padding: 24px
+        }
+
+        .exam-results-widget .index-btn {
+            padding: 10px 12px 10px 34px;
+            font-size: 12px
+        }
+
+        .exam-results-widget .index-btn:before {
+            left: 11px
+        }
+
+        .exam-results-widget .stack {
+            height: 500px
+        }
+
+        .exam-results-widget .sheet {
+            padding: 30px 22px 24px
+        }
+
+        .exam-results-widget .sheet-body {
+            min-height: 355px
+        }
+
+        .exam-results-widget .result-text {
+            font-size: 15px
+        }
+
+        .exam-results-widget .stamp {
+            position: relative;
+            right: auto;
+            bottom: auto;
+            width: 165px;
+            min-height: 66px;
+            margin: 22px 0 0 auto;
+            font-size: 13px
+        }
+
+        .exam-results-widget .sheet.normal .sheet-body {
+            padding-bottom: 0;
+        }
+
+
+    }
+</style>
+  </head>
+
+  <body>
+    <div class="exam-results-widget">
+    <div class="shell">
+        <section class="resource">
+            <div class="intro">
+                <div class="intro-content">
+                    <span class="eyebrow">Histórico de investigação</span>
+                    <h2 class="intro-title">Mônica já passou por diversos médicos e especialistas nos ambulatórios,
+                        localizados nas cidades vizinhas e realizou baterias de exames.</h2>
+                    <p class="intro-text">Consulte os resultados disponíveis no prontuário para compreender melhor o
+                        percurso clínico da paciente.</p>
+                    <button class="open-btn" type="button" data-open>Consultar resultados <span>→</span></button>
+                </div>
+                <div class="intro-visual"><img data-doctor
+                        src="https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/cuidadoCasoClinicoPrototipoExames.webp"
+                        alt="Médico durante atendimento">
+                    <div class="placeholder" data-placeholder hidden style="display:none!important"></div>
+                </div>
+            </div>
+            <div class="workspace">
+                <nav class="index" aria-label="Exames disponíveis">
+                    <h3 class="index-title">Exames disponíveis</h3>
+                    <div class="index-buttons" data-buttons></div>
+                    <div class="progress" data-progress aria-live="polite"></div>
+                </nav>
+                <div class="stack-wrap">
+                    <div class="stack" data-stack></div>
+                </div>
+                <div class="complete" data-complete>✓ Todos os resultados disponíveis foram consultados.</div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div hidden aria-hidden="true" style="display:none!important">
+    <script>
+
+        (() => {
+            const CONFIG = {
+                patientName: "Mônica Silva de Menezes",
+                doctorImageUrl: "https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/cuidadoCasoClinicoPrototipoExames.webp",
+                exams: [
+                    {
+                        id: "hemograma",
+                        title: "Hemograma",
+                        type: "text",
+                        status: "normal",
+                        result: "Parâmetros hematológicos avaliados sem alterações relevantes para o caso."
+                    },
+                    {
+                        id: "ecg",
+                        title: "Eletrocardiograma",
+                        type: "ecg",
+                        status: "result",
+                        result: "Ritmo sinusal.\nFrequência cardíaca: 112 bpm.\nAchado compatível com taquicardia sinusal."
+                    },
+                    {
+                        id: "eco",
+                        title: "Ecocardiograma",
+                        type: "text",
+                        status: "normal",
+                        result: "Sem alterações estruturais ou funcionais relevantes."
+                    },
+                    {
+                        id: "rx",
+                        title: "Raio-X de tórax",
+                        type: "image",
+                        status: "normal",
+                        result: "Sem alterações radiográficas relevantes.",
+                        imageUrl: "https://cursos1.nead.conasems.org.br/wp-content/uploads/2026/08/raioXToraxNormal.png"
+                    },
+                    {
+                        id: "tsh",
+                        title: "TSH",
+                        type: "text",
+                        status: "normal",
+                        result: "Resultado dentro dos parâmetros esperados."
+                    }
+                ]
+            };
+
+            const widget = document.currentScript?.parentElement?.previousElementSibling;
+
+            if (!widget || !widget.classList.contains("exam-results-widget")) {
+                return;
+            }
+
+            const root = widget.querySelector(".resource");
+
+            if (!root) {
+                return;
+            }
+
+            const open = root.querySelector("[data-open]");
+            const buttons = root.querySelector("[data-buttons]");
+            const stack = root.querySelector("[data-stack]");
+            const progress = root.querySelector("[data-progress]");
+            const complete = root.querySelector("[data-complete]");
+            const doctor = root.querySelector("[data-doctor]");
+            const placeholder = root.querySelector("[data-placeholder]");
+            const indexSection = root.querySelector(".index");
+            const resultSection = root.querySelector(".stack-wrap");
+            const workspace = root.querySelector(".workspace");
+
+            const isMobile = () =>
+                window.matchMedia("(max-width: 921px)").matches;
+
+            const scrollToElement = (element) => {
+                if (!isMobile() || !element) {
+                    return;
+                }
+
+                element.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            };
+
+            let active = 0;
+            const visited = new Set();
+
+            function escapeHtml(value) {
+                return String(value == null ? "" : value)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            /*
+             * Sem template literals nesta função.
+             * Isso evita o erro de literal não terminado
+             * em ambientes que processam/minificam o HTML do Elementor.
+             */
+            function renderExtra(exam) {
+                if (exam.type === "ecg") {
+                    return (
+                        '<div class="ecg" aria-hidden="true">' +
+                        '<svg viewBox="0 0 640 90" preserveAspectRatio="none">' +
+                        '<path d="' +
+                        'M0 50 L55 50 L68 48 L78 52 L90 50 L110 50 ' +
+                        'L123 16 L137 78 L153 50 L205 50 L219 47 L232 53 ' +
+                        'L245 50 L270 50 L282 18 L296 77 L313 50 L365 50 ' +
+                        'L378 47 L391 53 L404 50 L430 50 L443 17 L457 78 ' +
+                        'L474 50 L525 50 L538 47 L552 52 L565 50 L640 50' +
+                        '"></path>' +
+                        '</svg>' +
+                        '</div>'
+                    );
+                }
+
+                if (exam.type === "image") {
+                    if (exam.imageUrl) {
+                        return (
+                            '<div class="image-box">' +
+                            '<img src="' +
+                            escapeHtml(exam.imageUrl) +
+                            '" alt="' +
+                            escapeHtml(exam.title) +
+                            '">' +
+                            '</div>'
+                        );
+                    }
+
+                    return (
+                        '<div class="img-placeholder">' +
+                        'Imagem do exame não disponível.' +
+                        '</div>'
+                    );
+                }
+
+                return "";
+            }
+
+            function renderButton(exam, index) {
+                return (
+                    '<button type="button" class="index-btn"' +
+                    ' data-index="' + index + '"' +
+                    ' data-id="' + escapeHtml(exam.id) + '"' +
+                    '>' +
+                    escapeHtml(exam.title) +
+                    '</button>'
+                );
+            }
+
+
+            function renderMobileItem(exam, index) {
+                return (
+                    '<div class="mobile-exam-item" data-mobile-exam-item="' + index + '">' +
+                        renderButton(exam, index) +
+                        renderSheet(exam, index) +
+                    '</div>'
+                );
+            }
+
+            function renderSheet(exam, index) {
+                const normalClass =
+                    exam.status === "normal"
+                        ? " normal"
+                        : "";
+
+                const stampHtml =
+                    exam.status === "normal"
+                        ? '<div class="stamp">✓ Sem alterações relevantes</div>'
+                        : "";
+
+                return (
+                    '<article class="sheet' + normalClass + '" data-sheet="' + index + '">' +
+                    '<header class="sheet-head">' +
+                    '<div>' +
+                    '<span class="sheet-kicker">Resultado de exame</span>' +
+                    '<h3 class="sheet-title">' + escapeHtml(exam.title) + '</h3>' +
+                    '</div>' +
+                    '<span class="num">' +
+                    (index + 1) + '/' + CONFIG.exams.length +
+                    '</span>' +
+                    '</header>' +
+                    '<div class="sheet-body">' +
+                    renderExtra(exam) +
+                    '<span class="result-label">Resultado</span>' +
+                    '<p class="result-text">' + escapeHtml(exam.result) + '</p>' +
+                    '<span class="meta">Paciente: ' + escapeHtml(CONFIG.patientName) + '</span>' +
+                    stampHtml +
+                    '</div>' +
+                    '</article>'
+                );
+            }
+
+            function render() {
+                if (isMobile()) {
+                    buttons.innerHTML =
+                        CONFIG.exams
+                            .map(renderMobileItem)
+                            .join("");
+
+                    stack.innerHTML = "";
+                } else {
+                    buttons.innerHTML =
+                        CONFIG.exams
+                            .map(renderButton)
+                            .join("");
+
+                    stack.innerHTML =
+                        CONFIG.exams
+                            .map(renderSheet)
+                            .join("");
+                }
+
+                update();
+
+                if (!isMobile()) {
+                    stack
+                        .querySelectorAll("img")
+                        .forEach(
+                            (image) => {
+                                if (image.complete) {
+                                    return;
+                                }
+
+                                image.addEventListener(
+                                    "load",
+                                    () => {
+                                        window.requestAnimationFrame(
+                                            syncResponsiveHeight
+                                        );
+                                    },
+                                    {
+                                        once: true
+                                    }
+                                );
+                            }
+                        );
+                }
+            }
+
+            function syncResponsiveHeight() {
+                /*
+                 * No mobile o accordion já está no fluxo normal,
+                 * então nenhuma altura precisa ser calculada.
+                 */
+                if (isMobile()) {
+                    stack.style.height = "";
+                    resultSection.style.minHeight = "";
+                    root.style.minHeight = "";
+
+                    return;
+                }
+
+                const activeSheet =
+                    stack.querySelector(
+                        ".sheet.active"
+                    );
+
+                if (!activeSheet) {
+                    return;
+                }
+
+                const sheetHead =
+                    activeSheet.querySelector(
+                        ".sheet-head"
+                    );
+
+                const sheetBody =
+                    activeSheet.querySelector(
+                        ".sheet-body"
+                    );
+
+                const sheetStyle =
+                    window.getComputedStyle(
+                        activeSheet
+                    );
+
+                const paddingTop =
+                    parseFloat(
+                        sheetStyle.paddingTop
+                    ) || 0;
+
+                const paddingBottom =
+                    parseFloat(
+                        sheetStyle.paddingBottom
+                    ) || 0;
+
+                /*
+                 * Calcula a altura natural do conteúdo, sem depender
+                 * da altura atual da pilha. Isso permite tanto crescer
+                 * para exames grandes quanto diminuir ao trocar para
+                 * um exame menor.
+                 */
+                const naturalHeight =
+                    Math.ceil(
+                        paddingTop +
+                        (sheetHead?.scrollHeight || 0) +
+                        (sheetBody?.scrollHeight || 0) +
+                        paddingBottom +
+                        4
+                    );
+
+                const stackHeight =
+                    Math.max(
+                        510,
+                        naturalHeight
+                    );
+
+                stack.style.height =
+                    `${stackHeight}px`;
+
+                /*
+                 * Mantém a área que centraliza a folha proporcional
+                 * ao tamanho real do exame.
+                 */
+                resultSection.style.minHeight =
+                    `${Math.max(
+                        560,
+                        stackHeight + 46
+                    )}px`;
+
+                /*
+                 * Como o workspace do desktop é absoluto, o resource
+                 * também precisa crescer para não cortar folhas altas.
+                 */
+                const workspacePadding =
+                    68;
+
+                const requiredResourceHeight =
+                    Math.max(
+                        650,
+                        stackHeight +
+                        workspacePadding +
+                        46
+                    );
+
+                root.style.minHeight =
+                    `${requiredResourceHeight}px`;
+            }
+
+            function update() {
+                const sheets = Array.from(
+                    (isMobile() ? buttons : stack)
+                        .querySelectorAll(".sheet")
+                );
+
+                const btns = Array.from(
+                    buttons.querySelectorAll(".index-btn")
+                );
+
+                sheets.forEach((sheet, index) => {
+                    sheet.classList.remove(
+                        "active",
+                        "behind1",
+                        "behind2"
+                    );
+
+                    if (index === active) {
+                        sheet.classList.add("active");
+                    }
+
+                    if (!isMobile()) {
+                        if (
+                            sheets.length > 1 &&
+                            index === ((active + 1) % sheets.length)
+                        ) {
+                            sheet.classList.add("behind1");
+                        }
+
+                        if (
+                            sheets.length > 2 &&
+                            index === ((active + 2) % sheets.length)
+                        ) {
+                            sheet.classList.add("behind2");
+                        }
+                    }
+                });
+
+                btns.forEach((button, index) => {
+                    button.classList.toggle(
+                        "active",
+                        index === active
+                    );
+
+                    button.classList.toggle(
+                        "visited",
+                        visited.has(button.dataset.id)
+                    );
+                });
+
+                progress.innerHTML =
+                    "<strong>" +
+                    visited.size +
+                    " de " +
+                    CONFIG.exams.length +
+                    "</strong> exames consultados";
+
+                complete.classList.toggle(
+                    "show",
+                    visited.size === CONFIG.exams.length &&
+                    CONFIG.exams.length > 0
+                );
+
+                window.requestAnimationFrame(
+                    syncResponsiveHeight
+                );
+            }
+
+            function activate(index) {
+                if (
+                    index < 0 ||
+                    index >= CONFIG.exams.length
+                ) {
+                    return;
+                }
+
+                active = index;
+
+                visited.add(
+                    CONFIG.exams[index].id
+                );
+
+                update();
+            }
+
+            if (CONFIG.doctorImageUrl) {
+                doctor.src =
+                    CONFIG.doctorImageUrl;
+
+                doctor.hidden = false;
+                placeholder.hidden = true;
+            }
+
+            open.addEventListener(
+                "click",
+                () => {
+                    root.classList.add("open");
+
+                    window.setTimeout(
+                        () => {
+                            if (isMobile()) {
+                                active = -1;
+                                update();
+                                scrollToElement(indexSection);
+                            } else {
+                                activate(0);
+                            }
+                        },
+                        450
+                    );
+                }
+            );
+
+            buttons.addEventListener(
+                "click",
+                (event) => {
+                    const button =
+                        event.target.closest(
+                            "[data-index]"
+                        );
+
+                    if (!button) {
+                        return;
+                    }
+
+                    const selectedIndex =
+                        Number(
+                            button.dataset.index
+                        );
+
+                    activate(
+                        selectedIndex
+                    );
+
+                    if (isMobile()) {
+                        const item =
+                            button.closest(
+                                ".mobile-exam-item"
+                            );
+
+                        window.setTimeout(
+                            () => {
+                                scrollToElement(item);
+                            },
+                            80
+                        );
+                    } else {
+                        window.requestAnimationFrame(
+                            () => {
+                                scrollToElement(
+                                    resultSection
+                                );
+                            }
+                        );
+                    }
+                }
+            );
+
+            let lastMobileState =
+                isMobile();
+
+            window.addEventListener(
+                "resize",
+                () => {
+                    const currentMobileState =
+                        isMobile();
+
+                    if (
+                        currentMobileState ===
+                        lastMobileState
+                    ) {
+                        return;
+                    }
+
+                    lastMobileState =
+                        currentMobileState;
+
+                    active =
+                        currentMobileState
+                            ? -1
+                            : 0;
+
+                    render();
+                }
+            );
+
+            render();
+        })();
+
+    </script>
+</div>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "type": "clinicalCase",
+  "titulo": "Pedido de exames interativo",
+  "conteudo": "",
+  "observacao": "",
+  "img": "wp-resources/pedidoDeExames/assets/demo.png",
+  "src": "code.html"
+}

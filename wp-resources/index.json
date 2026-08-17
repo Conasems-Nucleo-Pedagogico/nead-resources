@@ -32,6 +32,9 @@
     "scanner-resource",
     "timeLineScroll",
     "nead-interactive-explorer",
-    "nead-trigger-videos"
+    "nead-trigger-videos",
+    "pedidoDeExames",
+    "scannerSintomasIniciais",
+    "sinaisVitaisMonitor"
   ]
 }

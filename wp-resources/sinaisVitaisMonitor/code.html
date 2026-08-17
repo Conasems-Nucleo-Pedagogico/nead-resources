@@ -1,0 +1,2277 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Componente interativo - Sinais vitais no monitor</title>
+
+    <style>
+    :root {
+      --vital-primary: #0F3D2E;
+      --vital-primary-dark: #08291F;
+      --vital-accent: #F8CA33;
+      --vital-cyan: #43D4D5;
+      --vital-red: #D94A4A;
+      --vital-white: #FFFFFF;
+      --vital-text: #18211D;
+      --vital-muted: #6D7772;
+      --vital-panel: #0B1714;
+      --vital-panel-soft: #12231E;
+      --vital-border: rgba(15, 61, 46, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 14% 14%, rgba(15, 61, 46, .07), transparent 28%),
+        radial-gradient(circle at 86% 12%, rgba(248, 202, 51, .10), transparent 22%),
+        #F5F7F6;
+      color: var(--vital-text);
+      font-family: "Nunito", Arial, sans-serif;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .prototype-shell {
+      width: min(1180px, calc(100% - 30px));
+      margin: 0 auto;
+      padding: 36px 0 64px;
+    }
+
+    .prototype-heading {
+      margin-bottom: 22px;
+    }
+
+    .prototype-heading__kicker {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--vital-primary);
+      font-weight: 900;
+    }
+
+    .prototype-heading__kicker::before {
+      content: "";
+      width: 4px;
+      height: 38px;
+      border-radius: 999px;
+      background: var(--vital-accent);
+    }
+
+    .prototype-heading h1 {
+      margin: 0;
+      color: var(--vital-primary);
+      font-size: clamp(25px, 3vw, 36px);
+      line-height: 1.15;
+      font-weight: 900;
+    }
+
+    .vitals-resource {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(20px, 3vw, 34px);
+      border: 1px solid var(--vital-border);
+      border-radius: 30px;
+      background: rgba(255, 255, 255, .97);
+      box-shadow: 0 24px 70px rgba(15, 61, 46, .12);
+    }
+
+    .vitals-resource__header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+
+    .vitals-resource__title {
+      margin: 0 0 6px;
+      color: var(--vital-primary);
+      font-size: clamp(23px, 2.7vw, 32px);
+      line-height: 1.2;
+      font-weight: 900;
+    }
+
+    .vitals-resource__description {
+      max-width: 760px;
+      margin: 0;
+      color: var(--vital-muted);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .vitals-progress {
+      min-width: 165px;
+      padding: 12px 15px;
+      border: 1px solid var(--vital-border);
+      border-radius: 17px;
+      background: #fff;
+      box-shadow: 0 8px 20px rgba(15, 61, 46, .07);
+    }
+
+    .vitals-progress__label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--vital-muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .vitals-progress__value {
+      color: var(--vital-primary);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .vitals-progress__track {
+      height: 6px;
+      margin-top: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #E7ECE9;
+    }
+
+    .vitals-progress__fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--vital-accent);
+      transition: width 420ms cubic-bezier(.22, 1, .36, 1);
+    }
+
+    /* =========================================================
+       MONITOR
+       ========================================================= */
+
+    .vitals-monitor {
+      position: relative;
+      overflow: hidden;
+      min-height: 390px;
+      padding: 24px;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 50% -10%, rgba(67, 212, 213, .08), transparent 42%),
+        linear-gradient(180deg, #0D1A17, #08110F);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, .05),
+        0 18px 42px rgba(9, 23, 18, .24);
+    }
+
+    .vitals-monitor__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .vitals-monitor__status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, .72);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .03em;
+    }
+
+    .vitals-monitor__status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #83938D;
+      box-shadow: 0 0 0 0 rgba(67, 212, 213, .3);
+      transition: background .25s ease;
+    }
+
+    .vitals-monitor.is-measuring
+      .vitals-monitor__status-dot {
+      background: var(--vital-cyan);
+      animation: statusPulse 1.1s ease-out infinite;
+    }
+
+    @keyframes statusPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(67, 212, 213, .42);
+      }
+      100% {
+        box-shadow: 0 0 0 8px rgba(67, 212, 213, 0);
+      }
+    }
+
+    .vitals-monitor__patient {
+      color: rgba(255, 255, 255, .58);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .vitals-monitor__grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .vital-reading {
+      position: relative;
+      min-width: 0;
+      min-height: 126px;
+      padding: 14px 12px 13px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .07);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .035);
+      transition:
+        border-color 250ms ease,
+        background-color 250ms ease,
+        transform 250ms ease;
+    }
+
+    .vital-reading.is-active {
+      border-color: rgba(248, 202, 51, .55);
+      background: rgba(248, 202, 51, .06);
+      transform: translateY(-2px);
+    }
+
+    .vital-reading.is-complete {
+      border-color: rgba(67, 212, 213, .17);
+    }
+
+    .vital-reading__label {
+      display: block;
+      color: rgba(255, 255, 255, .56);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .vital-reading__value {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      min-height: 48px;
+      margin-top: 8px;
+      color: #F9FBFA;
+      font-size: clamp(27px, 3vw, 42px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -.04em;
+    }
+
+    .vital-reading__placeholder {
+      color: rgba(255, 255, 255, .28);
+    }
+
+    .vital-reading__unit {
+      color: rgba(255, 255, 255, .52);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .vital-reading__detail {
+      min-height: 18px;
+      margin-top: 5px;
+      color: rgba(255, 255, 255, .52);
+      font-size: 11px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .vital-reading__flag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 7px;
+      padding: 5px 7px;
+      border-radius: 999px;
+      color: #FFD9D9;
+      background: rgba(217, 74, 74, .14);
+      font-size: 10px;
+      font-weight: 900;
+      opacity: 0;
+      transform: translateY(4px);
+      transition:
+        opacity 220ms ease,
+        transform 260ms ease;
+    }
+
+    .vital-reading.is-alert
+      .vital-reading__flag {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* =========================================================
+       ONDAS DO MONITOR
+       ========================================================= */
+
+    .vitals-wave-area {
+      position: relative;
+      height: 108px;
+      margin-top: 20px;
+      overflow: hidden;
+      border-top: 1px solid rgba(255, 255, 255, .06);
+      border-radius: 0 0 18px 18px;
+      background:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+
+    .vitals-wave {
+      position: absolute;
+      inset: 0;
+      opacity: .22;
+      transition: opacity .3s ease;
+    }
+
+    .vitals-wave.is-visible {
+      opacity: 1;
+    }
+
+    .vitals-wave svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .vitals-wave path {
+      fill: none;
+      stroke-width: 2.2;
+      vector-effect: non-scaling-stroke;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .vitals-wave--ecg path {
+      stroke: var(--vital-cyan);
+    }
+
+    .vitals-wave--resp {
+      top: 49px;
+      height: 42px;
+    }
+
+    .vitals-wave--resp path {
+      stroke: rgba(248, 202, 51, .84);
+      stroke-width: 1.8;
+    }
+
+    .vitals-wave.is-running svg {
+      animation: waveSlide 1.4s linear infinite;
+    }
+
+    @keyframes waveSlide {
+      from { transform: translateX(0); }
+      to { transform: translateX(-14px); }
+    }
+
+    /* =========================================================
+       ÁREA DE INSTRUMENTOS
+       ========================================================= */
+
+    .vitals-tools {
+      margin-top: 22px;
+    }
+
+    .vitals-tools__title {
+      margin: 0 0 12px;
+      color: var(--vital-primary);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .vitals-tools__grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .vital-tool {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      justify-items: center;
+      min-height: 128px;
+      padding: 14px 12px 13px;
+      border: 1px solid rgba(15, 61, 46, .12);
+      border-radius: 19px;
+      color: var(--vital-primary);
+      background: #FFFFFF;
+      box-shadow: 0 8px 18px rgba(15, 61, 46, .06);
+      cursor: pointer;
+      transition:
+        transform 220ms ease,
+        border-color 220ms ease,
+        box-shadow 220ms ease,
+        background-color 220ms ease;
+    }
+
+    .vital-tool:hover:not(:disabled),
+    .vital-tool:focus-visible:not(:disabled) {
+      transform: translateY(-4px);
+      border-color: rgba(15, 61, 46, .28);
+      box-shadow: 0 12px 26px rgba(15, 61, 46, .10);
+      outline: none;
+    }
+
+    .vital-tool.is-active {
+      border-color: var(--vital-accent);
+      background: rgba(248, 202, 51, .08);
+      box-shadow: 0 0 0 4px rgba(248, 202, 51, .12);
+    }
+
+    .vital-tool.is-done {
+      background: #F7FAF8;
+    }
+
+    .vital-tool.is-done::after {
+      content: "✓";
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      color: #FFFFFF;
+      background: var(--vital-primary);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .vital-tool:disabled {
+      cursor: default;
+    }
+
+    .vital-tool__icon {
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      margin-bottom: 9px;
+      border-radius: 17px;
+      background: rgba(15, 61, 46, .07);
+      font-size: 29px;
+      line-height: 1;
+      transition:
+        transform 260ms ease,
+        background-color 260ms ease;
+    }
+
+    .vital-tool.is-active
+      .vital-tool__icon {
+      background: rgba(248, 202, 51, .18);
+    }
+
+    .vital-tool[data-vital="bp"].is-active
+      .vital-tool__icon {
+      animation: cuffPulse .75s ease-in-out infinite alternate;
+    }
+
+    @keyframes cuffPulse {
+      from { transform: scale(.94); }
+      to { transform: scale(1.07); }
+    }
+
+    .vital-tool[data-vital="hr"].is-active
+      .vital-tool__icon {
+      animation: heartBeat .8s ease-in-out infinite;
+    }
+
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.13); }
+      38% { transform: scale(.98); }
+      53% { transform: scale(1.09); }
+    }
+
+    .vital-tool[data-vital="rr"].is-active
+      .vital-tool__icon {
+      animation: breathe 1.35s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(.95); }
+      50% { transform: scale(1.08); }
+    }
+
+    .vital-tool[data-vital="spo2"].is-active
+      .vital-tool__icon {
+      animation: sensorBlink .65s ease-in-out infinite alternate;
+    }
+
+    @keyframes sensorBlink {
+      from {
+        box-shadow: inset 0 0 0 0 rgba(67, 212, 213, 0);
+      }
+      to {
+        box-shadow: inset 0 0 0 4px rgba(67, 212, 213, .2);
+      }
+    }
+
+    .vital-tool[data-vital="temp"].is-active
+      .vital-tool__icon {
+      animation: thermometerRise 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes thermometerRise {
+      from { transform: translateY(3px); }
+      to { transform: translateY(-3px); }
+    }
+
+    .vital-tool__name {
+      align-self: end;
+      color: var(--vital-primary);
+      font-size: 13px;
+      line-height: 1.35;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    /* =========================================================
+       MENSAGEM DE MEDIÇÃO
+       ========================================================= */
+
+    .vitals-measurement-status {
+      display: flex;
+      justify-content: center;
+      min-height: 48px;
+      margin-top: 16px;
+    }
+
+    .vitals-measurement-status__pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      max-width: 100%;
+      padding: 9px 14px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: var(--vital-muted);
+      background: transparent;
+      font-size: 13px;
+      font-weight: 800;
+      opacity: 0;
+      transform: translateY(5px);
+      transition:
+        opacity 240ms ease,
+        transform 280ms ease,
+        background-color 240ms ease,
+        border-color 240ms ease;
+    }
+
+    .vitals-measurement-status__pill.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+      border-color: rgba(15, 61, 46, .10);
+      background: #F7FAF8;
+    }
+
+    .vitals-measurement-status__spinner {
+      display: none;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(15, 61, 46, .18);
+      border-top-color: var(--vital-primary);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    .vitals-measurement-status__pill.is-measuring
+      .vitals-measurement-status__spinner {
+      display: block;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* =========================================================
+       CONCLUSÃO
+       ========================================================= */
+
+    .vitals-complete {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 13px;
+      align-items: center;
+      max-height: 0;
+      margin-top: 0;
+      padding: 0 18px;
+      overflow: hidden;
+      border: 1px solid transparent;
+      border-radius: 20px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition:
+        max-height 500ms ease,
+        margin-top 300ms ease,
+        padding 300ms ease,
+        opacity 300ms ease,
+        transform 380ms cubic-bezier(.22, 1, .36, 1),
+        border-color 300ms ease;
+    }
+
+    .vitals-complete.is-visible {
+      max-height: 150px;
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-color: rgba(15, 61, 46, .12);
+      background: #F7FAF8;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .vitals-complete__icon {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      color: #FFFFFF;
+      background: var(--vital-primary);
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .vitals-complete h3 {
+      margin: 0 0 3px;
+      color: var(--vital-primary);
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .vitals-complete p {
+      margin: 0;
+      color: #59635E;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .vital-reading__mobile-wave {
+      display: none;
+    }
+
+    /* =========================================================
+       RESPONSIVO
+       ========================================================= */
+
+    @media (max-width: 921px) {
+      .vitals-monitor__top {
+        flex-direction: column-reverse;
+      }
+
+      .vitals-monitor__grid,
+      .vitals-tools__grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .prototype-shell {
+        width: min(100% - 18px, 620px);
+        padding-top: 20px;
+      }
+
+      .vitals-resource {
+        padding: 16px;
+        border-radius: 22px;
+      }
+
+      .vitals-resource__header {
+        grid-template-columns: 1fr;
+      }
+
+      .vitals-progress {
+        width: 100%;
+      }
+
+      .vitals-monitor {
+        min-height: auto;
+        padding: 17px;
+        border-radius: 21px;
+      }
+
+      .vitals-monitor__grid,
+      .vitals-tools__grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+
+      .vital-reading {
+        min-height: 116px;
+      }
+
+      .vital-reading__value {
+        font-size: 31px;
+      }
+    }
+
+    @media (max-width: 450px) {
+      .vitals-monitor__grid,
+      .vitals-tools__grid {
+        grid-template-columns: 1fr;
+      }
+
+      .vital-reading {
+        min-height: 100px;
+      }
+
+      .vital-tool {
+        grid-template-columns: auto 1fr;
+        grid-template-rows: 1fr;
+        align-items: center;
+        justify-items: start;
+        min-height: 78px;
+      }
+
+      .vital-tool__icon {
+        margin: 0 12px 0 0;
+      }
+
+      .vital-tool__name {
+        align-self: center;
+        text-align: left;
+      }
+    }
+
+
+    /* =========================================================
+       MOBILE — INTERAÇÃO DIRETO NO MONITOR
+       Desktop / notebook permanecem inalterados.
+       ========================================================= */
+
+    @media (max-width: 700px) {
+      /*
+       * No mobile a aferição acontece tocando diretamente
+       * em cada parâmetro do monitor.
+       */
+      .vitals-tools {
+        display: none;
+      }
+
+      /*
+       * A onda grande do rodapé continua existindo no desktop,
+       * mas no mobile a animação passa para dentro do parâmetro
+       * que está sendo aferido.
+       */
+      .vitals-wave-area {
+        display: none;
+      }
+
+      .vital-reading__mobile-wave {
+        position: relative;
+
+        display: none;
+
+        width: 100%;
+        height: 48px;
+
+        margin-top: 8px;
+
+        overflow: hidden;
+
+        border:
+          1px solid
+          rgba(255, 255, 255, .07);
+
+        border-radius: 10px;
+
+        background:
+          linear-gradient(
+            rgba(255,255,255,.035)
+            1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            90deg,
+            rgba(255,255,255,.035)
+            1px,
+            transparent 1px
+          ),
+          rgba(255, 255, 255, .018);
+
+        background-size:
+          14px 14px;
+
+        opacity: 0;
+
+        transform:
+          translateY(3px);
+      }
+
+      .vital-reading.is-active
+        .vital-reading__mobile-wave {
+        display: block;
+
+        opacity: 1;
+
+        transform:
+          translateY(0);
+      }
+
+      /*
+       * Durante a aferição a onda ocupa o lugar do valor.
+       * O valor real reaparece automaticamente quando
+       * a classe .is-active é removida.
+       */
+      .vital-reading.is-active
+        .vital-reading__value {
+        display: none;
+      }
+
+      .vital-reading__mobile-wave svg {
+        position: absolute;
+
+        left: 0;
+        top: 0;
+
+        width: 200%;
+        height: 100%;
+
+        overflow: visible;
+
+        animation:
+          mobileReadingWaveMove
+          2.2s linear infinite;
+      }
+
+      .vital-reading__mobile-wave
+        .mobile-wave-ecg {
+        fill: none;
+
+        stroke:
+          var(--vital-cyan);
+
+        stroke-width: 2.25;
+
+        vector-effect:
+          non-scaling-stroke;
+
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .vital-reading__mobile-wave
+        .mobile-wave-resp {
+        fill: none;
+
+        stroke:
+          rgba(248, 202, 51, .78);
+
+        stroke-width: 1.55;
+
+        vector-effect:
+          non-scaling-stroke;
+
+        stroke-linecap: round;
+      }
+
+      @keyframes mobileReadingWaveMove {
+        from {
+          transform:
+            translateX(0);
+        }
+
+        to {
+          transform:
+            translateX(-50%);
+        }
+      }
+
+      .vitals-monitor__grid {
+        grid-template-columns:
+          repeat(1, minmax(0, 1fr));
+      }
+
+      .vital-reading {
+        min-height: 124px;
+
+        cursor: pointer;
+
+        touch-action: manipulation;
+
+        user-select: none;
+
+        -webkit-tap-highlight-color:
+          transparent;
+      }
+
+      .vital-reading[data-reading="temp"] {
+        grid-column: 1 / -1;
+      }
+
+      .vital-reading:not(.is-complete):not(.is-active) {
+        border-color:
+          rgba(255, 255, 255, .11);
+      }
+
+      .vital-reading:not(.is-complete):not(.is-active)::after {
+        content: "Toque para aferir";
+
+        position: absolute;
+
+        right: 10px;
+        bottom: 9px;
+
+        color:
+          rgba(248, 202, 51, .82);
+
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+
+        pointer-events: none;
+      }
+
+      .vital-reading.is-complete {
+        cursor: default;
+      }
+
+      .vital-reading.is-mobile-disabled {
+        pointer-events: none;
+
+        opacity: .55;
+      }
+
+      .vital-reading.is-active {
+        z-index: 2;
+
+        border-color:
+          rgba(248, 202, 51, .78);
+
+        background:
+          rgba(248, 202, 51, .08);
+
+        box-shadow:
+          0 0 0 3px
+          rgba(248, 202, 51, .11);
+      }
+
+      /*
+       * Durante a aferição, o valor/reticências é o foco
+       * da animação. Isso mantém o feedback dentro do monitor,
+       * exatamente onde o aluno tocou.
+       */
+      .vital-reading.is-active
+        .vital-reading__value {
+        color: #FFFFFF;
+      }
+
+      .vital-reading[data-reading="spo2"].is-active {
+        animation:
+          mobileSensorBlink
+          .7s ease-in-out
+          infinite alternate;
+      }
+
+      @keyframes mobileCuffPulse {
+        from {
+          transform: scale(.96);
+          opacity: .78;
+        }
+
+        to {
+          transform: scale(1.04);
+          opacity: 1;
+        }
+      }
+
+      @keyframes mobileHeartBeat {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+
+        24% {
+          transform: scale(1.08);
+        }
+
+        38% {
+          transform: scale(.98);
+        }
+
+        54% {
+          transform: scale(1.05);
+        }
+      }
+
+      @keyframes mobileBreathe {
+        0%,
+        100% {
+          transform: scale(.97);
+          opacity: .72;
+        }
+
+        50% {
+          transform: scale(1.04);
+          opacity: 1;
+        }
+      }
+
+      @keyframes mobileSensorBlink {
+        from {
+          box-shadow:
+            inset 0 0 0 0
+            rgba(67, 212, 213, 0);
+        }
+
+        to {
+          box-shadow:
+            inset 0 0 0 4px
+            rgba(67, 212, 213, .17);
+        }
+      }
+
+      @keyframes mobileThermometerRise {
+        from {
+          transform:
+            translateY(3px);
+        }
+
+        to {
+          transform:
+            translateY(-3px);
+        }
+      }
+
+      /*
+       * Como os instrumentos somem, o status fica logo
+       * abaixo do monitor.
+       */
+      .vitals-measurement-status {
+        margin-top: 14px;
+      }
+    }
+
+    /*
+     * Sobrescreve o layout de 1 coluna que existia abaixo de 450px.
+     * O monitor permanece em 2 colunas; temperatura ocupa as duas.
+     */
+    @media (max-width: 450px) {
+      .vitals-monitor__grid {
+        grid-template-columns:
+          repeat(1, minmax(0, 1fr));
+      }
+
+      .vital-reading {
+        min-height: 118px;
+      }
+
+      .vital-reading__value {
+        font-size: 27px;
+      }
+
+      .vital-reading__unit {
+        font-size: 10px;
+      }
+
+      .vital-reading__detail {
+        padding-right: 2px;
+
+        font-size: 10px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .vital-tool,
+      .vital-tool__icon,
+      .vital-reading,
+      .vitals-progress__fill,
+      .vitals-wave svg,
+      .vitals-complete {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+  </head>
+
+  <body>
+      <main class="prototype-shell">
+    <header class="prototype-heading">
+
+
+      <h1>
+        Aferição dos parâmetros clínicos
+      </h1>
+    </header>
+
+    <section
+      class="vitals-resource"
+      id="vitalsResource"
+    >
+      <div class="vitals-resource__header">
+        <div>
+          <h2 class="vitals-resource__title">
+            Realize a aferição dos sinais vitais de Mônica
+          </h2>
+
+          <p class="vitals-resource__description">
+            Selecione os instrumentos disponíveis para completar
+            a monitorização do acolhimento. Os valores serão
+            registrados no monitor à medida que cada aferição for concluída.
+          </p>
+        </div>
+
+        <div
+          class="vitals-progress"
+          aria-live="polite"
+        >
+          <span class="vitals-progress__label">
+            Aferições concluídas
+          </span>
+
+          <strong
+            class="vitals-progress__value"
+            data-progress-value
+          >
+            0 de 5
+          </strong>
+
+          <div
+            class="vitals-progress__track"
+            aria-hidden="true"
+          >
+            <div
+              class="vitals-progress__fill"
+              data-progress-fill
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="vitals-monitor"
+        data-monitor
+      >
+        <div class="vitals-monitor__top">
+          <div class="vitals-monitor__status">
+            <span
+              class="vitals-monitor__status-dot"
+            ></span>
+
+            <span data-monitor-status>
+              Monitor aguardando aferições
+            </span>
+          </div>
+
+          <span class="vitals-monitor__patient">
+            Paciente: Mônica
+          </span>
+        </div>
+
+        <div class="vitals-monitor__grid">
+          <div
+            class="vital-reading"
+            data-reading="bp"
+          >
+            <span class="vital-reading__label">
+              Pressão arterial
+            </span>
+
+            <div class="vital-reading__value">
+              <span
+                class="vital-reading__placeholder"
+                data-value
+              >
+                --/--
+              </span>
+
+              <span class="vital-reading__unit">
+                mmHg
+              </span>
+            </div>
+
+            <div
+              class="vital-reading__detail"
+              data-detail
+            >
+              Aguardando aferição
+            </div>
+
+            <span class="vital-reading__flag">
+              ⚠ valor elevado
+            </span>
+          </div>
+
+          <div
+            class="vital-reading"
+            data-reading="hr"
+          >
+            <span class="vital-reading__label">
+              Frequência cardíaca
+            </span>
+
+            <div class="vital-reading__value">
+              <span
+                class="vital-reading__placeholder"
+                data-value
+              >
+                --
+              </span>
+
+              <span class="vital-reading__unit">
+                bpm
+              </span>
+            </div>
+
+            <div
+              class="vital-reading__detail"
+              data-detail
+            >
+              Aguardando aferição
+            </div>
+
+            <span class="vital-reading__flag">
+              ⚠ valor elevado
+            </span>
+          </div>
+
+          <div
+            class="vital-reading"
+            data-reading="spo2"
+          >
+            <span class="vital-reading__label">
+              SpO₂
+            </span>
+
+            <div class="vital-reading__value">
+              <span
+                class="vital-reading__placeholder"
+                data-value
+              >
+                --
+              </span>
+
+              <span class="vital-reading__unit">
+                %
+              </span>
+            </div>
+
+            <div
+              class="vital-reading__detail"
+              data-detail
+            >
+              Aguardando aferição
+            </div>
+          </div>
+
+          <div
+            class="vital-reading"
+            data-reading="rr"
+          >
+            <span class="vital-reading__label">
+              Frequência respiratória
+            </span>
+
+            <div class="vital-reading__value">
+              <span
+                class="vital-reading__placeholder"
+                data-value
+              >
+                --
+              </span>
+
+              <span class="vital-reading__unit">
+                irpm
+              </span>
+            </div>
+
+            <div
+              class="vital-reading__detail"
+              data-detail
+            >
+              Aguardando aferição
+            </div>
+          </div>
+
+          <div
+            class="vital-reading"
+            data-reading="temp"
+          >
+            <span class="vital-reading__label">
+              Temperatura
+            </span>
+
+            <div class="vital-reading__value">
+              <span
+                class="vital-reading__placeholder"
+                data-value
+              >
+                --
+              </span>
+
+              <span class="vital-reading__unit">
+                °C
+              </span>
+            </div>
+
+            <div
+              class="vital-reading__detail"
+              data-detail
+            >
+              Aguardando aferição
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="vitals-wave-area"
+          aria-hidden="true"
+        >
+          <div
+            class="vitals-wave vitals-wave--ecg"
+            data-wave="hr"
+          >
+            <svg
+              viewBox="0 0 900 108"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="
+                  M0 56
+                  L70 56
+                  L82 53
+                  L94 59
+                  L108 56
+                  L145 56
+                  L162 18
+                  L179 91
+                  L198 56
+                  L275 56
+                  L288 52
+                  L302 60
+                  L317 56
+                  L350 56
+                  L368 20
+                  L384 90
+                  L404 56
+                  L480 56
+                  L494 52
+                  L509 60
+                  L525 56
+                  L555 56
+                  L572 19
+                  L588 91
+                  L608 56
+                  L690 56
+                  L703 52
+                  L718 60
+                  L734 56
+                  L765 56
+                  L782 21
+                  L799 90
+                  L819 56
+                  L900 56
+                "
+              />
+            </svg>
+          </div>
+
+          <div
+            class="vitals-wave vitals-wave--resp"
+            data-wave="rr"
+          >
+            <svg
+              viewBox="0 0 900 42"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="
+                  M0 24
+                  C45 24, 55 6, 105 6
+                  C155 6, 168 24, 215 24
+                  C260 24, 272 6, 322 6
+                  C372 6, 385 24, 432 24
+                  C477 24, 490 6, 540 6
+                  C590 6, 603 24, 650 24
+                  C695 24, 708 6, 758 6
+                  C808 6, 821 24, 900 24
+                "
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="vitals-tools">
+        <h3 class="vitals-tools__title">
+          Selecione um instrumento para realizar a aferição:
+        </h3>
+
+        <div class="vitals-tools__grid">
+          <button
+            type="button"
+            class="vital-tool"
+            data-vital="bp"
+          >
+            <span
+              class="vital-tool__icon"
+              aria-hidden="true"
+            >
+              🩺
+            </span>
+
+            <span class="vital-tool__name">
+              Pressão arterial
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="vital-tool"
+            data-vital="hr"
+          >
+            <span
+              class="vital-tool__icon"
+              aria-hidden="true"
+            >
+              ♥
+            </span>
+
+            <span class="vital-tool__name">
+              Frequência cardíaca
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="vital-tool"
+            data-vital="rr"
+          >
+            <span
+              class="vital-tool__icon"
+              aria-hidden="true"
+            >
+              〰
+            </span>
+
+            <span class="vital-tool__name">
+              Frequência respiratória
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="vital-tool"
+            data-vital="spo2"
+          >
+            <span
+              class="vital-tool__icon"
+              aria-hidden="true"
+            >
+              ☝
+            </span>
+
+            <span class="vital-tool__name">
+              Saturação de O₂
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="vital-tool"
+            data-vital="temp"
+          >
+            <span
+              class="vital-tool__icon"
+              aria-hidden="true"
+            >
+              🌡
+            </span>
+
+            <span class="vital-tool__name">
+              Temperatura
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div class="vitals-measurement-status">
+        <div
+          class="vitals-measurement-status__pill"
+          data-measurement-status
+          aria-live="polite"
+        >
+          <span
+            class="vitals-measurement-status__spinner"
+            aria-hidden="true"
+          ></span>
+
+          <span data-measurement-text></span>
+        </div>
+      </div>
+
+      <div
+        class="vitals-complete"
+        data-complete
+        aria-live="polite"
+      >
+        <div class="vitals-complete__icon">
+          ✓
+        </div>
+
+        <div>
+          <h3>
+            Aferição dos sinais vitais concluída
+          </h3>
+
+          <p>
+            Todos os parâmetros do acolhimento foram registrados
+            no monitor. Observe os valores antes de continuar o caso.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const CONFIG = {
+        patientName: "Mônica",
+
+        vitals: {
+          bp: {
+            value: "198/128",
+            detail: "Quadro hipertensivo",
+            measuringText:
+              "Aferindo pressão arterial...",
+            doneText:
+              "Pressão arterial registrada.",
+            duration: 1800,
+            alert: true,
+          },
+
+          hr: {
+            value: "108",
+            detail: "Taquicardia",
+            measuringText:
+              "Verificando frequência cardíaca...",
+            doneText:
+              "Frequência cardíaca registrada.",
+            duration: 1500,
+            alert: true,
+          },
+
+          rr: {
+            value: "22",
+            detail: "Respiração em observação",
+            measuringText:
+              "Observando movimentos respiratórios...",
+            doneText:
+              "Frequência respiratória registrada.",
+            duration: 1750,
+            alert: false,
+          },
+
+          spo2: {
+            value: "97",
+            detail: "Em ar ambiente",
+            measuringText:
+              "Buscando sinal do oxímetro...",
+            doneText:
+              "Saturação de O₂ registrada.",
+            duration: 1650,
+            alert: false,
+          },
+
+          temp: {
+            value: "36,5",
+            detail: "Afebril",
+            measuringText:
+              "Realizando aferição da temperatura...",
+            doneText:
+              "Temperatura registrada.",
+            duration: 1550,
+            alert: false,
+          },
+        },
+      };
+
+      const root =
+        document.querySelector(
+          "#vitalsResource"
+        );
+
+      if (!root) {
+        return;
+      }
+
+      const monitor =
+        root.querySelector(
+          "[data-monitor]"
+        );
+
+      const monitorStatus =
+        root.querySelector(
+          "[data-monitor-status]"
+        );
+
+      const progressValue =
+        root.querySelector(
+          "[data-progress-value]"
+        );
+
+      const progressFill =
+        root.querySelector(
+          "[data-progress-fill]"
+        );
+
+      const statusPill =
+        root.querySelector(
+          "[data-measurement-status]"
+        );
+
+      const statusText =
+        root.querySelector(
+          "[data-measurement-text]"
+        );
+
+      const complete =
+        root.querySelector(
+          "[data-complete]"
+        );
+
+      const tools = [
+        ...root.querySelectorAll(
+          ".vital-tool"
+        ),
+      ];
+
+      const readings = [
+        ...root.querySelectorAll(
+          ".vital-reading"
+        ),
+      ];
+
+      const description =
+        root.querySelector(
+          ".vitals-resource__description"
+        );
+
+      const desktopDescription =
+        description?.textContent
+          .trim() || "";
+
+      const mobileDescription =
+        "Toque nos parâmetros do monitor para realizar as aferições. Os valores serão registrados à medida que cada medição for concluída.";
+
+      const isMobile = () =>
+        window.matchMedia(
+          "(max-width: 700px)"
+        ).matches;
+
+      const completed =
+        new Set();
+
+      let isBusy =
+        false;
+
+      function getReading(
+        vitalId
+      ) {
+        return root.querySelector(
+          `[data-reading="${CSS.escape(
+            vitalId
+          )}"]`
+        );
+      }
+
+      function createMobileWaveMarkup() {
+        return (
+          '<div class="vital-reading__mobile-wave" aria-hidden="true">' +
+            '<svg viewBox="0 0 480 48" preserveAspectRatio="none">' +
+              '<path class="mobile-wave-ecg" d="' +
+                'M0 25 ' +
+                'L30 25 L37 23 L43 27 L50 25 L64 25 ' +
+                'L72 7 L80 42 L89 25 ' +
+                'L119 25 L126 23 L132 27 L139 25 L153 25 ' +
+                'L161 7 L169 42 L178 25 ' +
+                'L208 25 L215 23 L221 27 L228 25 L242 25 ' +
+                'L250 7 L258 42 L267 25 ' +
+                'L297 25 L304 23 L310 27 L317 25 L331 25 ' +
+                'L339 7 L347 42 L356 25 ' +
+                'L386 25 L393 23 L399 27 L406 25 L420 25 ' +
+                'L428 7 L436 42 L445 25 L480 25' +
+              '"></path>' +
+              '<path class="mobile-wave-resp" d="' +
+                'M0 34 ' +
+                'C22 34, 28 24, 49 24 ' +
+                'C70 24, 76 34, 98 34 ' +
+                'C120 34, 126 24, 147 24 ' +
+                'C168 24, 174 34, 196 34 ' +
+                'C218 34, 224 24, 245 24 ' +
+                'C266 24, 272 34, 294 34 ' +
+                'C316 34, 322 24, 343 24 ' +
+                'C364 24, 370 34, 392 34 ' +
+                'C414 34, 420 24, 441 24 ' +
+                'C462 24, 468 34, 480 34' +
+              '"></path>' +
+            '</svg>' +
+          '</div>'
+        );
+      }
+
+      readings.forEach(
+        (reading) => {
+          const value =
+            reading.querySelector(
+              ".vital-reading__value"
+            );
+
+          if (
+            !value ||
+            reading.querySelector(
+              ".vital-reading__mobile-wave"
+            )
+          ) {
+            return;
+          }
+
+          value.insertAdjacentHTML(
+            "afterend",
+            createMobileWaveMarkup()
+          );
+        }
+      );
+
+      function syncMobileInterface() {
+        const mobile =
+          isMobile();
+
+        if (description) {
+          description.textContent =
+            mobile
+              ? mobileDescription
+              : desktopDescription;
+        }
+
+        readings.forEach(
+          (reading) => {
+            const vitalId =
+              reading.dataset.reading;
+
+            const isDone =
+              completed.has(
+                vitalId
+              );
+
+            const detail =
+              reading.querySelector(
+                "[data-detail]"
+              );
+
+            if (mobile) {
+              reading.setAttribute(
+                "role",
+                "button"
+              );
+
+              reading.setAttribute(
+                "tabindex",
+                isDone
+                  ? "-1"
+                  : "0"
+              );
+
+              reading.setAttribute(
+                "aria-label",
+                isDone
+                  ? `${vitalId} já aferido`
+                  : "Toque para realizar esta aferição"
+              );
+
+              if (
+                !isDone &&
+                !reading.classList.contains(
+                  "is-active"
+                ) &&
+                detail
+              ) {
+                detail.textContent =
+                  "Toque para aferir";
+              }
+            } else {
+              reading.removeAttribute(
+                "role"
+              );
+
+              reading.removeAttribute(
+                "tabindex"
+              );
+
+              reading.removeAttribute(
+                "aria-label"
+              );
+
+              reading.classList.remove(
+                "is-mobile-disabled"
+              );
+
+              if (
+                !isDone &&
+                detail
+              ) {
+                detail.textContent =
+                  "Aguardando aferição";
+              }
+            }
+          }
+        );
+      }
+
+      function setToolState(
+        vitalId,
+        state
+      ) {
+        tools.forEach(
+          (tool) => {
+            const isCurrent =
+              tool.dataset.vital ===
+              vitalId;
+
+            tool.classList.toggle(
+              "is-active",
+              isCurrent &&
+                state === "active"
+            );
+
+            if (
+              isCurrent &&
+              state === "done"
+            ) {
+              tool.classList.add(
+                "is-done"
+              );
+            }
+          }
+        );
+      }
+
+      function setReadingState(
+        vitalId,
+        state
+      ) {
+        const reading =
+          root.querySelector(
+            `[data-reading="${CSS.escape(
+              vitalId
+            )}"]`
+          );
+
+        if (!reading) {
+          return;
+        }
+
+        reading.classList.toggle(
+          "is-active",
+          state === "active"
+        );
+
+        if (
+          state === "done"
+        ) {
+          reading.classList.add(
+            "is-complete"
+          );
+        }
+      }
+
+      function showWave(
+        vitalId,
+        running
+      ) {
+        const wave =
+          root.querySelector(
+            `[data-wave="${CSS.escape(
+              vitalId
+            )}"]`
+          );
+
+        if (!wave) {
+          return;
+        }
+
+        wave.classList.toggle(
+          "is-visible",
+          running
+        );
+
+        wave.classList.toggle(
+          "is-running",
+          running
+        );
+      }
+
+      function showStatus(
+        text,
+        measuring = false
+      ) {
+        statusText.textContent =
+          text;
+
+        statusPill.classList.add(
+          "is-visible"
+        );
+
+        statusPill.classList.toggle(
+          "is-measuring",
+          measuring
+        );
+      }
+
+      function updateProgress() {
+        const total =
+          Object.keys(
+            CONFIG.vitals
+          ).length;
+
+        const count =
+          completed.size;
+
+        progressValue.textContent =
+          `${count} de ${total}`;
+
+        progressFill.style.width =
+          `${(count / total) * 100}%`;
+
+        if (
+          count === total
+        ) {
+          complete.classList.add(
+            "is-visible"
+          );
+
+          monitorStatus.textContent =
+            "Monitorização concluída";
+        }
+      }
+
+      function revealValue(
+        vitalId
+      ) {
+        const vital =
+          CONFIG.vitals[
+            vitalId
+          ];
+
+        const reading =
+          root.querySelector(
+            `[data-reading="${CSS.escape(
+              vitalId
+            )}"]`
+          );
+
+        if (
+          !vital ||
+          !reading
+        ) {
+          return;
+        }
+
+        const value =
+          reading.querySelector(
+            "[data-value]"
+          );
+
+        const detail =
+          reading.querySelector(
+            "[data-detail]"
+          );
+
+        value.classList.remove(
+          "vital-reading__placeholder"
+        );
+
+        value.textContent =
+          vital.value;
+
+        detail.textContent =
+          vital.detail;
+
+        if (vital.alert) {
+          reading.classList.add(
+            "is-alert"
+          );
+        }
+
+        if (isMobile()) {
+          reading.setAttribute(
+            "tabindex",
+            "-1"
+          );
+
+          reading.setAttribute(
+            "aria-label",
+            "Aferição concluída"
+          );
+        }
+      }
+
+      async function measure(
+        vitalId
+      ) {
+        if (
+          isBusy ||
+          completed.has(
+            vitalId
+          )
+        ) {
+          return;
+        }
+
+        const vital =
+          CONFIG.vitals[
+            vitalId
+          ];
+
+        if (!vital) {
+          return;
+        }
+
+        const reading =
+          getReading(
+            vitalId
+          );
+
+        const readingValue =
+          reading?.querySelector(
+            "[data-value]"
+          );
+
+        const readingDetail =
+          reading?.querySelector(
+            "[data-detail]"
+          );
+
+        isBusy = true;
+
+        monitor.classList.add(
+          "is-measuring"
+        );
+
+        monitorStatus.textContent =
+          "Aferição em andamento";
+
+        setToolState(
+          vitalId,
+          "active"
+        );
+
+        setReadingState(
+          vitalId,
+          "active"
+        );
+
+        showWave(
+          vitalId,
+          true
+        );
+
+        showStatus(
+          vital.measuringText,
+          true
+        );
+
+        if (
+          isMobile()
+        ) {
+          if (readingDetail) {
+            readingDetail.textContent =
+              vital.measuringText;
+          }
+
+          readings.forEach(
+            (item) => {
+              const isCurrent =
+                item.dataset.reading ===
+                vitalId;
+
+              item.classList.toggle(
+                "is-mobile-disabled",
+                !isCurrent
+              );
+
+              item.setAttribute(
+                "tabindex",
+                isCurrent
+                  ? "0"
+                  : "-1"
+              );
+            }
+          );
+        }
+
+        tools.forEach(
+          (tool) => {
+            tool.disabled =
+              tool.dataset.vital !==
+              vitalId;
+          }
+        );
+
+        await new Promise(
+          (resolve) =>
+            window.setTimeout(
+              resolve,
+              vital.duration
+            )
+        );
+
+        revealValue(
+          vitalId
+        );
+
+        completed.add(
+          vitalId
+        );
+
+        setToolState(
+          vitalId,
+          "done"
+        );
+
+        setReadingState(
+          vitalId,
+          "done"
+        );
+
+        showWave(
+          vitalId,
+          false
+        );
+
+        monitor.classList.remove(
+          "is-measuring"
+        );
+
+        monitorStatus.textContent =
+          "Monitor ativo";
+
+        showStatus(
+          vital.doneText,
+          false
+        );
+
+        tools.forEach(
+          (tool) => {
+            tool.disabled =
+              completed.has(
+                tool.dataset.vital
+              );
+          }
+        );
+
+        updateProgress();
+
+        if (
+          isMobile()
+        ) {
+          readings.forEach(
+            (item) => {
+              item.classList.remove(
+                "is-mobile-disabled"
+              );
+            }
+          );
+
+          syncMobileInterface();
+        }
+
+        isBusy = false;
+      }
+
+      tools.forEach(
+        (tool) => {
+          tool.addEventListener(
+            "click",
+            () => {
+              measure(
+                tool.dataset.vital
+              );
+            }
+          );
+        }
+      );
+
+      readings.forEach(
+        (reading) => {
+          reading.addEventListener(
+            "click",
+            () => {
+              if (!isMobile()) {
+                return;
+              }
+
+              measure(
+                reading.dataset.reading
+              );
+            }
+          );
+
+          reading.addEventListener(
+            "keydown",
+            (event) => {
+              if (
+                !isMobile() ||
+                (
+                  event.key !== "Enter" &&
+                  event.key !== " "
+                )
+              ) {
+                return;
+              }
+
+              event.preventDefault();
+
+              measure(
+                reading.dataset.reading
+              );
+            }
+          );
+        }
+      );
+
+      let lastMobileState =
+        isMobile();
+
+      window.addEventListener(
+        "resize",
+        () => {
+          const currentMobileState =
+            isMobile();
+
+          if (
+            currentMobileState ===
+            lastMobileState
+          ) {
+            return;
+          }
+
+          lastMobileState =
+            currentMobileState;
+
+          syncMobileInterface();
+        }
+      );
+
+      updateProgress();
+      syncMobileInterface();
+    })();
+  </script>
+  </body>
+</html>
