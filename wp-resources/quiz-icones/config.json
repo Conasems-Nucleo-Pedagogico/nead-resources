@@ -1,0 +1,221 @@
+{
+  "type": "game",
+  "titulo": "QUIZ: VERDADEIRO OU FALSO, ESCOLHA ÚNICA E MÚLTIPLA",
+  "conteudo": "Perguntas de fixação em três formatos: verdadeiro ou falso (cada afirmação com seu botão Conferir), escolha única (corrige ao clicar ou após Conferir) e múltipla escolha (mostra o que o estudante marcou ao lado do que deveria ter marcado). O feedback de acerto ou erro aparece na própria tela, com explicação.",
+  "observacao": "É a interação mais usada nos cursos. Cada pergunta pode trazer uma explicação diferente para acerto e para erro.",
+  "notasDev": "Um bloco do motor por página; cada quiz é um <div class=\"nead-qz\"> com JSON (modo vf/unica/multipla). Substitui as versões com Elementor (.vouf, .quiz/.quiz-pergunta, .multi-quiz, .sca-option): o feedback que antes abria popup do Elementor agora aparece inline. As animações Lottie dos popups não foram trazidas.",
+  "img": "wp-resources/quiz-icones/preview.webp",
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-dpoc",
+      "arquivo": "aula-1/index.html",
+      "linha": 6265,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso. Origem do exemplo de verdadeiro ou falso"
+    },
+    {
+      "repo": "conasems-dpoc",
+      "arquivo": "aula-4/index.html",
+      "linha": 4196,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso"
+    },
+    {
+      "repo": "conasems-infeccoes-respiratorias",
+      "arquivo": "COVID-19/caso-clinico/index.html",
+      "linha": 2819,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso"
+    },
+    {
+      "repo": "conasems-infeccoes-respiratorias",
+      "arquivo": "Influenza/caso-clinico/index.html",
+      "linha": 3517,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso"
+    },
+    {
+      "repo": "conasems-infeccoes-respiratorias",
+      "arquivo": "Virus Sincicial/caso-clinico/index.html",
+      "linha": 2837,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-10/index.html",
+      "linha": 5422,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso (variante SCA com correção imediata). As aulas equivalentes em Mais SCA/ACS também usam"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-15/index.html",
+      "linha": 4826,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso (variante SCA com correção imediata). As aulas equivalentes em Mais SCA/ACS também usam"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-17/index.html",
+      "linha": 8520,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso (variante SCA com correção imediata). As aulas equivalentes em Mais SCA/ACS também usam"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-22/index.html",
+      "linha": 8689,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso (variante SCA com correção imediata). As aulas equivalentes em Mais SCA/ACS também usam"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-3/index.html",
+      "linha": 6087,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso (variante SCA com correção imediata). As aulas equivalentes em Mais SCA/ACS também usam"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-5/index.html",
+      "linha": 10469,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso (variante SCA com correção imediata). As aulas equivalentes em Mais SCA/ACS também usam"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-6/index.html",
+      "linha": 5414,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso (variante SCA com correção imediata). As aulas equivalentes em Mais SCA/ACS também usam"
+    },
+    {
+      "repo": "atraso-psicomotor",
+      "arquivo": "aula-1/index.html",
+      "linha": 6975,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso"
+    },
+    {
+      "repo": "atraso-psicomotor",
+      "arquivo": "aula-2/index.html",
+      "linha": 5959,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso"
+    },
+    {
+      "repo": "atraso-psicomotor",
+      "arquivo": "aula-3/index.html",
+      "linha": 6087,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso"
+    },
+    {
+      "repo": "atraso-psicomotor",
+      "arquivo": "caso-clinico/index.html",
+      "linha": 4479,
+      "tipo": "curso",
+      "nota": "Verdadeiro ou falso"
+    },
+    {
+      "repo": "conasems-imunize",
+      "arquivo": "Diabetes/Aula 4/index.html",
+      "linha": 3492,
+      "tipo": "curso",
+      "nota": "Escolha única"
+    },
+    {
+      "repo": "conasems-imunize",
+      "arquivo": "Trilhas - Game/Raiva - gameficada/index.html",
+      "linha": 5105,
+      "tipo": "curso",
+      "nota": "Escolha única"
+    },
+    {
+      "repo": "conasems-imunize",
+      "arquivo": "Trilhas Imunopreviniveis/Botulismo/index.html",
+      "linha": 6695,
+      "tipo": "curso",
+      "nota": "Escolha única. Origem do exemplo de escolha única"
+    },
+    {
+      "repo": "conasems-imunize",
+      "arquivo": "Trilhas Imunopreviniveis/Caxumba/index.html",
+      "linha": 6200,
+      "tipo": "curso",
+      "nota": "Escolha única"
+    },
+    {
+      "repo": "conasems-imunize",
+      "arquivo": "Trilhas Imunopreviniveis/Covid-19/index.html",
+      "linha": 6552,
+      "tipo": "curso",
+      "nota": "Escolha única"
+    },
+    {
+      "repo": "conasems-imunize",
+      "arquivo": "Trilhas Imunopreviniveis/Meningite/index.html",
+      "linha": 5289,
+      "tipo": "curso",
+      "nota": "Escolha única"
+    },
+    {
+      "repo": "conasems-imunize",
+      "arquivo": "Trilhas Imunopreviniveis/Poliomielite/index.html",
+      "linha": 3973,
+      "tipo": "curso",
+      "nota": "Escolha única"
+    },
+    {
+      "repo": "conasems-imunize",
+      "arquivo": "Trilhas Imunopreviniveis/Raiva/index.html",
+      "linha": 5108,
+      "tipo": "curso",
+      "nota": "Escolha única"
+    },
+    {
+      "repo": "conasems-imunize",
+      "arquivo": "Trilhas Imunopreviniveis/Tétano/index.html",
+      "linha": 4739,
+      "tipo": "curso",
+      "nota": "Escolha única"
+    },
+    {
+      "repo": "conasems-bexiga",
+      "arquivo": "aula-4-caso/index.html",
+      "linha": 5794,
+      "tipo": "curso",
+      "nota": "Múltipla escolha. Origem do exemplo de múltipla escolha"
+    },
+    {
+      "repo": "conasems-dpoc",
+      "arquivo": "aula-4/index.html",
+      "linha": 4677,
+      "tipo": "curso",
+      "nota": "Múltipla escolha"
+    },
+    {
+      "repo": "conasems-imunize",
+      "arquivo": "Diabetes/Aula 4/index.html",
+      "linha": 3784,
+      "tipo": "curso",
+      "nota": "Múltipla escolha"
+    },
+    {
+      "repo": "atraso-psicomotor",
+      "arquivo": "caso-clinico/index.html",
+      "linha": 9360,
+      "tipo": "curso",
+      "nota": "Múltipla escolha"
+    },
+    {
+      "repo": "conasems-imunize",
+      "arquivo": "Trilhas Imunopreviniveis/Botulismo/wp-content/uploads/custom-css-js/2436923c9.js",
+      "linha": 191,
+      "tipo": "fonte",
+      "nota": "Motor original de escolha única e múltipla (handleQuiz / handleMultiQuiz)"
+    }
+  ]
+}

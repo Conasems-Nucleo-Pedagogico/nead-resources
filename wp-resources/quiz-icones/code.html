@@ -1,0 +1,487 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  QUIZ — NEAD (verdadeiro ou falso, escolha única e múltipla escolha)
+  Perguntas de fixação com correção e feedback na própria tela (sem popup).
+
+  Como usar no Elementor: cole o bloco "MOTOR" uma vez na página (widget HTML) e,
+  para cada quiz, um bloco <div class="nead-qz">...</div> com o JSON de configuração.
+  Nesta demonstração há um exemplo de cada modo.
+
+  JSON (dentro de <script class="nead-qz__config">):
+    "modo": "vf" | "unica" | "multipla"
+    "enunciado": texto da pergunta (aceita HTML curto)
+    — modo "vf": "afirmacoes": [{ "texto", "resposta": "v" ou "f", "feedbackCerto", "feedbackErrado" }]
+    — modo "unica": "opcoes": [{ "texto", "feedback" }], "correta": número da opção (1, 2, 3...)
+                    "confirmar": true → o estudante escolhe e clica em "Conferir";
+                                 false → corrige assim que clica na opção
+    — modo "multipla": "opcoes": ["texto", ...], "corretas": [1, 6, 8], "feedback": explicação final
+    Opcionais: "tituloCerto" (padrão "Isso mesmo!") e "tituloErrado" (padrão "Não foi dessa vez").
+-->
+
+<!-- ============================ MOTOR ============================ -->
+<style>
+  .nead-qz {
+    --nead-qz-cor: #155BAE;
+    --nead-qz-certo: #1E8E4E;
+    --nead-qz-errado: #D93A3A;
+    --nead-qz-texto: #2A2A2A;
+    box-sizing: border-box;
+    margin: 0 auto 32px;
+    padding: 28px;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+    border: 1px solid rgba(21, 91, 174, 0.12);
+    color: var(--nead-qz-texto);
+    font-family: "Roboto", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .nead-qz *, .nead-qz *::before, .nead-qz *::after { box-sizing: border-box; }
+  .nead-qz__enunciado { margin: 0 0 18px; font-size: 1.1em; font-weight: 700; color: #10233F; }
+  .nead-qz__lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+
+  /* Opção (radio/checkbox reais, escondidos; o ícone SVG é o visual) */
+  .nead-qz__opcao {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 2px solid #E3E8EF;
+    border-radius: 14px;
+    background: #F8FAFC;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .nead-qz__opcao:hover { border-color: rgba(21, 91, 174, 0.45); }
+  .nead-qz__opcao input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  .nead-qz__opcao:focus-within { outline: 3px solid rgba(21, 91, 174, 0.35); outline-offset: 2px; }
+  .nead-qz__icone { flex: 0 0 26px; width: 26px; height: 26px; margin-top: 1px; color: var(--nead-qz-cor); }
+  .nead-qz__icone svg { display: block; width: 100%; height: 100%; }
+  .nead-qz__opcao.is-marcada { border-color: var(--nead-qz-cor); background: rgba(21, 91, 174, 0.06); }
+  .nead-qz__opcao.is-certa { border-color: var(--nead-qz-certo); background: rgba(30, 142, 78, 0.08); }
+  .nead-qz__opcao.is-certa .nead-qz__icone { color: var(--nead-qz-certo); }
+  .nead-qz__opcao.is-errada { border-color: var(--nead-qz-errado); background: rgba(217, 58, 58, 0.07); }
+  .nead-qz__opcao.is-errada .nead-qz__icone { color: var(--nead-qz-errado); }
+  .nead-qz__opcao.is-faltou { border-style: dashed; border-color: var(--nead-qz-certo); }
+  .nead-qz__opcao.is-faltou .nead-qz__icone { color: var(--nead-qz-certo); }
+  .nead-qz__opcao.is-faltou .nead-qz__opcao-texto::after {
+    content: " · deveria ter marcado";
+    color: var(--nead-qz-certo);
+    font-size: 0.85em;
+    font-weight: 700;
+  }
+  .nead-qz.is-corrigido .nead-qz__opcao { cursor: default; }
+  .nead-qz.is-corrigido .nead-qz__opcao:hover { border-color: inherit; }
+  .nead-qz__opcao-texto { flex: 1; }
+  .nead-qz__opcao-feedback { display: block; margin-top: 6px; font-size: 0.92em; }
+  .nead-qz__opcao-feedback:empty { display: none; }
+
+  /* Verdadeiro ou falso */
+  .nead-qz__afirmacao { padding: 16px 0; border-bottom: 1px solid #E3E8EF; }
+  .nead-qz__afirmacao:first-child { padding-top: 0; }
+  .nead-qz__afirmacao:last-child { border-bottom: 0; padding-bottom: 0; }
+  .nead-qz__afirmacao-texto { margin: 0 0 12px; }
+  .nead-qz__vf-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .nead-qz__vf-linha .nead-qz__opcao { flex: 0 1 auto; padding: 8px 14px; font-weight: 700; letter-spacing: 0.02em; }
+
+  /* Botões */
+  .nead-qz__acoes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .nead-qz__vf-linha .nead-qz__acoes { margin-top: 0; }
+  .nead-qz__botao {
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 20px;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--nead-qz-cor);
+    color: #fff;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nead-qz__botao:hover { transform: translateY(-1px); }
+  .nead-qz__botao:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .nead-qz__botao--secundario { background: transparent; color: var(--nead-qz-cor); box-shadow: inset 0 0 0 2px var(--nead-qz-cor); }
+  .nead-qz__botao[hidden] { display: none; }
+  .nead-qz__botao:focus-visible { outline: 3px solid rgba(21, 91, 174, 0.35); outline-offset: 2px; }
+
+  /* Feedback */
+  .nead-qz__feedback {
+    margin-top: 14px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    border-left: 6px solid var(--nead-qz-cor);
+    background: #F3F7FC;
+    animation: nead-qz-entrar 0.3s ease both;
+  }
+  .nead-qz__feedback[hidden] { display: none; }
+  .nead-qz__feedback.is-certo { border-left-color: var(--nead-qz-certo); background: rgba(30, 142, 78, 0.08); }
+  .nead-qz__feedback.is-errado { border-left-color: var(--nead-qz-errado); background: rgba(217, 58, 58, 0.07); }
+  .nead-qz__feedback-titulo { margin: 0 0 6px; font-weight: 800; }
+  .nead-qz__feedback.is-certo .nead-qz__feedback-titulo { color: var(--nead-qz-certo); }
+  .nead-qz__feedback.is-errado .nead-qz__feedback-titulo { color: var(--nead-qz-errado); }
+  .nead-qz__feedback p { margin: 0 0 8px; }
+  .nead-qz__feedback p:last-child { margin-bottom: 0; }
+  .nead-qz__comparar { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0; }
+  .nead-qz__comparar h4 { margin: 0 0 4px; font-size: 0.9em; }
+  .nead-qz__comparar ul { margin: 0; padding-left: 1.1em; font-size: 0.92em; }
+  @keyframes nead-qz-entrar { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  @media (max-width: 600px) {
+    .nead-qz { padding: 20px; font-size: 16px; }
+    .nead-qz__comparar { grid-template-columns: 1fr; }
+    .nead-qz__vf-linha .nead-qz__opcao { flex: 1 1 40%; justify-content: center; }
+    .nead-qz__vf-linha .nead-qz__acoes { flex: 1 1 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nead-qz__feedback { animation: none; }
+    .nead-qz__botao { transition: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    if (window.NeadQuiz) {
+      window.NeadQuiz.initAll();
+      return;
+    }
+
+    var ICONES = {
+      vazio: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+      marcado: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="currentColor"/></svg>',
+      caixaVazia: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+      caixaMarcada: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      certo: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      errado: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="currentColor"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>'
+    };
+    var contador = 0;
+
+    function criar(tag, classe, html) {
+      var el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (html != null) el.innerHTML = html;
+      return el;
+    }
+
+    function botao(texto, secundario) {
+      var b = criar('button', 'nead-qz__botao' + (secundario ? ' nead-qz__botao--secundario' : ''), texto);
+      b.type = 'button';
+      return b;
+    }
+
+    // Cria uma opção (label + input real + ícone). tipo: "radio" ou "checkbox".
+    function opcao(tipo, nome, valor, textoHtml) {
+      var label = criar('label', 'nead-qz__opcao');
+      var input = document.createElement('input');
+      input.type = tipo;
+      input.name = nome;
+      input.value = valor;
+      var icone = criar('span', 'nead-qz__icone', tipo === 'checkbox' ? ICONES.caixaVazia : ICONES.vazio);
+      var texto = criar('span', 'nead-qz__opcao-texto', textoHtml);
+      label.appendChild(input);
+      label.appendChild(icone);
+      label.appendChild(texto);
+      return { label: label, input: input, icone: icone, texto: texto, tipo: tipo };
+    }
+
+    function pintar(op, estado) {
+      op.label.classList.remove('is-marcada', 'is-certa', 'is-errada', 'is-faltou');
+      var caixa = op.tipo === 'checkbox';
+      if (estado === 'certa') { op.label.classList.add('is-certa'); op.icone.innerHTML = ICONES.certo; return; }
+      if (estado === 'errada') { op.label.classList.add('is-errada'); op.icone.innerHTML = ICONES.errado; return; }
+      if (estado === 'faltou') { op.label.classList.add('is-faltou'); op.icone.innerHTML = ICONES.caixaVazia; return; }
+      if (op.input.checked) { op.label.classList.add('is-marcada'); op.icone.innerHTML = caixa ? ICONES.caixaMarcada : ICONES.marcado; }
+      else op.icone.innerHTML = caixa ? ICONES.caixaVazia : ICONES.vazio;
+    }
+
+    function feedbackBox() {
+      var box = criar('div', 'nead-qz__feedback');
+      box.hidden = true;
+      box.setAttribute('role', 'status');
+      return box;
+    }
+
+    function mostrarFeedback(box, certo, titulo, html) {
+      box.classList.toggle('is-certo', certo);
+      box.classList.toggle('is-errado', !certo);
+      box.innerHTML = '<p class="nead-qz__feedback-titulo">' + titulo + '</p>' + (html || '');
+      box.hidden = false;
+    }
+
+    function paragrafo(html) { return html ? '<p>' + html + '</p>' : ''; }
+
+    // ---------- Verdadeiro ou falso ----------
+    function montarVF(raiz, cfg, textos) {
+      var lista = criar('div', 'nead-qz__lista');
+      (cfg.afirmacoes || []).forEach(function (af, i) {
+        var nome = 'nead-qz-' + contador + '-' + i;
+        var bloco = criar('div', 'nead-qz__afirmacao');
+        bloco.appendChild(criar('p', 'nead-qz__afirmacao-texto', (i + 1) + '. ' + af.texto));
+        var linha = criar('div', 'nead-qz__vf-linha');
+        linha.setAttribute('role', 'radiogroup');
+        linha.setAttribute('aria-label', 'Afirmação ' + (i + 1));
+        var ops = [opcao('radio', nome, 'v', 'VERDADEIRO'), opcao('radio', nome, 'f', 'FALSO')];
+        ops.forEach(function (op) { linha.appendChild(op.label); });
+        var acoes = criar('div', 'nead-qz__acoes');
+        var conferir = botao('Conferir');
+        var refazer = botao('Tentar de novo', true);
+        conferir.disabled = true;
+        refazer.hidden = true;
+        acoes.appendChild(conferir);
+        acoes.appendChild(refazer);
+        linha.appendChild(acoes);
+        bloco.appendChild(linha);
+        var fb = feedbackBox();
+        bloco.appendChild(fb);
+        lista.appendChild(bloco);
+
+        var travado = false;
+        ops.forEach(function (op) {
+          op.input.addEventListener('change', function () {
+            if (travado) return;
+            ops.forEach(function (o) { pintar(o); });
+            conferir.disabled = false;
+          });
+        });
+        conferir.addEventListener('click', function () {
+          var marcada = ops.filter(function (o) { return o.input.checked; })[0];
+          if (!marcada) return;
+          var certo = marcada.input.value === String(af.resposta).toLowerCase().charAt(0);
+          pintar(marcada, certo ? 'certa' : 'errada');
+          travado = true;
+          ops.forEach(function (o) { o.input.disabled = true; });
+          conferir.hidden = true;
+          refazer.hidden = false;
+          mostrarFeedback(fb, certo, certo ? textos.certo : textos.errado, paragrafo(certo ? af.feedbackCerto : af.feedbackErrado));
+        });
+        refazer.addEventListener('click', function () {
+          travado = false;
+          ops.forEach(function (o) { o.input.disabled = false; o.input.checked = false; pintar(o); });
+          conferir.hidden = false;
+          conferir.disabled = true;
+          refazer.hidden = true;
+          fb.hidden = true;
+          ops[0].input.focus();
+        });
+      });
+      raiz.appendChild(lista);
+    }
+
+    // ---------- Escolha única ----------
+    function montarUnica(raiz, cfg, textos) {
+      var nome = 'nead-qz-' + contador;
+      var lista = criar('div', 'nead-qz__lista');
+      lista.setAttribute('role', 'radiogroup');
+      var correta = Number(cfg.correta);
+      var ops = (cfg.opcoes || []).map(function (o, i) {
+        var op = opcao('radio', nome, String(i + 1), typeof o === 'string' ? o : o.texto);
+        op.feedback = typeof o === 'string' ? '' : (o.feedback || '');
+        op.fbEl = criar('span', 'nead-qz__opcao-feedback');
+        op.texto.appendChild(op.fbEl);
+        lista.appendChild(op.label);
+        return op;
+      });
+      raiz.appendChild(lista);
+
+      var acoes = criar('div', 'nead-qz__acoes');
+      var conferir = botao('Conferir');
+      var refazer = botao('Refazer', true);
+      conferir.disabled = true;
+      refazer.hidden = true;
+      if (cfg.confirmar) acoes.appendChild(conferir);
+      acoes.appendChild(refazer);
+      var fb = feedbackBox();
+      raiz.appendChild(fb);
+      raiz.appendChild(acoes);
+
+      function corrigir() {
+        var marcada = ops.filter(function (o) { return o.input.checked; })[0];
+        if (!marcada) return;
+        var certo = Number(marcada.input.value) === correta;
+        ops.forEach(function (o) { pintar(o); o.fbEl.innerHTML = ''; o.input.disabled = true; });
+        pintar(marcada, certo ? 'certa' : 'errada');
+        marcada.fbEl.innerHTML = marcada.feedback;
+        raiz.classList.add('is-corrigido');
+        conferir.hidden = true;
+        refazer.hidden = false;
+        mostrarFeedback(fb, certo, certo ? textos.certo : textos.errado, '');
+      }
+
+      ops.forEach(function (op) {
+        op.input.addEventListener('change', function () {
+          ops.forEach(function (o) { pintar(o); });
+          if (cfg.confirmar) conferir.disabled = false;
+          else corrigir();
+        });
+      });
+      conferir.addEventListener('click', corrigir);
+      refazer.addEventListener('click', function () {
+        ops.forEach(function (o) { o.input.disabled = false; o.input.checked = false; o.fbEl.innerHTML = ''; pintar(o); });
+        raiz.classList.remove('is-corrigido');
+        conferir.hidden = false;
+        conferir.disabled = true;
+        refazer.hidden = true;
+        fb.hidden = true;
+        ops[0].input.focus();
+      });
+    }
+
+    // ---------- Múltipla escolha ----------
+    function montarMultipla(raiz, cfg, textos) {
+      var nome = 'nead-qz-' + contador;
+      var corretas = (cfg.corretas || []).map(Number);
+      var lista = criar('div', 'nead-qz__lista');
+      lista.setAttribute('role', 'group');
+      var ops = (cfg.opcoes || []).map(function (o, i) {
+        var op = opcao('checkbox', nome, String(i + 1), typeof o === 'string' ? o : o.texto);
+        lista.appendChild(op.label);
+        return op;
+      });
+      raiz.appendChild(lista);
+
+      var acoes = criar('div', 'nead-qz__acoes');
+      var conferir = botao('Conferir');
+      var refazer = botao('Refazer', true);
+      conferir.disabled = true;
+      refazer.hidden = true;
+      acoes.appendChild(conferir);
+      acoes.appendChild(refazer);
+      var fb = feedbackBox();
+      raiz.appendChild(fb);
+      raiz.appendChild(acoes);
+
+      ops.forEach(function (op) {
+        op.input.addEventListener('change', function () {
+          pintar(op);
+          conferir.disabled = !ops.some(function (o) { return o.input.checked; });
+        });
+      });
+
+      conferir.addEventListener('click', function () {
+        var acertos = 0, erros = 0, marcadas = [];
+        ops.forEach(function (op, i) {
+          var deveria = corretas.indexOf(i + 1) !== -1;
+          op.input.disabled = true;
+          if (op.input.checked) {
+            marcadas.push(op.texto.innerHTML);
+            if (deveria) { acertos++; pintar(op, 'certa'); } else { erros++; pintar(op, 'errada'); }
+          } else if (deveria) {
+            pintar(op, 'faltou');
+          }
+        });
+        var tudoCerto = acertos === corretas.length && erros === 0;
+        var esperadas = corretas.map(function (n) { return ops[n - 1] ? ops[n - 1].texto.innerHTML : ''; });
+        var resumo = '<p>Você acertou ' + acertos + ' de ' + corretas.length + (erros ? ' e marcou ' + erros + (erros === 1 ? ' opção que não deveria' : ' opções que não deveria') : '') + '.</p>';
+        var comparar = '<div class="nead-qz__comparar"><div><h4>Você selecionou</h4><ul><li>' + marcadas.join('</li><li>') + '</li></ul></div>' +
+          '<div><h4>Deveriam ser selecionados</h4><ul><li>' + esperadas.join('</li><li>') + '</li></ul></div></div>';
+        raiz.classList.add('is-corrigido');
+        conferir.hidden = true;
+        refazer.hidden = false;
+        mostrarFeedback(fb, tudoCerto, tudoCerto ? textos.certo : textos.errado, resumo + comparar + paragrafo(cfg.feedback));
+      });
+
+      refazer.addEventListener('click', function () {
+        ops.forEach(function (o) { o.input.disabled = false; o.input.checked = false; pintar(o); });
+        raiz.classList.remove('is-corrigido');
+        conferir.hidden = false;
+        conferir.disabled = true;
+        refazer.hidden = true;
+        fb.hidden = true;
+        ops[0].input.focus();
+      });
+    }
+
+    function montar(raiz) {
+      if (raiz.dataset.neadQzPronto) return;
+      var cfg;
+      try {
+        cfg = JSON.parse(raiz.querySelector('.nead-qz__config').textContent);
+      } catch (erro) {
+        raiz.textContent = 'Quiz: o JSON de configuração está inválido.';
+        console.error('[nead-qz] JSON inválido', erro);
+        return;
+      }
+      raiz.dataset.neadQzPronto = '1';
+      contador++;
+      var textos = { certo: cfg.tituloCerto || 'Isso mesmo!', errado: cfg.tituloErrado || 'Não foi dessa vez' };
+      if (cfg.enunciado) raiz.appendChild(criar('p', 'nead-qz__enunciado', cfg.enunciado));
+      if (cfg.modo === 'vf') montarVF(raiz, cfg, textos);
+      else if (cfg.modo === 'multipla') montarMultipla(raiz, cfg, textos);
+      else montarUnica(raiz, cfg, textos);
+    }
+
+    window.NeadQuiz = {
+      initAll: function () { document.querySelectorAll('.nead-qz').forEach(montar); }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', window.NeadQuiz.initAll);
+    } else {
+      window.NeadQuiz.initAll();
+    }
+  })();
+</script>
+<!-- ========================== FIM DO MOTOR ========================== -->
+
+
+<!-- Exemplo 1: verdadeiro ou falso (conteúdo de conasems-dpoc, aula 1) -->
+<div class="nead-qz">
+  <script type="application/json" class="nead-qz__config">
+    {
+      "modo": "vf",
+      "enunciado": "Leia as afirmações e marque verdadeiro ou falso.",
+      "afirmacoes": [
+        {
+          "texto": "A DPOC é uma doença provocada apenas pelo tabagismo ativo.",
+          "resposta": "f",
+          "feedbackCerto": "Você soube identificar que a DPOC não é mais entendida como uma doença provocada apenas pelo tabagismo ativo. Como principais exposições ambientais que levam à doença, além do tabagismo, podemos citar a inalação de partículas e de gases tóxicos da poluição doméstica e do ar ambiente. Observe esse dado importante: de acordo com estudos, entre 25% e 45% dos pacientes com DPOC no mundo nunca fumaram.",
+          "feedbackErrado": "Retorne para rever esse conteúdo! Lembre-se de que a DPOC não é mais entendida como uma doença provocada apenas pelo tabagismo ativo. Como principais exposições ambientais que levam à doença, além do tabagismo, podemos citar a inalação de partículas e gases tóxicos da poluição doméstica e do ar ambiente. Observe esse dado importante: de acordo com estudos, entre 25% e 45% dos pacientes com DPOC no mundo nunca fumaram."
+        },
+        {
+          "texto": "O desenvolvimento anormal do pulmão e o envelhecimento acelerado não estão associados à doença.",
+          "resposta": "f",
+          "feedbackCerto": "Como exposto no e-book, a DPOC resulta de interações, ao longo da vida, entre as predisposições genéticas do indivíduo e fatores ambientais que podem causar danos aos pulmões e ao seu desenvolvimento e envelhecimento. Assim, o desenvolvimento anormal do pulmão e o envelhecimento acelerado também podem estar associados à doença.",
+          "feedbackErrado": "Como exposto no e-book, a DPOC resulta de interações, ao longo da vida, entre as predisposições genéticas do indivíduo e fatores ambientais que podem causar danos aos pulmões e ao seu desenvolvimento e envelhecimento. Assim, o desenvolvimento anormal do pulmão e o envelhecimento acelerado também podem estar associados à doença."
+        },
+        {
+          "texto": "Pacientes expostos a fatores de risco e que apresentam alterações estruturais pulmonares, como bronquite ou enfisema, ou anormalidades fisiológicas e, por vezes, sintomas recorrentes ou crônicos, mas que não apresentam o padrão ventilatório obstrutivo na espirometria, não são considerados portadores de DPOC.",
+          "resposta": "v",
+          "feedbackCerto": "Na atualidade, há intensa pesquisa e discussão na literatura médica para melhor caracterização e diagnóstico desses pacientes, que algumas vezes são categorizados como “pré-DPOC”. Veja bem: alguns estudos demonstraram que apenas uma parte deles progride, no futuro, para o padrão obstrutivo. Para o paciente receber o diagnóstico de DPOC, é necessário o achado do padrão ventilatório obstrutivo na espirometria.",
+          "feedbackErrado": "Na atualidade, há intensa pesquisa e discussão na literatura médica para melhor caracterização e diagnóstico desses pacientes, que algumas vezes são categorizados como “pré-DPOC”. Veja bem: alguns estudos demonstraram que apenas uma parte deles progride, no futuro, para o padrão obstrutivo. Para o paciente receber o diagnóstico de DPOC, é necessário o achado do padrão ventilatório obstrutivo na espirometria."
+        }
+      ]
+    }
+  </script>
+</div>
+
+<!-- Exemplo 2: escolha única, corrigida ao clicar (conteúdo de conasems-imunize, trilha Botulismo) -->
+<div class="nead-qz">
+  <script type="application/json" class="nead-qz__config">
+    {
+      "modo": "unica",
+      "confirmar": false,
+      "enunciado": "O quadro clínico do Botulismo se caracteriza pelo início súbito dos sintomas, sendo que os sintomas gastrintestinais podem preceder os sintomas neurológicos. Em relação aos sintomas neurológicos do Botulismo, é correto afirmar, <b>exceto</b>:",
+      "correta": 3,
+      "opcoes": [
+        { "texto": "Visão turva e ptose palpebral são os primeiros sintomas neurológicos do Botulismo.", "feedback": "Os sintomas gastrintestinais ou sintomas inespecíficos podem ser os primeiros sintomas de Botulismo, mas os primeiros sintomas neurológicos de Botulismo são visão turva e ptose palpebral." },
+        { "texto": "A paralisia motora flácida descendente é característica do Botulismo.", "feedback": "A paralisia flácida descendente é característica do Botulismo, e isso a difere da síndrome de Guillain Barré, que se caracteriza por ser uma paralisia flácida ascendente." },
+        { "texto": "Confusão mental surge na fase inicial do Botulismo e acompanha a paralisia dos músculos da face.", "feedback": "O paciente com Botulismo não apresenta alteração do nível de consciência nem confusão mental, o seu estado de consciência é mantido, o paciente se apresenta lúcido, orientado no tempo e espaço." },
+        { "texto": "Paralisia dos músculos do palato, faringe e laringe ocasiona disfagia e pode predispor a casos de aspiração pulmonar.", "feedback": "A paralisia dos músculos da deglutição pode ocasionar disfagia e predispor também a casos de aspiração pulmonar com risco de insuficiência respiratória." }
+      ]
+    }
+  </script>
+</div>
+
+<!-- Exemplo 3: múltipla escolha (conteúdo de conasems-bexiga, aula 4 - caso clínico) -->
+<div class="nead-qz">
+  <script type="application/json" class="nead-qz__config">
+    {
+      "modo": "multipla",
+      "enunciado": "Para dar seguimento clínico no caso de F.A.B, quais exames complementares você solicitaria?",
+      "corretas": [1, 6, 8],
+      "opcoes": ["Prova de função renal", "Ácido úrico", "TSH e T4 livre", "Exame de urina", "Exame de fezes", "Ultrassom", "Sódio e Potássio", "Estudo Urodinâmico", "Hemograma"]
+    }
+  </script>
+</div>
