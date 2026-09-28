@@ -5,5 +5,26 @@
   "observacao": "",
   "img": "wp-resources/slider-icones/slider_icones.webp",
   "src": "code.html",
-  "usoEmCursos": []
+  "usoEmCursos": [
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 7540,
+      "tipo": "variante",
+      "nota": "Versão evoluída (aps-range-story): mesma mecânica de slider que troca ícone e texto por etapa, configurada por JSON"
+    },
+    {
+      "repo": "conasems-scripts",
+      "arquivo": "Cuidado/Disciplina 14/slider-icon-t15.html",
+      "linha": 86,
+      "tipo": "prototipo"
+    },
+    {
+      "repo": "educational-resource",
+      "arquivo": "step-icons/index.html",
+      "linha": 87,
+      "tipo": "demo",
+      "nota": "Na branch main"
+    }
+  ]
 }

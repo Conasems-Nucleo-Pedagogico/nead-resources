@@ -5,5 +5,13 @@
   "observacao": "",
   "img": "wp-resources/sinaisVitaisMonitor/assets/demo.png",
   "src": "code.html",
-  "usoEmCursos": []
+  "usoEmCursos": [
+    {
+      "repo": "conasems-scripts",
+      "arquivo": "Cuidado/Caso Clínico/sinaisVitaisMonitor.html",
+      "linha": 1107,
+      "tipo": "prototipo",
+      "nota": "Ainda não aparece nas páginas dos cursos"
+    }
+  ]
 }

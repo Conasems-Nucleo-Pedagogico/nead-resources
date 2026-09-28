@@ -70,7 +70,7 @@ Campo só de consulta (a página não usa): lista onde o recurso aparece, para a
 
 - `repo` / `arquivo`: repositório do curso e caminho da página dentro dele.
 - `linha`: linha na cópia estática da página (pode mudar se o curso for exportado de novo).
-- `tipo`: `curso` (página de curso), `fonte` (código-fonte do jogo, ex.: `educational-games`), `demo` (demo do efeito em `educational-resource`), `precursor` (versão anterior feita sob medida) ou `referencia` (técnica parecida, mas não o snippet).
+- `tipo`: `curso` (página de curso), `variante` (versão modificada do recurso usada em curso), `fonte` (código-fonte do jogo, ex.: `educational-games`), `demo` (demo do efeito em `educational-resource`), `prototipo` (protótipo em `conasems-scripts`), `precursor` (versão anterior feita sob medida) ou `referencia` (técnica parecida, mas não o snippet).
 - `nota`: observação opcional.
 
 Lista vazia = nenhum uso encontrado.
