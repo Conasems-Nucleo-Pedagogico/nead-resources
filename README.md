@@ -34,7 +34,8 @@ Cada recurso deve ter um arquivo `config.json` com esta estrutura:
   "type": "cardsCarousel",
   "titulo": "NOME DO RECURSO",
   "conteudo": "Descrição do recurso educacional",
-  "observacao": "Informações adicionais (opcional)",
+  "observacao": "Informações adicionais para quem escolhe o recurso (opcional)",
+  "notasDev": "Detalhes técnicos de implementação (opcional, não aparece na página)",
   "img": "https://exemplo.com/imagem.png",
   "src": "code.html",
   "usoEmCursos": [
@@ -48,6 +49,12 @@ Cada recurso deve ter um arquivo `config.json` com esta estrutura:
   ]
 }
 ```
+
+### Textos do card (`conteudo`, `observacao`, `notasDev`)
+A página é lida por quem monta os cursos, sem perfil técnico. No card, `conteudo` aparece cortado em 3 linhas e `observacao` em 2 (caixa cinza); o resto abre ao clicar no texto, um texto aberto por vez. Clicar no restante do card abre o exemplo.
+
+- `observacao`: dica ou limitação de uso em linguagem simples (ex.: "IMPORTANTE: É recomendável escolher vídeos com poucos detalhes...").
+- `notasDev`: o que só interessa a quem implementa (JSON do bloco, atributos `data-*`, IDs de popup do Elementor). Fica só no `config.json`.
 
 ### Categorias (`type`)
 O filtro da página usa o campo `type`. Valores aceitos (configurados em `TYPE_FILTER_CONFIG`, no `wp-assets/script.js`):

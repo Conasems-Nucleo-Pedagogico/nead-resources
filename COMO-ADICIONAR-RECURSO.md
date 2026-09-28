@@ -17,6 +17,7 @@ wp-resources/
   "titulo": "MEU NOVO RECURSO",
   "conteudo": "Descrição detalhada do que este recurso faz",
   "observacao": "IMPORTANTE: Informações importantes (opcional)",
+  "notasDev": "Detalhes técnicos (opcional, não aparece na página)",
   "img": "https://exemplo.com/imagem-preview.png",
   "src": "code.html",
   "usoEmCursos": []
@@ -24,6 +25,8 @@ wp-resources/
 ```
 
 - `type`: uma das categorias do filtro: `game`, `clinicalCase`, `cardsCarousel`, `sequence`, `hotspot`, `animation`, `media`, `dataViz` ou `activity` (detalhes no README).
+- `observacao`: texto para quem escolhe o recurso, sem termos técnicos. Aparece no card.
+- `notasDev`: detalhes de implementação (JSON do bloco, atributos, IDs de popup). Não aparece na página.
 - `usoEmCursos`: onde o recurso já foi usado nos cursos (só consulta). Pode começar vazio; formato no README.
 
 ### 3️⃣ Atualizar index.json

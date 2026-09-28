@@ -2,7 +2,8 @@
   "type": "cardsCarousel",
   "titulo": "CARROSSEL VERTICAL",
   "conteudo": "Card com várias telas de conteúdo que deslizam na vertical, navegadas pelas setas para cima e para baixo. Cada tela tem um título e uma lista de itens com ícone, ideal para apresentar listas longas (atribuições, etapas, orientações) em partes menores.",
-  "observacao": "O conteúdo fica no JSON dentro do bloco: basta trocar títulos, itens e a URL do ícone. Pode haver mais de um carrossel na mesma página.",
+  "observacao": "",
+  "notasDev": "O conteúdo fica no JSON dentro do bloco: basta trocar títulos, itens e a URL do ícone. Pode haver mais de um carrossel na mesma página.",
   "img": "wp-resources/carrossel-vertical/preview.webp",
   "src": "code.html",
   "usoEmCursos": [

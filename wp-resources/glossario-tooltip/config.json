@@ -2,7 +2,8 @@
   "type": "hotspot",
   "titulo": "GLOSSÁRIO COM TOOLTIP",
   "conteudo": "Palavras destacadas no texto mostram sua definição em uma caixa: ao passar o mouse a caixa acompanha o cursor; ao clicar ou tocar, ela fica fixa abaixo da palavra. Serve para explicar termos técnicos sem tirar o estudante do texto.",
-  "observacao": "Um bloco do motor por página vale para todos os textos. As definições ficam em JSON (chave = a própria palavra) e aceitam HTML curto, inclusive imagens.",
+  "observacao": "",
+  "notasDev": "Um bloco do motor por página vale para todos os textos. As definições ficam em JSON (chave = a própria palavra) e aceitam HTML curto, inclusive imagens.",
   "img": "wp-resources/glossario-tooltip/preview.webp",
   "src": "code.html",
   "usoEmCursos": [

@@ -5,6 +5,12 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Página de Recursos Educacionais carregada!');
     renderTypeFilter();
     loadCards();
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(atualizarTextosCortados, 150);
+    });
 });
 //utilsGame
 function hasSelectInList(selectId) {
@@ -204,24 +210,60 @@ function createCard(config) {
     card.dataset.resourceId = config.resourceId;
     if (config.type) card.dataset.type = String(config.type);
     
-    const observacaoHTML = config.observacao ? 
-        (config.observacao.includes('IMPORTANTE') ? 
-            `<p class="important"><strong>${config.observacao}</strong></p>` :
-            `<p class="note">${config.observacao}</p>`) : '';
-    
+    card.tabIndex = 0;
+    card.setAttribute('aria-label', `Abrir exemplo: ${config.titulo}`);
+
+    // "observacao" é texto para o público (não técnico); "notasDev" fica só no config.json
+    const observacaoHTML = config.observacao ?
+        `<div class="note card-texto"><p class="texto-corte">${config.observacao}</p><span class="ver-mais"></span></div>` : '';
+
     card.innerHTML = `
         <div class="card-image">
             <img src="${config.img}" alt="${config.titulo}">
         </div>
         <div class="card-content">
             <h3>${config.titulo}</h3>
-            <p>${config.conteudo}</p>
+            <div class="card-descricao card-texto"><p class="texto-corte">${config.conteudo}</p><span class="ver-mais"></span></div>
             ${observacaoHTML}
-            <button class="btn-visualizar" data-resource="${config.resourceId}">Ver exemplo</button>
         </div>
     `;
-    
+
     return card;
+}
+
+// Textos longos do card: cortados em N linhas, abrem ao clicar (um por vez na página)
+function atualizarTextosCortados() {
+    document.querySelectorAll('.card-texto').forEach(texto => {
+        if (texto.classList.contains('expandido')) return;
+        if (texto.offsetParent === null) return; // card oculto pelo filtro
+        const corte = texto.querySelector('.texto-corte');
+        const cortado = corte.scrollHeight - corte.clientHeight > 2;
+        texto.classList.toggle('cortado', cortado);
+        if (cortado) {
+            texto.setAttribute('role', 'button');
+            texto.tabIndex = 0;
+            texto.setAttribute('aria-expanded', 'false');
+        } else {
+            texto.removeAttribute('role');
+            texto.removeAttribute('tabindex');
+            texto.removeAttribute('aria-expanded');
+        }
+    });
+}
+
+function recolherTextos(exceto) {
+    document.querySelectorAll('.card-texto.expandido').forEach(texto => {
+        if (texto === exceto) return;
+        texto.classList.remove('expandido');
+        texto.setAttribute('aria-expanded', 'false');
+    });
+}
+
+function alternarTexto(texto) {
+    const abrir = !texto.classList.contains('expandido');
+    recolherTextos(texto);
+    texto.classList.toggle('expandido', abrir);
+    texto.setAttribute('aria-expanded', String(abrir));
 }
 
 // Renderizar caixa de filtro por tipo
@@ -276,37 +318,45 @@ function applyTypeFilter(selected) {
             card.style.display = 'none';
         }
     });
+    recolherTextos();
+    atualizarTextosCortados();
 }
 
 // Inicializar funcionalidades dos cards
 function initializeCards() {
     const cards = document.querySelectorAll('.card');
-    
+
     cards.forEach(card => {
-        // Adicionar efeitos de hover personalizados
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px) scale(1.02)';
-            this.style.transition = 'all 0.3s ease';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0) scale(1)';
+        const abrir = () => {
+            recolherTextos();
+            handleResourceClick(card.dataset.resourceId, card.querySelector('h3').textContent, card);
+        };
+
+        // Clique no card (imagem, título, texto curto) abre o exemplo;
+        // clique em texto cortado só expande/recolhe o texto
+        card.addEventListener('click', function(e) {
+            const texto = e.target.closest('.card-texto.cortado, .card-texto.expandido');
+            if (texto) {
+                alternarTexto(texto);
+                return;
+            }
+            abrir();
         });
 
-        // Adicionar evento de clique no botão
-        const button = card.querySelector('.btn-visualizar');
-        if (button) {
-            button.addEventListener('click', function(e) {
+        card.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const texto = e.target.closest('.card-texto.cortado, .card-texto.expandido');
+            if (texto) {
                 e.preventDefault();
-                e.stopPropagation();
-                
-                const resourceId = this.dataset.resource;
-                const cardTitle = card.querySelector('h3').textContent;
-                
-                handleResourceClick(resourceId, cardTitle, this);
-            });
-        }
+                alternarTexto(texto);
+            } else if (e.target === card) {
+                e.preventDefault();
+                abrir();
+            }
+        });
     });
+
+    atualizarTextosCortados();
 }
 
 // Função para lidar com cliques em recursos específicos

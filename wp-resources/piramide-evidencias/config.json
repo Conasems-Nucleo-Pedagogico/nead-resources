@@ -2,7 +2,8 @@
   "type": "hotspot",
   "titulo": "PIRÂMIDE INTERATIVA",
   "conteudo": "Pirâmide em SVG com faixas clicáveis. Ao passar o mouse ou clicar em um nível, um card ao lado mostra o conteúdo daquele nível. Serve para hierarquias: níveis de evidência, pirâmide de Maslow, níveis de atenção à saúde, pirâmide alimentar.",
-  "observacao": "A quantidade de níveis, os textos e as cores ficam no JSON do bloco; a pirâmide é desenhada automaticamente. No celular, o card aparece abaixo da pirâmide.",
+  "observacao": "A quantidade de níveis, os textos e as cores podem ser ajustados. No celular, o card aparece abaixo da pirâmide.",
+  "notasDev": "Níveis, textos e cores ficam no JSON do bloco; a pirâmide é desenhada automaticamente.",
   "img": "wp-resources/piramide-evidencias/preview.webp",
   "src": "code.html",
   "usoEmCursos": [
