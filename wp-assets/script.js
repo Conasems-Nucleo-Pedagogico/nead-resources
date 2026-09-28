@@ -176,9 +176,11 @@ async function loadCards() {
             })
         );
 
-        // Filtrar cards válidos
-        const validCards = cards.filter(card => card !== null);
-        
+        // Filtrar cards válidos e ordenar por título (ordem alfabética, ignorando acentos e maiúsculas)
+        const validCards = cards
+            .filter(card => card !== null)
+            .sort((a, b) => String(a.titulo || '').localeCompare(String(b.titulo || ''), 'pt-BR', { sensitivity: 'base' }));
+
         // Limpar container
         container.innerHTML = '';
         
@@ -191,9 +193,18 @@ async function loadCards() {
             container.appendChild(cardElement);
         });
 
+        // Estado vazio da busca/filtro (fica escondido enquanto houver cards visíveis)
+        const vazio = document.createElement('div');
+        vazio.className = 'sem-resultados';
+        vazio.id = 'sem-resultados';
+        vazio.hidden = true;
+        vazio.textContent = 'Nenhum recurso encontrado.';
+        container.appendChild(vazio);
+
         // Inicializar funcionalidades dos cards
         initializeCards();
         addImageErrorHandling();
+        aplicarFiltros();
 
         console.log(`✅ ${validCards.length} recursos carregados com sucesso!`);
         
@@ -266,12 +277,82 @@ function alternarTexto(texto) {
     texto.setAttribute('aria-expanded', String(abrir));
 }
 
-// Renderizar caixa de filtro por tipo
+// Estado dos filtros da página: busca por título + categoria
+const filtrosAtuais = { busca: '', tipo: 'all' };
+
+// Minúsculas e sem acentos, para "piramide" encontrar "PIRÂMIDE"
+function normalizarBusca(texto) {
+    return String(texto || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+}
+
+// Mostra só os cards que batem com a busca (parte do título) e com a categoria escolhida
+function aplicarFiltros() {
+    const termo = normalizarBusca(filtrosAtuais.busca);
+    const tipo = filtrosAtuais.tipo;
+    const cards = document.querySelectorAll('.card');
+    let visiveis = 0;
+
+    cards.forEach(card => {
+        const titulo = normalizarBusca(card.querySelector('h3').textContent);
+        const passaTipo = !tipo || tipo === TYPE_FILTER_CONFIG.allValue || (card.dataset.type || '') === tipo;
+        const passaBusca = !termo || titulo.includes(termo);
+        const mostrar = passaTipo && passaBusca;
+        if (mostrar) {
+            if (card.style.display === 'none') card.style.animation = 'fadeIn 0.3s ease';
+            card.style.display = 'flex';
+            visiveis++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    const vazio = document.getElementById('sem-resultados');
+    if (vazio) vazio.hidden = visiveis > 0 || cards.length === 0;
+
+    const contador = document.getElementById('contador-recursos');
+    if (contador && cards.length) {
+        const filtrando = termo || (tipo && tipo !== TYPE_FILTER_CONFIG.allValue);
+        contador.textContent = filtrando
+            ? `${visiveis} de ${cards.length} recursos`
+            : `${cards.length} recursos`;
+    }
+
+    recolherTextos();
+    atualizarTextosCortados();
+}
+
+// Renderizar barra de busca + filtro por tipo
 function renderTypeFilter() {
     const bar = document.getElementById('filters-bar');
     if (!bar) return;
 
     bar.innerHTML = '';
+
+    // Busca dinâmica por parte do título
+    const busca = document.createElement('div');
+    busca.className = 'filter-group filter-busca';
+    const labelBusca = document.createElement('label');
+    labelBusca.textContent = 'Pesquisar:';
+    labelBusca.setAttribute('for', 'busca-recursos');
+    const inputBusca = document.createElement('input');
+    inputBusca.type = 'search';
+    inputBusca.id = 'busca-recursos';
+    inputBusca.placeholder = 'Digite parte do nome do recurso';
+    inputBusca.autocomplete = 'off';
+    inputBusca.addEventListener('input', function() {
+        filtrosAtuais.busca = this.value;
+        aplicarFiltros();
+    });
+    inputBusca.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && this.value) {
+            this.value = '';
+            filtrosAtuais.busca = '';
+            aplicarFiltros();
+        }
+    });
+    busca.appendChild(labelBusca);
+    busca.appendChild(inputBusca);
+    bar.appendChild(busca);
 
     const wrapper = document.createElement('div');
     wrapper.className = 'filter-group';
@@ -302,24 +383,17 @@ function renderTypeFilter() {
     wrapper.appendChild(label);
     wrapper.appendChild(select);
     bar.appendChild(wrapper);
+
+    const contador = document.createElement('span');
+    contador.className = 'contador-recursos';
+    contador.id = 'contador-recursos';
+    contador.setAttribute('aria-live', 'polite');
+    bar.appendChild(contador);
 }
 
 function applyTypeFilter(selected) {
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-        const cardType = card.dataset.type || '';
-        if (selected === TYPE_FILTER_CONFIG.allValue || selected === '' || selected == null) {
-            card.style.display = 'flex';
-            card.style.animation = 'fadeIn 0.3s ease';
-        } else if (cardType === selected) {
-            card.style.display = 'flex';
-            card.style.animation = 'fadeIn 0.3s ease';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-    recolherTextos();
-    atualizarTextosCortados();
+    filtrosAtuais.tipo = selected || TYPE_FILTER_CONFIG.allValue;
+    aplicarFiltros();
 }
 
 // Inicializar funcionalidades dos cards
@@ -426,22 +500,12 @@ async function reloadResources() {
     console.log('✅ Recursos recarregados!');
 }
 
-// Função para filtrar recursos
+// Função para filtrar recursos pelo título (mesma regra da caixa de pesquisa)
 function filterResources(searchTerm) {
-    const cards = document.querySelectorAll('.card');
-    const term = searchTerm.toLowerCase();
-    
-    cards.forEach(card => {
-        const title = card.querySelector('h3').textContent.toLowerCase();
-        const description = card.querySelector('p').textContent.toLowerCase();
-        
-        if (title.includes(term) || description.includes(term)) {
-            card.style.display = 'flex';
-            card.style.animation = 'fadeIn 0.5s ease';
-        } else {
-            card.style.display = 'none';
-        }
-    });
+    filtrosAtuais.busca = searchTerm || '';
+    const input = document.getElementById('busca-recursos');
+    if (input) input.value = filtrosAtuais.busca;
+    aplicarFiltros();
 }
 
 // Smooth scroll para navegação
