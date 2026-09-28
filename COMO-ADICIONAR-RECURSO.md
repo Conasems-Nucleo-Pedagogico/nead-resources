@@ -133,4 +133,12 @@ RecursosEducacionais.filterResources('galeria')
 2. ✅ Verificar se JSON está bem formatado
 3. ✅ Verificar se imagem está acessível
 
+### Acentos quebrados ("ATRIBUIÃ‡Ã•ES")
+Servidor sem cabeçalho de charset (ex.: `python -m http.server`) faz o browser ler o `code.html` como windows-1252. Comece todo `code.html` fragmento com:
+```html
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+```
+Em documento completo, ponha `<meta charset="utf-8">` como primeiro item do `<head>`. As duas linhas não atrapalham quando o fragmento é colado no widget HTML do Elementor.
+
 **🎉 Simples e eficiente!** Sem Node.js, sem automação, só o essencial!
