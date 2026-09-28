@@ -23,7 +23,7 @@ wp-resources/
 }
 ```
 
-- `type`: uma das categorias do filtro: `game`, `clinicalCase`, `cardsCarousel`, `sequence`, `hotspot`, `animation`, `media` ou `dataViz` (detalhes no README).
+- `type`: uma das categorias do filtro: `game`, `clinicalCase`, `cardsCarousel`, `sequence`, `hotspot`, `animation`, `media`, `dataViz` ou `activity` (detalhes no README).
 - `usoEmCursos`: onde o recurso já foi usado nos cursos (só consulta). Pode começar vazio; formato no README.
 
 ### 3️⃣ Atualizar index.json

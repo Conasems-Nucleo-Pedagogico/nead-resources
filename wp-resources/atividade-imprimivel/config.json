@@ -1,0 +1,41 @@
+{
+  "type": "activity",
+  "titulo": "ATIVIDADE IMPRIMÍVEL",
+  "conteudo": "Proposta de reflexão com campo para o estudante escrever sua resposta, contador de caracteres e botões para limpar e imprimir. A folha impressa traz o enunciado junto com a resposta, para o estudante guardar ou entregar.",
+  "observacao": "O texto fica salvo como rascunho no navegador do estudante (volta ao recarregar a página); dá para desligar com data-salvar=\"false\". Nada é enviado para o servidor.",
+  "img": "wp-resources/atividade-imprimivel/preview.webp",
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-13/index.html",
+      "linha": 12356,
+      "tipo": "curso",
+      "nota": "Origem do conteúdo da demo"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-13/index.html",
+      "linha": 13260,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 7451,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 12530,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 14951,
+      "tipo": "curso"
+    }
+  ]
+}

@@ -86,7 +86,8 @@ const TYPE_FILTER_CONFIG = {
         { value: 'hotspot', label: 'Hotspots e Tooltips' },
         { value: 'animation', label: 'Animação e Destaque' },
         { value: 'media', label: 'Vídeo e Mídia' },
-        { value: 'dataViz', label: 'Visualização de Dados' }
+        { value: 'dataViz', label: 'Visualização de Dados' },
+        { value: 'activity', label: 'Atividades' }
     ]
 };
 

@@ -1,0 +1,312 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  ATIVIDADE IMPRIMÍVEL — NEAD
+  Proposta de reflexão com campo de resposta, contador de caracteres, botão "Limpar" e
+  botão "Imprimir", que imprime o enunciado junto com a resposta do estudante.
+
+  Como usar no Elementor: cole este bloco inteiro em um widget "HTML".
+  Para editar, troque só os textos dentro de <div class="nead-ai">:
+    - selo (.nead-ai__selo), pergunta (.nead-ai__pergunta) e orientação (.nead-ai__orientacao)
+    - data-titulo-impressao: título que aparece no topo da folha impressa
+    - data-salvar="false": desliga o rascunho automático (por padrão o texto fica salvo
+      no navegador do estudante e volta se ele recarregar a página)
+    - data-id="algum-nome": identifica o rascunho; use nomes diferentes se houver várias atividades na página
+  Pode haver várias atividades na mesma página: repita só o bloco <div class="nead-ai">...</div>.
+-->
+<style>
+  .nead-ai {
+    --nead-ai-verde: #0F3D2E;
+    --nead-ai-amarelo: #F8CA33;
+    --nead-ai-texto: #171717;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0 auto;
+    padding: 12px 0 28px; /* espaço para a sombra do card */
+    font-family: "Nunito", Arial, sans-serif;
+    color: var(--nead-ai-texto);
+  }
+  .nead-ai *, .nead-ai *::before, .nead-ai *::after { box-sizing: border-box; }
+  .nead-ai__card {
+    background: #fff;
+    border-radius: 30px;
+    padding: 28px;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.14);
+    border: 1px solid rgba(15, 61, 46, 0.12);
+  }
+  .nead-ai__cabecalho { margin-bottom: 20px; }
+  .nead-ai__selo {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(248, 202, 51, 0.22);
+    color: var(--nead-ai-verde);
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .nead-ai__pergunta {
+    margin: 0 0 8px;
+    color: var(--nead-ai-verde);
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 900;
+  }
+  .nead-ai__orientacao {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .nead-ai__rotulo {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--nead-ai-verde);
+    font-size: 16px;
+    font-weight: 800;
+  }
+  .nead-ai__resposta {
+    display: block;
+    width: 100%;
+    min-height: 220px;
+    resize: vertical;
+    border: 2px solid rgba(15, 61, 46, 0.18);
+    border-radius: 24px;
+    padding: 18px;
+    background: #f9faf9;
+    color: var(--nead-ai-texto);
+    font-family: inherit;
+    font-size: 17px;
+    line-height: 1.55;
+    outline: none;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  }
+  .nead-ai__resposta:focus {
+    border-color: var(--nead-ai-verde);
+    background: #fff;
+    box-shadow: 0 0 0 5px rgba(15, 61, 46, 0.1);
+  }
+  .nead-ai__resposta::placeholder { color: #777; }
+  .nead-ai__rodape {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .nead-ai__info { font-size: 15px; }
+  .nead-ai__contador strong { color: var(--nead-ai-verde); font-weight: 900; }
+  .nead-ai__aviso { display: block; min-height: 1.3em; margin-top: 4px; font-size: 14px; color: #555; }
+  .nead-ai__aviso.is-erro { color: #B3261E; font-weight: 700; }
+  .nead-ai__acoes { display: flex; gap: 10px; flex-wrap: wrap; }
+  .nead-ai__botao {
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--nead-ai-texto);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .nead-ai__botao:hover { transform: translateY(-2px); }
+  .nead-ai__botao:focus-visible { outline: 3px solid rgba(248, 202, 51, 0.6); outline-offset: 3px; }
+  .nead-ai__botao--principal {
+    background: var(--nead-ai-amarelo);
+    box-shadow: 0 8px 20px rgba(15, 61, 46, 0.25);
+  }
+  .nead-ai__botao--secundario {
+    border: 2px solid var(--nead-ai-amarelo);
+    background: transparent;
+  }
+  @media (max-width: 767px) {
+    .nead-ai__card { padding: 22px; border-radius: 26px; }
+    .nead-ai__pergunta { font-size: 22px; }
+    .nead-ai__orientacao, .nead-ai__resposta { font-size: 16px; }
+    .nead-ai__rodape { align-items: stretch; }
+    .nead-ai__acoes, .nead-ai__botao { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nead-ai__botao, .nead-ai__resposta { transition: none; }
+    .nead-ai__botao:hover { transform: none; }
+  }
+</style>
+
+<div class="nead-ai" data-titulo-impressao="Atividade: realização de uma pesquisa">
+  <div class="nead-ai__card">
+    <div class="nead-ai__cabecalho">
+      <span class="nead-ai__selo">Vamos exercitar</span>
+      <h3 class="nead-ai__pergunta">Agora que você já compreendeu os passos para a realização de uma pesquisa, que tal exercitar?</h3>
+      <p class="nead-ai__orientacao">Descreva uma situação-problema do seu local de trabalho (pode estar relacionada aos riscos à saúde, às formas de adoecimento e morte da população ou ainda à organização e ao funcionamento do serviço em que atua) e desenvolva sua pesquisa sobre o tema escolhido para a investigação.</p>
+    </div>
+    <label class="nead-ai__rotulo">Sua resposta:</label>
+    <textarea class="nead-ai__resposta" rows="8" placeholder="Digite aqui sua resposta..."></textarea>
+    <div class="nead-ai__rodape">
+      <div class="nead-ai__info">
+        <span class="nead-ai__contador"><strong>0</strong> caracteres</span>
+        <span class="nead-ai__aviso" aria-live="polite"></span>
+      </div>
+      <div class="nead-ai__acoes">
+        <button type="button" class="nead-ai__botao nead-ai__botao--secundario" data-acao="limpar">Limpar</button>
+        <button type="button" class="nead-ai__botao nead-ai__botao--principal" data-acao="imprimir">Imprimir texto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    if (window.NeadAtividadeImprimivel) {
+      window.NeadAtividadeImprimivel.initAll();
+      return;
+    }
+
+    function escapar(texto) {
+      return String(texto)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function textoDe(raiz, seletor) {
+      var el = raiz.querySelector(seletor);
+      return el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
+    }
+
+    // Rascunho no navegador do estudante (se o navegador bloquear, a atividade funciona igual).
+    function lerRascunho(chave) {
+      try { return window.localStorage.getItem(chave) || ''; } catch (e) { return ''; }
+    }
+    function salvarRascunho(chave, valor) {
+      try {
+        if (valor) window.localStorage.setItem(chave, valor);
+        else window.localStorage.removeItem(chave);
+      } catch (e) { /* armazenamento indisponível */ }
+    }
+
+    function imprimir(raiz, texto) {
+      var titulo = raiz.getAttribute('data-titulo-impressao') || 'Atividade';
+      var selo = textoDe(raiz, '.nead-ai__selo');
+      var pergunta = textoDe(raiz, '.nead-ai__pergunta');
+      var orientacao = textoDe(raiz, '.nead-ai__orientacao');
+      var html =
+        '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>' + escapar(titulo) + '</title><style>' +
+        'body{margin:0;padding:40px;font-family:Arial,sans-serif;color:#171717;background:#fff}' +
+        '.pagina{max-width:760px;margin:0 auto}' +
+        '.cabecalho{margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #0F3D2E}' +
+        '.selo{display:inline-block;margin-bottom:8px;padding:4px 12px;border:1px solid #0F3D2E;border-radius:999px;font-size:13px;font-weight:700}' +
+        'h1{margin:0 0 12px;color:#0F3D2E;font-size:24px;line-height:1.2}' +
+        '.enunciado{margin:0 0 6px;font-size:16px;font-weight:700;line-height:1.4}' +
+        '.orientacao{margin:0;font-size:15px;line-height:1.5;color:#333}' +
+        '.rotulo{margin:0 0 8px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#0F3D2E}' +
+        '.resposta{font-size:17px;line-height:1.65;white-space:pre-wrap;word-wrap:break-word}' +
+        '.data{margin-top:32px;color:#666;font-size:13px}' +
+        '@media print{body{padding:0}}' +
+        '</style></head><body><main class="pagina"><header class="cabecalho">' +
+        (selo ? '<span class="selo">' + escapar(selo) + '</span>' : '') +
+        '<h1>' + escapar(titulo) + '</h1>' +
+        (pergunta ? '<p class="enunciado">' + escapar(pergunta) + '</p>' : '') +
+        (orientacao ? '<p class="orientacao">' + escapar(orientacao) + '</p>' : '') +
+        '</header><p class="rotulo">Resposta</p><div class="resposta">' + escapar(texto) + '</div>' +
+        '<p class="data">Impresso em ' + new Date().toLocaleDateString('pt-BR') + '</p></main></body></html>';
+
+      // Imprime por um iframe oculto: não depende de pop-up (que o navegador costuma bloquear).
+      var quadro = document.createElement('iframe');
+      quadro.setAttribute('aria-hidden', 'true');
+      quadro.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+      document.body.appendChild(quadro);
+      var doc = quadro.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+      setTimeout(function () {
+        quadro.contentWindow.focus();
+        quadro.contentWindow.print();
+        setTimeout(function () { quadro.remove(); }, 1000);
+      }, 250);
+    }
+
+    function montar(raiz, indice) {
+      if (raiz.dataset.neadAiPronto) return;
+      raiz.dataset.neadAiPronto = '1';
+
+      var campo = raiz.querySelector('.nead-ai__resposta');
+      var rotulo = raiz.querySelector('.nead-ai__rotulo');
+      var contador = raiz.querySelector('.nead-ai__contador');
+      var aviso = raiz.querySelector('.nead-ai__aviso');
+      if (!campo || !contador) return;
+
+      var id = 'nead-ai-resposta-' + indice;
+      campo.id = id;
+      if (rotulo) rotulo.setAttribute('for', id);
+
+      var salvar = raiz.getAttribute('data-salvar') !== 'false';
+      var chave = 'nead-ai:' + location.pathname + ':' + (raiz.getAttribute('data-id') || indice);
+
+      function avisar(msg, erro) {
+        if (!aviso) return;
+        aviso.textContent = msg || '';
+        aviso.classList.toggle('is-erro', !!erro);
+      }
+      function atualizar() {
+        var n = campo.value.length;
+        contador.innerHTML = '<strong>' + n + '</strong> ' + (n === 1 ? 'caractere' : 'caracteres');
+        campo.style.height = 'auto';
+        campo.style.height = campo.scrollHeight + 'px';
+      }
+
+      if (salvar) {
+        var rascunho = lerRascunho(chave);
+        if (rascunho) {
+          campo.value = rascunho;
+          avisar('Rascunho recuperado neste navegador.');
+        }
+      }
+
+      campo.addEventListener('input', function () {
+        atualizar();
+        if (salvar) salvarRascunho(chave, campo.value);
+        if (aviso && aviso.classList.contains('is-erro')) avisar('');
+      });
+
+      raiz.addEventListener('click', function (e) {
+        var botao = e.target.closest('[data-acao]');
+        if (!botao || !raiz.contains(botao)) return;
+        var acao = botao.getAttribute('data-acao');
+        if (acao === 'limpar') {
+          if (!campo.value.trim()) return;
+          if (!window.confirm('Deseja limpar o texto digitado?')) return;
+          campo.value = '';
+          atualizar();
+          if (salvar) salvarRascunho(chave, '');
+          avisar('');
+          campo.focus();
+        }
+        if (acao === 'imprimir') {
+          var texto = campo.value.trim();
+          if (!texto) {
+            avisar('Digite sua resposta antes de imprimir.', true);
+            campo.focus();
+            return;
+          }
+          avisar('');
+          imprimir(raiz, texto);
+        }
+      });
+
+      atualizar();
+    }
+
+    window.NeadAtividadeImprimivel = {
+      initAll: function () {
+        document.querySelectorAll('.nead-ai').forEach(montar);
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', window.NeadAtividadeImprimivel.initAll);
+    } else {
+      window.NeadAtividadeImprimivel.initAll();
+    }
+  })();
+</script>
