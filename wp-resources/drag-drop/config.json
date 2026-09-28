@@ -2,7 +2,8 @@
   "type": "game",
   "titulo": "Arrasta e Solta",
   "conteudo": "Desafia o estudante a associar frases apropriadas a diferentes respostas ao arrastá-las para caixas correspondentes. Essa dinâmica interativa promove um feedback contextual das frases, incentivando uma abordagem prática e visual do aprendizado. Ao proporcionar um ambiente lúdico, o jogo não apenas torna a experiência educativa mais agradável, mas também fortalece a retenção de informações e o desenvolvimento de habilidades cognitivas, como o raciocínio lógico e a análise crítica.",
-  "observacao": "Saída esperada: ao final, o jogo abre um popup do Elementor com o feedback (no código, ID 36884; troque pelo popup da página). Na demonstração isolada, essa etapa não aparece.",
+  "observacao": "Ao final, o jogo abre uma janela com o feedback para o estudante. Na demonstração, essa etapa não aparece.",
+  "notasDev": "O feedback final é um popup do Elementor (no código, ID 36884; troque pelo popup da página).",
   "img": "wp-resources/drag-drop/Screenshot.png",
   "src": "code.html",
   "usoEmCursos": [

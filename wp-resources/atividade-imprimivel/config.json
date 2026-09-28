@@ -2,7 +2,8 @@
   "type": "activity",
   "titulo": "ATIVIDADE IMPRIMÍVEL",
   "conteudo": "Proposta de reflexão com campo para o estudante escrever sua resposta, contador de caracteres e botões para limpar e imprimir. A folha impressa traz o enunciado junto com a resposta, para o estudante guardar ou entregar.",
-  "observacao": "O texto fica salvo como rascunho no navegador do estudante (volta ao recarregar a página); dá para desligar com data-salvar=\"false\". Nada é enviado para o servidor.",
+  "observacao": "O texto fica salvo como rascunho no navegador do estudante e volta ao recarregar a página. Nada é enviado para o servidor.",
+  "notasDev": "Para desligar o rascunho salvo no navegador, use data-salvar=\"false\" no bloco.",
   "img": "wp-resources/atividade-imprimivel/preview.webp",
   "src": "code.html",
   "usoEmCursos": [
