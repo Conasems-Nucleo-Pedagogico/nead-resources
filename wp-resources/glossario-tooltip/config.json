@@ -1,0 +1,104 @@
+{
+  "type": "hotspot",
+  "titulo": "GLOSSÁRIO COM TOOLTIP",
+  "conteudo": "Palavras destacadas no texto mostram sua definição em uma caixa: ao passar o mouse a caixa acompanha o cursor; ao clicar ou tocar, ela fica fixa abaixo da palavra. Serve para explicar termos técnicos sem tirar o estudante do texto.",
+  "observacao": "Um bloco do motor por página vale para todos os textos. As definições ficam em JSON (chave = a própria palavra) e aceitam HTML curto, inclusive imagens.",
+  "img": "wp-resources/glossario-tooltip/preview.webp",
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula2-m3/index.html",
+      "linha": 7301,
+      "tipo": "curso",
+      "nota": "Origem dos termos adjuvante/neoadjuvante da demo"
+    },
+    {
+      "repo": "conasems-bexiga",
+      "arquivo": "aula-2/index.html",
+      "linha": 6741,
+      "tipo": "curso",
+      "nota": "Origem do termo padrão ouro da demo"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m3/index.html",
+      "linha": 7336,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-bexiga",
+      "arquivo": "aula-1/index.html",
+      "linha": 6995,
+      "tipo": "curso",
+      "nota": "Motor original no head da página (handleTooltips + tooltipData)"
+    },
+    {
+      "repo": "conasems-bexiga",
+      "arquivo": "aula-3/index.html",
+      "linha": 4340,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-preceptoria",
+      "arquivo": "disciplina-3/index.html",
+      "linha": 8639,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-preceptoria",
+      "arquivo": "disciplina-4/index.html",
+      "linha": 6278,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-arboviroses",
+      "arquivo": "qdenga/index.html",
+      "linha": 4012,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-10/index.html",
+      "linha": 6368,
+      "tipo": "curso",
+      "nota": "Variação em que a caixa mostra imagens em vez de texto. As aulas equivalentes em Mais SCA/ACS também usam o glossário"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-5/index.html",
+      "linha": 8917,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-8/index.html",
+      "linha": 7509,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-13/index.html",
+      "linha": 5592,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-15/index.html",
+      "linha": 5570,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-19/index.html",
+      "linha": 10507,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-26/index.html",
+      "linha": 6098,
+      "tipo": "curso"
+    }
+  ]
+}

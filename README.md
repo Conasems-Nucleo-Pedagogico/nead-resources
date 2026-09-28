@@ -62,6 +62,7 @@ O filtro da página usa o campo `type`. Valores aceitos (configurados em `TYPE_F
 | `animation` | Animação e Destaque | Chamar atenção (personagens, marca-texto) |
 | `media` | Vídeo e Mídia | Vídeos curtos, de fundo ou animados |
 | `dataViz` | Visualização de Dados | Gráficos interativos |
+| `activity` | Atividades | Produção do estudante (escrita, reflexão, registro para imprimir) |
 
 Para criar uma categoria nova, adicione o valor em `TYPE_FILTER_CONFIG`.
 

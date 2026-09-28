@@ -1,0 +1,302 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  GLOSSÁRIO COM TOOLTIP — NEAD
+  Palavras destacadas no texto mostram uma definição: ao passar o mouse (a caixa acompanha o cursor)
+  ou ao clicar/tocar (a caixa fica fixa abaixo da palavra; fecha ao clicar fora ou com Esc).
+
+  Como usar no Elementor:
+    1) Cole o bloco "MOTOR + DEFINIÇÕES" (do <style> até o <script class="nead-gl__config">) em um widget HTML.
+       Basta um por página; ele vale para todos os textos da página.
+    2) No texto (widget de texto, aba "Código"), envolva cada palavra com:
+         <span class="nead-gl__termo">adjuvante</span>
+       A chave da definição é o próprio texto da palavra (sem diferenciar maiúsculas).
+       Se o texto for diferente da chave, use: <span class="nead-gl__termo" data-nead-gl="padrão ouro">padrões ouro</span>
+    3) Escreva as definições no JSON "termos". Aceita HTML curto (negrito, imagem etc.).
+  Pode haver mais de um bloco de definições na página: eles são somados.
+  Opcional: a classe "nead-gl__termo--pulsar" faz a palavra pulsar para chamar atenção.
+-->
+
+<!-- ===================== MOTOR + DEFINIÇÕES ===================== -->
+<style>
+  .nead-gl__termo {
+    --nead-gl-cor-termo: #0B6E69;
+    color: var(--nead-gl-cor-termo);
+    font-weight: 700;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    cursor: help;
+    border-radius: 4px;
+    padding: 0 2px;
+    transition: background-color 0.2s ease;
+  }
+  .nead-gl__termo:hover,
+  .nead-gl__termo.is-aberto { background-color: rgba(40, 123, 217, 0.12); }
+  .nead-gl__termo:focus-visible { outline: 2px solid #287BD9; outline-offset: 2px; }
+  .nead-gl__termo--pulsar { display: inline-block; animation: nead-gl-pulsar 2s infinite; }
+  @keyframes nead-gl-pulsar {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(0.92); opacity: 0.9; }
+  }
+
+  .nead-gl__caixa {
+    position: fixed;
+    z-index: 1000000;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    min-width: 225px;
+    max-width: min(360px, calc(100vw - 16px));
+    padding: 15px;
+    border-radius: 0.25em;
+    background: #287BD9;
+    color: #fff;
+    font-family: "Roboto", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    text-align: left;
+    box-shadow: 0 30px 90px -20px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s linear, visibility 0s linear 0.2s;
+  }
+  .nead-gl__caixa.is-visivel {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .nead-gl__caixa.is-fixa { pointer-events: auto; }
+  .nead-gl__caixa img { display: block; max-width: 100%; height: auto; border-radius: 4px; }
+  .nead-gl__caixa p { margin: 0 0 0.5em; }
+  .nead-gl__caixa p:last-child { margin-bottom: 0; }
+
+  @media (max-width: 600px) {
+    .nead-gl__caixa { width: calc(100vw - 16px); max-width: none; min-width: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nead-gl__termo--pulsar { animation: none; }
+    .nead-gl__caixa { transition: none; }
+  }
+</style>
+
+<script type="application/json" class="nead-gl__config">
+  {
+    "termos": {
+      "adjuvante": "Tratamento complementar, geralmente administrado após o tratamento principal (como cirurgia) para reduzir o risco de recidiva do câncer, eliminando células cancerígenas que possam ter permanecido no corpo.",
+      "neoadjuvante": "Tratamento contra o câncer administrado antes do tratamento principal, geralmente cirurgia, com o objetivo de reduzir o tamanho do tumor e facilitar sua remoção.",
+      "padrão ouro": "<b>Padrão ouro</b> significa que o procedimento é o de referência para essa condição: é o que proporciona menos riscos de complicações e oferece uma maior independência aos usuários."
+    }
+  }
+</script>
+
+<script>
+  (function () {
+    if (window.NeadGlossario) return; // motor já carregado por outro bloco da página
+
+    var caixa = null;
+    var termoAtivo = null;
+    var fixa = false;
+    var MARGEM = 8;
+
+    function normalizar(texto) {
+      return String(texto || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+
+    function chaveDo(termo) {
+      return normalizar(termo.getAttribute('data-nead-gl') || termo.textContent);
+    }
+
+    // Lê todos os blocos de definições da página a cada consulta (aceita blocos adicionados depois).
+    function definicao(chave) {
+      var encontrada = null;
+      document.querySelectorAll('.nead-gl__config').forEach(function (bloco) {
+        try {
+          var termos = JSON.parse(bloco.textContent).termos || {};
+          Object.keys(termos).forEach(function (k) {
+            if (normalizar(k) === chave) encontrada = termos[k];
+          });
+        } catch (erro) {
+          console.error('[nead-gl] JSON de definições inválido', erro, bloco);
+        }
+      });
+      return encontrada;
+    }
+
+    function obterCaixa() {
+      if (!caixa) {
+        caixa = document.createElement('div');
+        caixa.className = 'nead-gl__caixa';
+        caixa.id = 'nead-gl-caixa';
+        caixa.setAttribute('role', 'tooltip');
+        document.body.appendChild(caixa);
+      }
+      return caixa;
+    }
+
+    function limitar(valor, minimo, maximo) {
+      return Math.max(minimo, Math.min(valor, maximo));
+    }
+
+    // Mede no canto da tela: perto da borda o navegador encolheria a caixa e a medida sairia errada.
+    function medir(c) {
+      c.style.left = '0px';
+      c.style.top = '0px';
+      return { larg: c.offsetWidth, alt: c.offsetHeight };
+    }
+
+    // Posiciona perto do cursor, sem sair da tela.
+    function posicionarNoPonto(x, y) {
+      var c = obterCaixa();
+      var m = medir(c), larg = m.larg, alt = m.alt;
+      var vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
+      var left = x + 18 + larg > vw - MARGEM ? x - 18 - larg : x + 18;
+      var top = y + 18 + alt > vh - MARGEM ? y - 18 - alt : y + 18;
+      c.style.left = limitar(left, MARGEM, vw - larg - MARGEM) + 'px';
+      c.style.top = limitar(top, MARGEM, vh - alt - MARGEM) + 'px';
+    }
+
+    // Posiciona abaixo da palavra (ou acima, se não couber).
+    function posicionarNoTermo(termo) {
+      var c = obterCaixa();
+      var r = termo.getBoundingClientRect();
+      var m = medir(c), larg = m.larg, alt = m.alt;
+      var vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
+      var top = r.bottom + MARGEM + alt > vh - MARGEM ? r.top - MARGEM - alt : r.bottom + MARGEM;
+      c.style.left = limitar(r.left + r.width / 2 - larg / 2, MARGEM, vw - larg - MARGEM) + 'px';
+      c.style.top = limitar(top, MARGEM, vh - alt - MARGEM) + 'px';
+    }
+
+    function abrir(termo) {
+      var html = definicao(chaveDo(termo));
+      if (html == null) {
+        console.warn('[nead-gl] Sem definição para "' + chaveDo(termo) + '"');
+        return false;
+      }
+      if (termoAtivo && termoAtivo !== termo) fecharTermo(termoAtivo);
+      var c = obterCaixa();
+      c.innerHTML = html;
+      c.classList.add('is-visivel');
+      termo.classList.add('is-aberto');
+      termo.setAttribute('aria-describedby', c.id);
+      termoAtivo = termo;
+      return true;
+    }
+
+    function fecharTermo(termo) {
+      termo.classList.remove('is-aberto');
+      termo.removeAttribute('aria-describedby');
+    }
+
+    function fechar() {
+      if (caixa) caixa.classList.remove('is-visivel', 'is-fixa');
+      if (termoAtivo) fecharTermo(termoAtivo);
+      termoAtivo = null;
+      fixa = false;
+    }
+
+    function termoDe(el) {
+      return el && el.closest ? el.closest('.nead-gl__termo') : null;
+    }
+
+    function prepararTermos() {
+      document.querySelectorAll('.nead-gl__termo:not([tabindex])').forEach(function (t) {
+        t.setAttribute('tabindex', '0');
+        t.setAttribute('role', 'button');
+      });
+    }
+
+    // Mouse: mostra ao passar e acompanha o cursor (se a caixa não estiver fixada por clique).
+    document.addEventListener('pointerover', function (e) {
+      if (e.pointerType !== 'mouse' || fixa) return;
+      var termo = termoDe(e.target);
+      if (termo && abrir(termo)) posicionarNoPonto(e.clientX, e.clientY);
+    });
+    document.addEventListener('pointermove', function (e) {
+      if (e.pointerType !== 'mouse' || fixa || !termoAtivo) return;
+      if (termoDe(e.target) === termoAtivo) posicionarNoPonto(e.clientX, e.clientY);
+    });
+    document.addEventListener('pointerout', function (e) {
+      if (e.pointerType !== 'mouse' || fixa || !termoAtivo) return;
+      if (termoDe(e.target) === termoAtivo && termoDe(e.relatedTarget) !== termoAtivo) fechar();
+    });
+
+    // Clique/toque: fixa a caixa abaixo da palavra; clicar de novo ou fora fecha.
+    document.addEventListener('click', function (e) {
+      var termo = termoDe(e.target);
+      if (termo) {
+        if (fixa && termoAtivo === termo) { fechar(); return; }
+        if (abrir(termo)) {
+          fixa = true;
+          obterCaixa().classList.add('is-fixa');
+          posicionarNoTermo(termo);
+        }
+        return;
+      }
+      if (fixa && !(caixa && caixa.contains(e.target))) fechar();
+    });
+
+    // Teclado: foco mostra; Enter/Espaço fixa; Esc fecha.
+    document.addEventListener('focusin', function (e) {
+      var termo = termoDe(e.target);
+      if (termo && !fixa && abrir(termo)) posicionarNoTermo(termo);
+    });
+    document.addEventListener('focusout', function (e) {
+      if (!fixa && termoDe(e.target) === termoAtivo) fechar();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && termoAtivo) { fechar(); return; }
+      var termo = termoDe(e.target);
+      if (termo && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); termo.click(); }
+    });
+
+    // Caixa fixa acompanha a palavra ao rolar/redimensionar.
+    ['scroll', 'resize'].forEach(function (evento) {
+      window.addEventListener(evento, function () {
+        if (fixa && termoAtivo) posicionarNoTermo(termoAtivo);
+        else if (termoAtivo && evento === 'scroll') fechar();
+      }, true);
+    });
+
+    window.NeadGlossario = { atualizar: prepararTermos, fechar: fechar };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', prepararTermos);
+    } else {
+      prepararTermos();
+    }
+  })();
+</script>
+<!-- =================== FIM DO MOTOR + DEFINIÇÕES =================== -->
+
+
+<!-- ============ EXEMPLO DE TEXTO (no curso, fica nos widgets de texto) ============ -->
+<style>
+  .nead-gl-demo {
+    max-width: 760px;
+    margin: 24px auto;
+    padding: 32px 40px;
+    border-radius: 12px;
+    background: #F4F8F8;
+    color: #2A2A2A;
+    font-family: "Roboto", Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  .nead-gl-demo h3 { margin: 0 0 12px; color: #033936; font-size: 1.3em; }
+  .nead-gl-demo ul { margin: 0 0 16px; padding-left: 1.2em; }
+  .nead-gl-demo li { margin-bottom: 6px; }
+  .nead-gl-demo__dica { margin: 16px 0 0; font-size: 0.85em; color: #55706F; }
+  @media (max-width: 600px) { .nead-gl-demo { padding: 20px; font-size: 16px; } }
+</style>
+
+<div class="nead-gl-demo">
+  <h3>Radioterapia: indicações</h3>
+  <ul>
+    <li>Tratamento curativo (tumores de cabeça e pescoço, próstata, colo uterino, pulmão, mama).</li>
+    <li>Tratamento paliativo (controle de dor, sangramentos, compressões).</li>
+    <li>Terapia <span class="nead-gl__termo">adjuvante</span> ou <span class="nead-gl__termo">neoadjuvante</span> combinada com cirurgia ou quimioterapia.</li>
+  </ul>
+  <p>Desde então, o Cateterismo Intermitente Limpo foi considerado <span class="nead-gl__termo nead-gl__termo--pulsar">padrão ouro</span> para o esvaziamento vesical em pessoas com retenção urinária crônica!</p>
+  <p class="nead-gl-demo__dica">Passe o mouse ou clique sobre as palavras em destaque para conhecer.</p>
+</div>

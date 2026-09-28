@@ -1,0 +1,126 @@
+{
+  "type": "cardsCarousel",
+  "titulo": "CARROSSEL VERTICAL",
+  "conteudo": "Card com várias telas de conteúdo que deslizam na vertical, navegadas pelas setas para cima e para baixo. Cada tela tem um título e uma lista de itens com ícone, ideal para apresentar listas longas (atribuições, etapas, orientações) em partes menores.",
+  "observacao": "O conteúdo fica no JSON dentro do bloco: basta trocar títulos, itens e a URL do ícone. Pode haver mais de um carrossel na mesma página.",
+  "img": "wp-resources/carrossel-vertical/preview.webp",
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-17/index.html",
+      "linha": 8861,
+      "tipo": "curso",
+      "nota": "Origem do conteúdo da demo. As aulas equivalentes em Mais SCA/ACS usam o mesmo carrossel"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-19/index.html",
+      "linha": 8601,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-20/index.html",
+      "linha": 8401,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-22/index.html",
+      "linha": 11285,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-23/index.html",
+      "linha": 10775,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-24/index.html",
+      "linha": 7090,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-25.2/index.html",
+      "linha": 6745,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-25.3/index.html",
+      "linha": 7256,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-26/index.html",
+      "linha": 6030,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-27/index.html",
+      "linha": 6612,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-eletiva-1/index.html",
+      "linha": 6252,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-eletiva-3/index.html",
+      "linha": 6490,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-6/index.html",
+      "linha": 7610,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-8/index.html",
+      "linha": 6626,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-9/index.html",
+      "linha": 9761,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-10/index.html",
+      "linha": 8886,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-11/index.html",
+      "linha": 12107,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 7345,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-resource",
+      "arquivo": "verticalCarrossel/index.html",
+      "linha": 1,
+      "tipo": "fonte",
+      "nota": "Motor original (IDs repetidos por instância); o code.html daqui é a versão revisada"
+    }
+  ]
+}

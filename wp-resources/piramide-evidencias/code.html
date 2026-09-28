@@ -1,0 +1,327 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  PIRÂMIDE INTERATIVA — NEAD
+  Pirâmide em SVG com N níveis. Ao passar o mouse (ou clicar/tocar) em uma faixa, um card
+  ao lado mostra o conteúdo daquele nível. No celular, o card aparece abaixo da pirâmide.
+
+  Como usar no Elementor: cole este bloco inteiro em um widget "HTML".
+  Para editar, altere só o JSON dentro de <script class="nead-pir__config">:
+    - "niveis": lista do TOPO para a BASE. Cada nível tem "titulo" e, se quiser, "texto" (detalhe)
+    - "cores": uma cor por nível (do topo para a base). Se faltar alguma, usa o degradê abaixo
+    - "corTopo" / "corBase": degradê automático entre essas duas cores (quando não há "cores")
+    - "instrucao" e "legenda": textos acima e abaixo da pirâmide (deixe "" para esconder)
+  A quantidade de níveis é livre (3 a 12 funciona bem). Pode haver várias pirâmides na página.
+-->
+<style>
+  .nead-pir {
+    --nead-pir-destaque: #F8CA33;
+    --nead-pir-texto: #171717;
+    --nead-pir-escuro: #0F3D2E;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0 auto;
+    padding: 8px 0 16px;
+    font-family: "Nunito", Arial, sans-serif;
+    color: var(--nead-pir-texto);
+  }
+  .nead-pir *, .nead-pir *::before, .nead-pir *::after { box-sizing: border-box; }
+  .nead-pir__instrucao { margin: 0 0 16px; font-weight: 800; text-align: center; }
+  .nead-pir__instrucao-toque { display: none; }
+  .nead-pir__legenda { margin: 16px 0 0; font-size: 15px; text-align: center; }
+
+  .nead-pir__layout { position: relative; display: flex; justify-content: center; }
+  .nead-pir__svg-area { width: 70%; max-width: 560px; }
+  .nead-pir__svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+  .nead-pir__nivel { cursor: pointer; outline: none; }
+  .nead-pir__nivel polygon {
+    stroke: transparent;
+    stroke-width: 3;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.25s ease, filter 0.25s ease;
+  }
+  .nead-pir__nivel text {
+    font-size: 15px;
+    font-weight: 800;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+  }
+  .nead-pir__nivel:hover polygon,
+  .nead-pir__nivel:focus-visible polygon,
+  .nead-pir__nivel.is-ativo polygon {
+    transform: scale(1.035);
+    filter: drop-shadow(0 10px 16px rgba(33, 59, 116, 0.28));
+  }
+  .nead-pir__nivel.is-ativo polygon { stroke: var(--nead-pir-destaque); }
+  .nead-pir__nivel:focus-visible polygon { stroke: var(--nead-pir-destaque); stroke-dasharray: 6 4; }
+
+  .nead-pir__card {
+    position: absolute;
+    left: 65%;
+    top: var(--nead-pir-y, 50%);
+    transform: translateY(-50%);
+    max-width: 50%;
+    min-width: 220px;
+    padding: 20px 24px;
+    border-radius: 30px;
+    background: #fff;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.14);
+    border: 1px solid rgba(33, 59, 116, 0.12);
+    z-index: 10;
+    transition: top 0.25s ease;
+  }
+  .nead-pir__card[hidden] { display: none; }
+  .nead-pir__card::before {
+    content: "";
+    position: absolute;
+    left: -13px;
+    top: 50%;
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    transform: translateY(-50%) rotate(45deg);
+    border-left: 1px solid rgba(33, 59, 116, 0.12);
+    border-bottom: 1px solid rgba(33, 59, 116, 0.12);
+  }
+  .nead-pir__card.is-trocando { animation: nead-pir-pop 0.35s ease both; }
+  @keyframes nead-pir-pop {
+    from { opacity: 0.5; margin-top: 8px; }
+    to { opacity: 1; margin-top: 0; }
+  }
+  .nead-pir__card-topo { position: relative; display: flex; align-items: center; gap: 12px; }
+  .nead-pir__numero {
+    flex: 0 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--nead-pir-escuro);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .nead-pir__titulo { margin: 0; font-size: 17px; font-weight: 800; line-height: 1.35; }
+  .nead-pir__texto { position: relative; margin: 10px 0 0; font-size: 16px; line-height: 1.5; }
+  .nead-pir__texto:empty { display: none; }
+
+  @media (max-width: 767px) {
+    .nead-pir__instrucao-mouse { display: none; }
+    .nead-pir__instrucao-toque { display: inline; }
+    .nead-pir__layout { flex-direction: column; align-items: stretch; gap: 18px; }
+    .nead-pir__svg-area { width: 100%; max-width: none; }
+    .nead-pir__card {
+      position: relative;
+      left: auto;
+      top: auto;
+      transform: none;
+      max-width: none;
+      min-width: 0;
+      padding: 22px;
+      scroll-margin-top: 24px;
+    }
+    .nead-pir__card::before {
+      left: 50%;
+      top: -13px;
+      transform: translateX(-50%) rotate(45deg);
+      border-bottom: 0;
+      border-top: 1px solid rgba(33, 59, 116, 0.12);
+    }
+  }
+  @media (max-width: 480px) { .nead-pir__nivel text { font-size: 12px; } }
+  @media (prefers-reduced-motion: reduce) {
+    .nead-pir__nivel polygon, .nead-pir__card { transition: none; }
+    .nead-pir__card.is-trocando { animation: none; }
+  }
+</style>
+
+<div class="nead-pir">
+  <script type="application/json" class="nead-pir__config">
+    {
+      "instrucao": "Passe o mouse nas faixas da pirâmide para explorar os níveis.",
+      "instrucaoToque": "Clique nas faixas da pirâmide para explorar os níveis.",
+      "legenda": "<b>Figura 1 ─</b> Pirâmide da evidência",
+      "cores": ["#0F3D2E", "#13523C", "#15674B", "#1A815B", "#29A071", "#4BBC8C", "#80D5AE", "#B2E8CC", "#D7F4E3"],
+      "corTopo": "#0F3D2E",
+      "corBase": "#D7F4E3",
+      "niveis": [
+        { "titulo": "Revisões sistemáticas e metanálises" },
+        { "titulo": "Ensaios clínicos randomizados e controlados" },
+        { "titulo": "Estudos de coorte" },
+        { "titulo": "Estudos de caso e controle" },
+        { "titulo": "Estudos de série de caso" },
+        { "titulo": "Relatos de caso" },
+        { "titulo": "Editoriais, opiniões" },
+        { "titulo": "Pesquisas em animais" },
+        { "titulo": "Pesquisas em laboratório" }
+      ]
+    }
+  </script>
+</div>
+
+<script>
+  (function () {
+    if (window.NeadPiramide) {
+      window.NeadPiramide.initAll();
+      return;
+    }
+
+    var SVG_NS = 'http://www.w3.org/2000/svg';
+    var LARGURA = 460, TOPO = 20, ALTURA_FAIXA = 60, ESPACO = 5;
+
+    function hexParaRgb(hex) {
+      var h = String(hex).replace('#', '');
+      if (h.length === 3) h = h.replace(/./g, '$&$&');
+      var n = parseInt(h, 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    }
+    function misturar(a, b, t) {
+      return a.map(function (v, i) { return Math.round(v + (b[i] - v) * t); });
+    }
+    function luminancia(rgb) {
+      var c = rgb.map(function (v) {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    }
+    function svgEl(tag, attrs) {
+      var el = document.createElementNS(SVG_NS, tag);
+      Object.keys(attrs || {}).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+      return el;
+    }
+    function criar(tag, classe, html) {
+      var el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (html != null) el.innerHTML = html;
+      return el;
+    }
+
+    function montar(raiz) {
+      if (raiz.dataset.neadPirPronto) return;
+      var config;
+      try {
+        config = JSON.parse(raiz.querySelector('.nead-pir__config').textContent);
+      } catch (erro) {
+        raiz.textContent = 'Pirâmide: o JSON de configuração está inválido.';
+        console.error('[nead-pir] JSON inválido', erro);
+        return;
+      }
+      raiz.dataset.neadPirPronto = '1';
+      var niveis = config.niveis || [];
+      var n = niveis.length;
+      if (!n) return;
+
+      if (config.instrucao || config.instrucaoToque) {
+        var instr = criar('p', 'nead-pir__instrucao');
+        instr.appendChild(criar('span', 'nead-pir__instrucao-mouse', config.instrucao || config.instrucaoToque));
+        instr.appendChild(criar('span', 'nead-pir__instrucao-toque', config.instrucaoToque || config.instrucao));
+        raiz.appendChild(instr);
+      }
+
+      var layout = criar('div', 'nead-pir__layout');
+      var area = criar('div', 'nead-pir__svg-area');
+      var base = TOPO + n * (ALTURA_FAIXA + ESPACO) - ESPACO;
+      var svg = svgEl('svg', { viewBox: '0 0 ' + LARGURA + ' ' + (base + 15), role: 'group', 'aria-label': 'Pirâmide com ' + n + ' níveis', class: 'nead-pir__svg' });
+      var corTopo = hexParaRgb(config.corTopo || '#0F3D2E');
+      var corBase = hexParaRgb(config.corBase || '#D7F4E3');
+      var meio = LARGURA / 2;
+      function meiaLargura(y) { return meio * (y - TOPO) / (base - TOPO); }
+
+      var faixas = niveis.map(function (nivel, i) {
+        var y1 = TOPO + i * (ALTURA_FAIXA + ESPACO);
+        var y2 = y1 + ALTURA_FAIXA;
+        var w1 = meiaLargura(y1), w2 = meiaLargura(y2);
+        var pontos = i === 0
+          ? [meio, y1, meio + w2, y2, meio - w2, y2]
+          : [meio - w1, y1, meio + w1, y1, meio + w2, y2, meio - w2, y2];
+        var cor = config.cores && config.cores[i]
+          ? hexParaRgb(config.cores[i])
+          : misturar(corTopo, corBase, n > 1 ? i / (n - 1) : 0);
+        var g = svgEl('g', { class: 'nead-pir__nivel', tabindex: '0', role: 'button', 'aria-label': 'Nível ' + (i + 1) + ': ' + String(nivel.titulo || '').replace(/<[^>]+>/g, '') });
+        g.appendChild(svgEl('polygon', { points: pontos.join(' '), fill: 'rgb(' + cor.join(',') + ')' }));
+        var t = svgEl('text', { x: meio, y: i === 0 ? y1 + ALTURA_FAIXA * 0.66 : (y1 + y2) / 2, fill: luminancia(cor) < 0.35 ? '#FFFFFF' : '#111827' });
+        t.textContent = String(i + 1);
+        g.appendChild(t);
+        svg.appendChild(g);
+        return g;
+      });
+      area.appendChild(svg);
+
+      var card = criar('div', 'nead-pir__card');
+      card.hidden = true;
+      card.setAttribute('aria-live', 'polite');
+      var topo = criar('div', 'nead-pir__card-topo');
+      var numero = criar('span', 'nead-pir__numero');
+      var titulo = criar('p', 'nead-pir__titulo');
+      var texto = criar('p', 'nead-pir__texto');
+      topo.appendChild(numero);
+      topo.appendChild(titulo);
+      card.appendChild(topo);
+      card.appendChild(texto);
+
+      layout.appendChild(area);
+      layout.appendChild(card);
+      raiz.appendChild(layout);
+      if (config.legenda) raiz.appendChild(criar('p', 'nead-pir__legenda', config.legenda));
+
+      var ativo = null;
+      // O CSS decide o layout: no celular o card deixa de ser "absolute" e vai para baixo da pirâmide.
+      function celular() { return getComputedStyle(card).position !== 'absolute'; }
+
+      function posicionar() {
+        if (!ativo || celular()) { card.style.removeProperty('--nead-pir-y'); return; }
+        var rl = layout.getBoundingClientRect();
+        var rf = ativo.getBoundingClientRect();
+        var y = rf.top - rl.top + rf.height / 2;
+        var meiaAltura = card.offsetHeight / 2;
+        y = Math.min(Math.max(y, meiaAltura), rl.height - meiaAltura);
+        card.style.setProperty('--nead-pir-y', y + 'px');
+      }
+
+      function selecionar(indice, rolar) {
+        var g = faixas[indice];
+        if (!g) return;
+        var nivel = niveis[indice];
+        faixas.forEach(function (f) { f.classList.toggle('is-ativo', f === g); f.setAttribute('aria-pressed', f === g ? 'true' : 'false'); });
+        ativo = g;
+        numero.textContent = String(indice + 1);
+        titulo.innerHTML = nivel.titulo || '';
+        texto.innerHTML = nivel.texto || '';
+        card.hidden = false;
+        posicionar();
+        card.classList.remove('is-trocando');
+        void card.offsetWidth;
+        card.classList.add('is-trocando');
+        if (rolar && celular()) {
+          requestAnimationFrame(function () { card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
+        }
+      }
+
+      faixas.forEach(function (g, i) {
+        g.addEventListener('mouseenter', function () { selecionar(i, false); });
+        g.addEventListener('click', function () { selecionar(i, true); });
+        g.addEventListener('focus', function () { selecionar(i, false); });
+        g.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selecionar(i, true); }
+          if (e.key === 'ArrowDown' && faixas[i + 1]) { e.preventDefault(); faixas[i + 1].focus(); }
+          if (e.key === 'ArrowUp' && faixas[i - 1]) { e.preventDefault(); faixas[i - 1].focus(); }
+        });
+      });
+      window.addEventListener('resize', posicionar);
+    }
+
+    window.NeadPiramide = {
+      initAll: function () { document.querySelectorAll('.nead-pir').forEach(montar); }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', window.NeadPiramide.initAll);
+    } else {
+      window.NeadPiramide.initAll();
+    }
+  })();
+</script>
