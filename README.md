@@ -139,7 +139,8 @@ Mostra a lista de recursos do index.json.
 - ✅ **Tratamento de Erros**: Fallbacks e mensagens de erro amigáveis
 - ✅ **Performance**: Carregamento assíncrono e otimizado
 - ✅ **Extensível**: Fácil adição de novos recursos
-- ✅ **Filtros**: Sistema de busca e filtros (disponível via API)
+- ✅ **Ordem alfabética**: Os cards são montados em ordem alfabética pelo título (ignora acentos e maiúsculas), independente da ordem do `index.json`
+- ✅ **Pesquisa e filtro**: Caixa de pesquisa dinâmica por parte do título (ignora acentos e maiúsculas; Esc limpa), combinada com o filtro por tipo e com contador de resultados
 
 ## 🔍 Debug e Desenvolvimento
 
@@ -153,7 +154,7 @@ RecursosEducacionais.getAvailableResources()
 // Recarregar recursos
 RecursosEducacionais.reloadResources()
 
-// Filtrar recursos
+// Filtrar recursos pelo título (mesma regra da caixa de pesquisa)
 RecursosEducacionais.filterResources('tooltip')
 
 // Carregar cards (função interna)

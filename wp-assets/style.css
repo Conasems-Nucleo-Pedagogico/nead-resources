@@ -66,6 +66,106 @@ header h1 {
     padding: 0 20px;
 }
 
+/* Barra de pesquisa e filtro */
+.filters-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 20px;
+    margin-bottom: 18px;
+    padding: 14px 18px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.filter-group label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #5f6b76;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-busca {
+    flex: 1 1 280px;
+}
+
+.filter-group input,
+.filter-group select {
+    font: inherit;
+    font-size: 14px;
+    color: #2c3e50;
+    padding: 9px 12px;
+    border: 1px solid #d5dde3;
+    border-radius: 10px;
+    background: #f8f9fa;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.filter-group input {
+    width: 100%;
+    padding-left: 36px;
+    background: #f8f9fa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235f6b76' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") no-repeat 11px center / 16px;
+}
+
+.filter-group select {
+    min-width: 220px;
+    cursor: pointer;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: #00bfa6;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(0, 191, 166, 0.18);
+}
+
+.contador-recursos {
+    margin-left: auto;
+    padding-bottom: 10px;
+    font-size: 13px;
+    color: #5f6b76;
+    white-space: nowrap;
+}
+
+.sem-resultados {
+    grid-column: 1 / -1;
+    padding: 40px 20px;
+    text-align: center;
+    color: #5f6b76;
+    font-size: 16px;
+    background: white;
+    border-radius: 14px;
+}
+
+.sem-resultados[hidden] {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .filter-group select {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .filter-group {
+        flex: 1 1 100%;
+    }
+
+    .contador-recursos {
+        margin-left: 0;
+        padding-bottom: 0;
+    }
+}
+
 /* Cards Grid */
 .cards-grid {
     display: grid;
