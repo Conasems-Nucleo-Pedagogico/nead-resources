@@ -1,8 +1,95 @@
 {
-  "type": "resource",
+  "type": "cardsCarousel",
   "titulo": "SLIDER VERTICAL DUPLO",
   "conteudo": "Slider com duas colunas: uma exibe o conteúdo principal e outra mostra navegação lateral. O controle é feito através de botões que movimentam ambas as colunas de forma sincronizada, criando um efeito visual único.",
   "observacao": "Suporte para navegação por teclado (setas) e touch/swipe em dispositivos móveis.",
   "img": "wp-resources/slide-vertical-duplo/slide_vertical_duplo.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-infeccoes-respiratorias",
+      "arquivo": "COVID-19/aula/index.html",
+      "linha": 4012,
+      "tipo": "curso",
+      "nota": "No curso é montado com containers do Elementor + classes slider-container nead-heightParentContainer-NN; o JS fica global no head"
+    },
+    {
+      "repo": "conasems-infeccoes-respiratorias",
+      "arquivo": "Virus Sincicial/aula/index.html",
+      "linha": 3275,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-preceptoria",
+      "arquivo": "disciplina-11/index.html",
+      "linha": 3163,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-6/index.html",
+      "linha": 7538,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-10/index.html",
+      "linha": 8814,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-11/index.html",
+      "linha": 15258,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-13/index.html",
+      "linha": 7664,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 7147,
+      "tipo": "curso"
+    },
+    {
+      "repo": "Insulinoterapia",
+      "arquivo": "Disciplina 2/index.html",
+      "linha": 16961,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-25/index.html",
+      "linha": 7842,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-26/index.html",
+      "linha": 7046,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-27.1/index.html",
+      "linha": 6358,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-27.2/index.html",
+      "linha": 6510,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-27.4/index.html",
+      "linha": 6670,
+      "tipo": "curso"
+    }
+  ]
 }

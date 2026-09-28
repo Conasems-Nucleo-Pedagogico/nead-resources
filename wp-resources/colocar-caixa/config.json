@@ -4,6 +4,49 @@
   "conteudo": "Desafia o estudante a associar palavras apropriadas a diferentes conceitos ao arrastá-las para caixas correspondentes. Essa dinâmica interativa promove a categorização e a compreensão contextual das palavras, incentivando uma abordagem prática e visual do aprendizado. Ao proporcionar um ambiente lúdico, o jogo não apenas torna a experiência educativa mais agradável, mas também fortalece a retenção de informações e o desenvolvimento de habilidades cognitivas, como o raciocínio lógico e a análise crítica.",
   "observacao": "",
   "img": "wp-resources/colocar-caixa/caixas.jpeg",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-preceptoria",
+      "arquivo": "disciplina-9/index.html",
+      "linha": 3828,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-preceptoria",
+      "arquivo": "disciplina-2/index.html",
+      "linha": 8155,
+      "tipo": "curso"
+    },
+    {
+      "repo": "atraso-psicomotor",
+      "arquivo": "aula-3/index.html",
+      "linha": 3440,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-19/index.html",
+      "linha": 7855,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-19/index.html",
+      "linha": 7855,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/Disciplinas 1 a 21/D3e4/index.html",
+      "linha": 7135,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-games",
+      "arquivo": "drag-and-drop-resources/original/index.html",
+      "linha": 25,
+      "tipo": "fonte"
+    }
+  ]
 }
-

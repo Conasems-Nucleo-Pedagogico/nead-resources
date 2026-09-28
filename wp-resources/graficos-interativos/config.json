@@ -1,8 +1,28 @@
 {
-  "type": "resource",
+  "type": "dataViz",
   "titulo": "GRÁFICOS INTERATIVOS",
   "conteudo": "Gráficos e visualizações de dados interativas para melhor compreensão das informações apresentadas.",
   "observacao": "",
   "img": "wp-resources/graficos-interativos/graficos_interativos.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-18/index.html",
+      "linha": 7031,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-18/index.html",
+      "linha": 7032,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-3/index.html",
+      "linha": 4365,
+      "tipo": "curso"
+    }
+  ]
 }

@@ -1,8 +1,16 @@
 {
-  "type": "resource",
+  "type": "clinicalCase",
   "titulo": "SCANNER COM CONTEÚDO",
   "conteudo": "Animação de scanner",
   "observacao": "",
   "img": "wp-resources/scanner-resource/scanner.jpeg",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-11/index.html",
+      "linha": 12597,
+      "tipo": "curso"
+    }
+  ]
 }

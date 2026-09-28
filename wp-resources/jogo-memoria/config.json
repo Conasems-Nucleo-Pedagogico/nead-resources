@@ -4,6 +4,55 @@
   "conteudo": "Ao desafiar os jogadores a encontrar pares correspondentes de cartas, o jogo da memória estimula e aprimora a capacidade de concentração, atenção e retenção de informações. Essa prática constante fortalece a memória visual e cognitiva, promovendo habilidades essenciais para o aprendizado, como o reconhecimento de padrões e a resolução de problemas. Além disso, o jogo da memória é uma ferramenta versátil que pode ser adaptada para diferentes temas, tornando-o uma opção educacional flexível para diversas idades e áreas de estudo.",
   "observacao": "",
   "img": "wp-resources/jogo-memoria/memoria.jpeg",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-3/index.html",
+      "linha": 5775,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-5/index.html",
+      "linha": 11503,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-5/index.html",
+      "linha": 11502,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-13/index.html",
+      "linha": 6935,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-13/index.html",
+      "linha": 6947,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/Disciplinas Conjuntas/aula-1/index.html",
+      "linha": 6730,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/Disciplinas 1 a 21/D5/index.html",
+      "linha": 5054,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-games",
+      "arquivo": "memory-game/memory-game-blue/index.html",
+      "linha": 375,
+      "tipo": "fonte"
+    }
+  ]
 }
-

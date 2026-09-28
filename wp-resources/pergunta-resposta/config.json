@@ -4,6 +4,26 @@
   "conteudo": "No jogo, os usuários respondem perguntas e o personagem avança no tabuleiro quando o estudante acerta a resposta. Essa integração entre aprendizado e diversão não apenas envolve os alunos de maneira ativa, mas também fortalece a retenção de conhecimento de maneira eficaz, tornando-se assim uma ferramenta versátil e motivadora para consolidar conceitos em diversas disciplinas.",
   "observacao": "",
   "img": "wp-resources/pergunta-resposta/perguntas.jpeg",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-8/index.html",
+      "linha": 12845,
+      "tipo": "curso",
+      "nota": "Markup (txt-N com atributo res, img-N, botões) montado no Elementor; o code.html só tem o script"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-5/index.html",
+      "linha": 10890,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-games",
+      "arquivo": "questions-game/script.js",
+      "linha": null,
+      "tipo": "fonte"
+    }
+  ]
 }
-

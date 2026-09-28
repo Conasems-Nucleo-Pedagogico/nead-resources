@@ -1,8 +1,40 @@
 {
-  "type": "resource",
+  "type": "cardsCarousel",
   "titulo": "CARDS EM LIVRO",
   "conteudo": "Cards no formato de um livro. São necessários dois botões, \"Próximo\" e \"Anterior\", para controlar a mudança de página do livro.",
   "observacao": "",
   "img": "wp-resources/cards-livro/book_animation.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-preceptoria",
+      "arquivo": "disciplina-3/index.html",
+      "linha": 7384,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula3-m3/index.html",
+      "linha": 12910,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-2/index.html",
+      "linha": 5353,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-4/index.html",
+      "linha": 6479,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-resource",
+      "arquivo": "book_animation/index.html",
+      "linha": 159,
+      "tipo": "demo"
+    }
+  ]
 }

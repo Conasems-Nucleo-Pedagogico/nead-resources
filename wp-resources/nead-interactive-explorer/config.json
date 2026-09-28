@@ -4,5 +4,6 @@
   "conteudo": "Componente JavaScript reutilizável para criar atividades interativas baseadas em ações clínicas, mapas anatômicos, regiões clicáveis e feedback contextual. Ele foi criado para simulações educacionais em saúde, especialmente casos clínicos interativos, permitindo que o estudante escolha uma manobra, explore uma região da imagem e visualize achados, reações do paciente e impacto para o raciocínio.",
   "observacao": "Exemplos de uso em saúde: Apendicite aguda, Câncer de ovário / massa anexial, Insulinoterapia: locais de aplicação, Pé diabético, Lesões dermatológicas, Feridas e curativos, Dor torácica, Ausculta respiratória",
   "img": "wp-resources/nead-interactive-explorer/assets/demo.png",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": []
 }

@@ -1,8 +1,40 @@
 {
-  "type": "resource",
+  "type": "cardsCarousel",
   "titulo": "CARDS ANIMADOS (LINEAR)",
   "conteudo": "A animação dos cards funciona como uma prancheta, onde o último elemento da pilha vem para a frente e o primeiro vai para trás.",
   "observacao": "IMPORTANTE: A lógica da mudança de cards é linear, ou seja, a navegação só é possível para o próximo card ou para o card anterior.",
   "img": "wp-resources/cards-linear/card_animation.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-vacinacao",
+      "arquivo": "disciplina-1/index.html",
+      "linha": 11054,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-6/index.html",
+      "linha": 6588,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-preceptoria",
+      "arquivo": "disciplina-6/index.html",
+      "linha": 8016,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-eletiva-2/index.html",
+      "linha": 6288,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-resource",
+      "arquivo": "card_animation (prancheta)/index.html",
+      "linha": 175,
+      "tipo": "demo"
+    }
+  ]
 }

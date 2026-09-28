@@ -1,8 +1,65 @@
 {
-  "type": "resource",
+  "type": "sequence",
   "titulo": "STEPS COM CONTEÚDO",
   "conteudo": "É uma linha do tempo que pode ser usada tanto para etapas quanto para eventos importantes em um determinado período. A ideia é que o usuário navegue pelos passos e apareçam caixas de conteúdo relacionadas a cada etapa.",
   "observacao": "",
   "img": "wp-resources/steps-conteudo/steps.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-dpoc",
+      "arquivo": "aula-3/index.html",
+      "linha": 6008,
+      "tipo": "curso",
+      "nota": "Origem: os IDs do snippet (dpoc-a3-t4-...) vêm desta tela"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m1/index.html",
+      "linha": 8511,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m3/index.html",
+      "linha": 8583,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m4/index.html",
+      "linha": 4372,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula2-m3/index.html",
+      "linha": 8302,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula3-m3/index.html",
+      "linha": 11263,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-2/index.html",
+      "linha": 8483,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-2/index.html",
+      "linha": 8479,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-1/index.html",
+      "linha": 3272,
+      "tipo": "curso"
+    }
+  ]
 }

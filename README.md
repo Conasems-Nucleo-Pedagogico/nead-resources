@@ -31,13 +31,49 @@ Cada recurso deve ter um arquivo `config.json` com esta estrutura:
 
 ```json
 {
+  "type": "cardsCarousel",
   "titulo": "NOME DO RECURSO",
   "conteudo": "Descrição do recurso educacional",
   "observacao": "Informações adicionais (opcional)",
   "img": "https://exemplo.com/imagem.png",
-  "src": "caminho/para/arquivo/demo.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m3/index.html",
+      "linha": 10713,
+      "tipo": "curso",
+      "nota": "Opcional"
+    }
+  ]
 }
 ```
+
+### Categorias (`type`)
+O filtro da página usa o campo `type`. Valores aceitos (configurados em `TYPE_FILTER_CONFIG`, no `wp-assets/script.js`):
+
+| `type` | Rótulo no filtro | Intenção |
+|---|---|---|
+| `game` | Jogos | Fixação/avaliação do conteúdo em formato de jogo |
+| `clinicalCase` | Casos Clínicos | Simulações de atendimento, exames e decisão clínica |
+| `cardsCarousel` | Cards e Carrosséis | Navegar por um conjunto de itens (cards, carrosséis, sliders) |
+| `sequence` | Sequências e Linhas do Tempo | Etapas, progressão, escalas de gravidade |
+| `hotspot` | Hotspots e Tooltips | Explorar uma imagem ou texto por pontos clicáveis/hover |
+| `animation` | Animação e Destaque | Chamar atenção (personagens, marca-texto) |
+| `media` | Vídeo e Mídia | Vídeos curtos, de fundo ou animados |
+| `dataViz` | Visualização de Dados | Gráficos interativos |
+
+Para criar uma categoria nova, adicione o valor em `TYPE_FILTER_CONFIG`.
+
+### Uso em cursos (`usoEmCursos`)
+Campo só de consulta (a página não usa): lista onde o recurso aparece, para achar um exemplo prático.
+
+- `repo` / `arquivo`: repositório do curso e caminho da página dentro dele.
+- `linha`: linha na cópia estática da página (pode mudar se o curso for exportado de novo).
+- `tipo`: `curso` (página de curso), `fonte` (código-fonte do jogo, ex.: `educational-games`), `demo` (demo do efeito em `educational-resource`), `precursor` (versão anterior feita sob medida) ou `referencia` (técnica parecida, mas não o snippet).
+- `nota`: observação opcional.
+
+Lista vazia = nenhum uso encontrado.
 
 ## ➕ Adicionando Novos Recursos
 

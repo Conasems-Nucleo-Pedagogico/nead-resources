@@ -1,8 +1,23 @@
 {
-  "type": "resource",
+  "type": "media",
   "titulo": "ANIMAÇÃO DE VÍDEO",
   "conteudo": "Vídeo em um box animado que, ao ser clicado, expande e reproduz o vídeo.",
   "observacao": "IMPORTANTE: Esse recurso funciona apenas para vídeos que podem ser utilizados sem áudio.",
   "img": "wp-resources/animacao-video/video_animation.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "educational-resource",
+      "arquivo": "video_animation/index.html",
+      "linha": 152,
+      "tipo": "demo"
+    },
+    {
+      "repo": "conasems-dpoc",
+      "arquivo": "aula-1/index.html",
+      "linha": 5080,
+      "tipo": "referencia",
+      "nota": "Mesmo vídeo do Vimeo, mas como vídeo simples do Elementor (sem o efeito)"
+    }
+  ]
 }

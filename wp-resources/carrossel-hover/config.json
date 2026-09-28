@@ -1,8 +1,40 @@
 {
-  "type": "resource",
+  "type": "cardsCarousel",
   "titulo": "CARROSSEL COM HOVER",
   "conteudo": "É um carrossel com os botões de navegação escondidos. Ao passar o mouse sobre o card (hover), ele se movimenta e exibe os botões de navegação.",
   "observacao": "",
   "img": "wp-resources/carrossel-hover/carousel_hover.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-bexiga",
+      "arquivo": "aula-3/index.html",
+      "linha": 7283,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m2/index.html",
+      "linha": 6261,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m3/index.html",
+      "linha": 9804,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m4/index.html",
+      "linha": 5364,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-resource",
+      "arquivo": "carousel_hover/index.html",
+      "linha": 268,
+      "tipo": "demo"
+    }
+  ]
 }

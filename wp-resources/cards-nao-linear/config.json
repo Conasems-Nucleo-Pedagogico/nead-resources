@@ -1,8 +1,40 @@
 {
-  "type": "resource",
+  "type": "cardsCarousel",
   "titulo": "CARDS ANIMADOS (NÃO-LINEAR)",
   "conteudo": "Os cards são organizados em uma pilha, e a navegação é feita por botões. A navegação é não linear, ou seja, o usuário pode clicar em qualquer botão de forma aleatória.",
   "observacao": "",
   "img": "wp-resources/cards-nao-linear/card_animation2.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-preceptoria",
+      "arquivo": "disciplina-3/index.html",
+      "linha": 6557,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-vacinacao",
+      "arquivo": "disciplina-1/index.html",
+      "linha": 12032,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-vacinacao",
+      "arquivo": "disciplina-2/index.html",
+      "linha": 12699,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m2/index.html",
+      "linha": 8416,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-resource",
+      "arquivo": "card_animation2/index.html",
+      "linha": 155,
+      "tipo": "demo"
+    }
+  ]
 }

@@ -1,8 +1,16 @@
 {
-  "type": "resource",
+  "type": "hotspot",
   "titulo": "LOTTIE COM HOTSPOT",
   "conteudo": "Animações Lottie com pontos interativos (hotspots) para fornecer informações adicionais.",
   "observacao": "",
   "img": "wp-resources/lottie-hotspot/lottie_hotspot.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-7/index.html",
+      "linha": 5875,
+      "tipo": "curso"
+    }
+  ]
 }

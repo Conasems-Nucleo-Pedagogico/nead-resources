@@ -4,6 +4,19 @@
   "conteudo": "O jogo “Conexão” é uma adaptação inspirada no desafiador jogo “Conexo”, buscando proporcionar uma abordagem única para o desenvolvimento cognitivo dos estudantes. Nesta versão modificada, a ênfase recai sobre a identificação de grupos de palavras, desafiando os participantes a correlacionar e associar palavras aos seus respectivos conjuntos. A dinâmica inovadora do “Conexão” não apenas promove uma compreensão mais profunda das relações semânticas entre palavras, mas também aprimora habilidades de classificação, pensamento crítico e raciocínio lógico, tornando a experiência educativa envolvente e estimulante.",
   "observacao": "",
   "img": "wp-resources/conexo/conexao.jpeg",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-2/index.html",
+      "linha": 5675,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-games",
+      "arquivo": "conexogame/index.html",
+      "linha": 17,
+      "tipo": "fonte"
+    }
+  ]
 }
-

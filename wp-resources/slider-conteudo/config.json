@@ -1,8 +1,58 @@
 {
-  "type": "resource",
+  "type": "sequence",
   "titulo": "SLIDER COM CONTEÚDO",
   "conteudo": "Slider com fundo gradiente, que vai do tom mais claro ao mais intenso. O usuário arrasta o slider e aparecem caixas de conteúdo. A ideia é fornecer informações relacionadas à gravidade de um determinado assunto.",
   "observacao": "",
   "img": "wp-resources/slider-conteudo/slider.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m4/index.html",
+      "linha": 3944,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-dpoc",
+      "arquivo": "aula-1/index.html",
+      "linha": 5817,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-22/index.html",
+      "linha": 9604,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-22/index.html",
+      "linha": 9604,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-25.2/index.html",
+      "linha": 6248,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/Disciplinas Conjuntas/aula-0/index.html",
+      "linha": 6619,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/Disciplinas 1 a 21/Ambientacao/index.html",
+      "linha": 3578,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-infeccoes-respiratorias",
+      "arquivo": "Virus Sincicial/caso-clinico/index.html",
+      "linha": 7802,
+      "tipo": "curso"
+    }
+  ]
 }

@@ -79,9 +79,14 @@ const TYPE_FILTER_CONFIG = {
     allValue: 'all',
     allLabel: 'Todos',
     types: [
-        { value: 'resource', label: 'Recursos Interativos' },
         { value: 'game', label: 'Jogos' },
-        {value: 'clinicalCase', label: "Casos Clínicos"}
+        { value: 'clinicalCase', label: 'Casos Clínicos' },
+        { value: 'cardsCarousel', label: 'Cards e Carrosséis' },
+        { value: 'sequence', label: 'Sequências e Linhas do Tempo' },
+        { value: 'hotspot', label: 'Hotspots e Tooltips' },
+        { value: 'animation', label: 'Animação e Destaque' },
+        { value: 'media', label: 'Vídeo e Mídia' },
+        { value: 'dataViz', label: 'Visualização de Dados' }
     ]
 };
 

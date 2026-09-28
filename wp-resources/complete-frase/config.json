@@ -4,6 +4,49 @@
   "conteudo": "Desafia o estudante a preencher lacunas em frases estratégicas, proporcionando uma abordagem pedagógica estimulante. Ao dispor de uma lista de palavras, o estudante é instigado a incorporar esses termos em contextos relevantes. O jogo não apenas promove uma compreensão mais aprofundada e o uso preciso do vocabulário, mas também impulsiona uma aprendizagem prática e significativa, consolidando conceitos de forma envolvente e eficaz.",
   "observacao": "",
   "img": "wp-resources/complete-frase/complete-the-sentence.jpeg",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula2-m2/index.html",
+      "linha": 9053,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-preceptoria",
+      "arquivo": "disciplina-1/index.html",
+      "linha": 7210,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-preceptoria",
+      "arquivo": "disciplina-11/index.html",
+      "linha": 6252,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-1/index.html",
+      "linha": 4917,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-6/index.html",
+      "linha": 8759,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-vacinacao",
+      "arquivo": "disciplina-2/index.html",
+      "linha": 14420,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-games",
+      "arquivo": "drag-and-drop-resources/complete-the-sentence/index.html",
+      "linha": 12,
+      "tipo": "fonte"
+    }
+  ]
 }
-

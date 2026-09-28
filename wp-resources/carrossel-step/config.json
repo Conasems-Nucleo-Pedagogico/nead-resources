@@ -1,8 +1,124 @@
 {
-  "type": "resource",
+  "type": "cardsCarousel",
   "titulo": "CARROSSEL STEP",
   "conteudo": "Carrossel em que os cards são expandidos um de cada vez ao serem clicados.",
   "observacao": "",
   "img": "wp-resources/carrossel-step/step_carousel.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-bexiga",
+      "arquivo": "aula-2/index.html",
+      "linha": 6621,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-bexiga",
+      "arquivo": "aula-3/index.html",
+      "linha": 4549,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m1/index.html",
+      "linha": 7928,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula1-m3/index.html",
+      "linha": 10713,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula2-m3/index.html",
+      "linha": 7256,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-oncologia",
+      "arquivo": "aula3-m3/index.html",
+      "linha": 12008,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-preceptoria",
+      "arquivo": "disciplina-1/index.html",
+      "linha": 6951,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-2/index.html",
+      "linha": 3926,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-8/index.html",
+      "linha": 10247,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-infeccoes-respiratorias",
+      "arquivo": "Influenza/Aula/index.html",
+      "linha": 5735,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-infeccoes-respiratorias",
+      "arquivo": "COVID-19/aula/index.html",
+      "linha": 9496,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-6/index.html",
+      "linha": 9204,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 8406,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-10/index.html",
+      "linha": 7083,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-13/index.html",
+      "linha": 5094,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-15/index.html",
+      "linha": 9309,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-23/index.html",
+      "linha": 10132,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACS/aula-25/index.html",
+      "linha": 11025,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-resource",
+      "arquivo": "step_carousel_click/index.html",
+      "linha": 64,
+      "tipo": "demo"
+    }
+  ]
 }

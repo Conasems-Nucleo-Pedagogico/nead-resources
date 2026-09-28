@@ -4,6 +4,14 @@
   "conteudo": "O jogo oferece uma experiência de aprendizado envolvente ao desafiar os estudantes a classificarem informações em categorias pré-determinadas. Cada texto apresenta afirmações que os alunos devem avaliar, marcando os checkboxes correspondentes. Essa abordagem estimula o pensamento crítico, a tomada de decisões e a análise contextual, proporcionando uma oportunidade prática para os estudantes aplicarem seus conhecimentos em diferentes áreas de estudo.",
   "observacao": "",
   "img": "wp-resources/checkbox/Checkbox-game.jpeg",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "educational-games",
+      "arquivo": "checkbox-game/script.js",
+      "linha": null,
+      "tipo": "fonte",
+      "nota": "Não encontrado em nenhum curso"
+    }
+  ]
 }
-

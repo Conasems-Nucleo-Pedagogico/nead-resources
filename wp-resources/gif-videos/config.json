@@ -1,8 +1,17 @@
 {
-  "type": "resource",
+  "type": "media",
   "titulo": "GIF (VÍDEOS CURTOS)",
   "conteudo": "Podemos transformar vídeos curtos em GIFs para ilustrar as aulas. Eles podem ser encontrados em: Freepik e Envato (idealmente, procure em inglês).",
   "observacao": "IMPORTANTE: É recomendável escolher vídeos com poucos detalhes, pois a qualidade pode ficar um pouco comprometida.",
   "img": "wp-resources/gif-videos/gif.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-dpoc",
+      "arquivo": "aula-2/index.html",
+      "linha": 3880,
+      "tipo": "curso",
+      "nota": "Mesmo clipe DPOCT2a do snippet, em autoplay/mudo/loop"
+    }
+  ]
 }

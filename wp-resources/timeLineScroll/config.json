@@ -1,8 +1,17 @@
 {
-  "type": "resource",
+  "type": "sequence",
   "titulo": "Linha do tempo com scroll",
   "conteudo": "Recurso interativo de timeLine, em que o progresso segue o scroll.",
   "observacao": "",
   "img": "wp-resources/timeLineScroll/timeLineScroll.jpeg",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-13/index.html",
+      "linha": 10061,
+      "tipo": "precursor",
+      "nota": "Versão original feita sob medida (classes cuidadoD13T19*); o eduTimeline genérico ainda não aparece nas cópias dos cursos"
+    }
+  ]
 }

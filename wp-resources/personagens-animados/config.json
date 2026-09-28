@@ -1,8 +1,34 @@
 {
-  "type": "resource",
+  "type": "animation",
   "titulo": "PERSONAGENS ANIMADOS",
   "conteudo": "Personagens com animações para tornar o conteúdo mais atrativo e interativo.",
   "observacao": "",
   "img": "wp-resources/personagens-animados/personagens_animados.webp",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-24/index.html",
+      "linha": 5977,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-25.1/index.html",
+      "linha": 6074,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-25.3/index.html",
+      "linha": 6380,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-26/index.html",
+      "linha": 6010,
+      "tipo": "curso"
+    }
+  ]
 }

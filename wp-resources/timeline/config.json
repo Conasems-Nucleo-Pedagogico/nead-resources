@@ -4,5 +4,25 @@
   "conteudo": "Oferece uma abordagem envolvente e educativa ao desafiar o estudante a organizar eventos relevantes de um determinado tema em uma sequência cronológica. O jogo estimula a pesquisa dos estudantes e desenvolve o pensamento crítico. Além disso, a partir de uma conexão visual entre os eventos, o jogo educacional promove uma compreensão mais profunda, contribuindo para uma visão histórica e científica mais ampla.",
   "observacao": "",
   "img": "wp-resources/timeline/timeline-1024x499.jpeg",
-  "src": "code.html"
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "atraso-psicomotor",
+      "arquivo": "aula-3/index.html",
+      "linha": 4975,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-4/index.html",
+      "linha": 7440,
+      "tipo": "curso"
+    },
+    {
+      "repo": "educational-games",
+      "arquivo": "drag-and-drop-resources/timeline-game/index.html",
+      "linha": 20,
+      "tipo": "fonte"
+    }
+  ]
 }

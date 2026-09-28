@@ -13,13 +13,18 @@ wp-resources/
 ### 2️⃣ Criar config.json
 ```json
 {
+  "type": "cardsCarousel",
   "titulo": "MEU NOVO RECURSO",
   "conteudo": "Descrição detalhada do que este recurso faz",
   "observacao": "IMPORTANTE: Informações importantes (opcional)",
   "img": "https://exemplo.com/imagem-preview.png",
-  "src": "demos/meu-recurso.html"
+  "src": "code.html",
+  "usoEmCursos": []
 }
 ```
+
+- `type`: uma das categorias do filtro: `game`, `clinicalCase`, `cardsCarousel`, `sequence`, `hotspot`, `animation`, `media` ou `dataViz` (detalhes no README).
+- `usoEmCursos`: onde o recurso já foi usado nos cursos (só consulta). Pode começar vazio; formato no README.
 
 ### 3️⃣ Atualizar index.json
 Abra `wp-resources/index.json` e adicione o nome da pasta no array:
