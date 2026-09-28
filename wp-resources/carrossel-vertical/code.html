@@ -1,0 +1,287 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  CARROSSEL VERTICAL — NEAD
+  Como usar no Elementor: cole este bloco inteiro em um widget "HTML".
+  Para editar o conteúdo, altere só o JSON dentro de <script class="nead-cv__config">:
+    - "icone": URL da imagem que aparece ao lado de cada item (troque pela URL da mídia no WordPress)
+    - "slides": lista de telas; cada uma tem "titulo" e "itens" (texto simples ou HTML curto)
+      Um item também pode ser { "texto": "...", "icone": "outra-imagem.webp" } para trocar o ícone só dele.
+  Pode haver mais de um carrossel na mesma página: repita só o bloco <div class="nead-cv">...</div>.
+-->
+<style>
+  .nead-cv {
+    --nead-cv-cor-inicio: #008A95;
+    --nead-cv-cor-fim: #155BAE;
+    --nead-cv-cor-texto: #FBFEFE;
+    --nead-cv-cor-seta: #F8B624;
+    --nead-cv-duracao: 0.5s;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 50px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, var(--nead-cv-cor-inicio) 30%, var(--nead-cv-cor-fim) 100%);
+    color: var(--nead-cv-cor-texto);
+    font-family: "Roboto", Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+    overflow: hidden;
+  }
+  .nead-cv *, .nead-cv *::before, .nead-cv *::after { box-sizing: border-box; }
+
+  /* Todos os slides ocupam a mesma célula: a altura fica fixa na do slide mais alto (sem "pulos"). */
+  .nead-cv__slides {
+    flex: 1;
+    display: grid;
+    min-width: 0;
+  }
+  .nead-cv__slide {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100%);
+    transition: transform var(--nead-cv-duracao) ease-in-out,
+                opacity var(--nead-cv-duracao) ease-in-out,
+                visibility 0s linear var(--nead-cv-duracao);
+  }
+  .nead-cv__slide.is-before { transform: translateY(-100%); }
+  .nead-cv__slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition-delay: 0s;
+  }
+
+  .nead-cv__titulo {
+    margin: 0 0 24px;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: 700;
+    line-height: 1.25;
+    color: inherit;
+  }
+  .nead-cv__itens {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .nead-cv__item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .nead-cv__icone {
+    flex: 0 0 60px;
+    width: 60px;
+    height: auto;
+  }
+  .nead-cv__texto { flex: 1; margin: 0; }
+
+  .nead-cv__controles {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .nead-cv__seta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--nead-cv-cor-seta);
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nead-cv__seta svg { width: 44px; height: 44px; }
+  .nead-cv__seta:hover { transform: scale(1.12); }
+  .nead-cv__seta:focus-visible { outline: 3px solid var(--nead-cv-cor-seta); outline-offset: 2px; }
+  .nead-cv__seta[hidden] { display: flex; visibility: hidden; }
+  .nead-cv__contador {
+    font-size: 0.8em;
+    opacity: 0.85;
+    font-variant-numeric: tabular-nums;
+  }
+  .nead-cv__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 767px) {
+    .nead-cv {
+      flex-direction: column;
+      padding: 24px;
+      font-size: 16px;
+    }
+    .nead-cv__item { flex-direction: column; text-align: center; gap: 8px; }
+    .nead-cv__controles { flex-direction: row; }
+    .nead-cv__seta--proxima { order: 3; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nead-cv { --nead-cv-duracao: 0s; }
+  }
+</style>
+
+<div class="nead-cv" role="region" aria-roledescription="carrossel" aria-label="Carrossel vertical">
+  <script type="application/json" class="nead-cv__config">
+    {
+      "icone": "marcador-de-mapa-1.webp",
+      "slides": [
+        {
+          "titulo": "ATRIBUIÇÕES COMUNS DOS(AS) ACS E ACE:",
+          "itens": [
+            "Realizar diagnóstico demográfico, social, cultural, ambiental, epidemiológico e sanitário do território em que atuam, contribuindo para o processo de territorialização e o mapeamento da área de atuação da equipe.",
+            "Desenvolver atividades de promoção da saúde, de prevenção de doenças e agravos, em especial aqueles mais prevalentes no território, e de vigilância em saúde, por meio de visitas domiciliares regulares e de ações educativas individuais e coletivas na UBS, no domicílio e em outros espaços da comunidade, incluindo a investigação epidemiológica de casos suspeitos de doenças e agravos, junto a outros profissionais da equipe, quando necessário."
+          ]
+        },
+        {
+          "titulo": "ATRIBUIÇÕES COMUNS DOS(AS) ACS E ACE:",
+          "itens": [
+            "Realizar visitas domiciliares com periodicidade estabelecida no planejamento da equipe e conforme as necessidades de saúde da população para o monitoramento da situação das famílias e dos indivíduos do território, com especial atenção às pessoas com agravos e condições que necessitem de maior número de visitas.",
+            "Identificar e registrar situações que interfiram no curso das doenças ou que tenham importância epidemiológica relacionada aos fatores ambientais, realizando, quando necessário, o bloqueio de transmissão de doenças infecciosas e agravos.",
+            "Orientar a comunidade sobre sintomas, riscos e agentes transmissores de doenças e medidas de prevenção individual e coletiva."
+          ]
+        },
+        {
+          "titulo": "ATRIBUIÇÕES COMUNS DOS(AS) ACS E ACE:",
+          "itens": [
+            "Identificar casos suspeitos de doenças e agravos, encaminhar os usuários para a Unidade de Saúde de referência e registrar e comunicar o fato à autoridade de saúde responsável pelo território.",
+            "Informar e mobilizar a comunidade para desenvolver medidas simples de manejo ambiental e outras formas de intervenção no ambiente para o controle de vetores.",
+            "Conhecer o funcionamento das ações e dos serviços do seu território e orientar as pessoas quanto à utilização dos serviços de saúde disponíveis.",
+            "Estimular a participação da comunidade nas políticas públicas voltadas para a área da saúde."
+          ]
+        },
+        {
+          "titulo": "ATRIBUIÇÕES COMUNS DOS(AS) ACS E ACE:",
+          "itens": [
+            "Identificar parceiros e recursos na comunidade que possam potencializar ações intersetoriais de relevância para a promoção da qualidade de vida da população, como ações e programas de Educação, Esporte e Lazer, Assistência Social, entre outros.",
+            "Exercer outras funções que lhes sejam atribuídas por legislação específica da categoria ou outra normativa instituída pelo gestor federal, municipal ou do Distrito Federal."
+          ]
+        }
+      ]
+    }
+  </script>
+</div>
+
+<script>
+  (function () {
+    // Motor compartilhado: se o bloco for colado mais de uma vez na página, inicializa só uma vez.
+    if (window.NeadCarrosselVertical) {
+      window.NeadCarrosselVertical.initAll();
+      return;
+    }
+
+    var SETA_CIMA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 7.6 3.7 15.9l1.8 1.8L12 11.2l6.5 6.5 1.8-1.8z"/></svg>';
+    var SETA_BAIXO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 16.4 3.7 8.1l1.8-1.8L12 12.8l6.5-6.5 1.8 1.8z"/></svg>';
+
+    function criar(tag, classe, html) {
+      var el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (html != null) el.innerHTML = html;
+      return el;
+    }
+
+    function montar(raiz) {
+      if (raiz.dataset.neadCvPronto) return;
+      var configEl = raiz.querySelector('.nead-cv__config');
+      var config;
+      try {
+        config = JSON.parse(configEl.textContent);
+      } catch (erro) {
+        raiz.textContent = 'Carrossel vertical: o JSON de configuração está inválido.';
+        console.error('[nead-cv] JSON inválido', erro);
+        return;
+      }
+      raiz.dataset.neadCvPronto = '1';
+
+      var slidesEl = criar('div', 'nead-cv__slides');
+      var slides = (config.slides || []).map(function (dados, i) {
+        var slide = criar('div', 'nead-cv__slide');
+        slide.setAttribute('role', 'group');
+        slide.setAttribute('aria-roledescription', 'slide');
+        slide.setAttribute('aria-label', (i + 1) + ' de ' + config.slides.length);
+        if (dados.titulo) slide.appendChild(criar('h3', 'nead-cv__titulo', dados.titulo));
+        var lista = criar('ul', 'nead-cv__itens');
+        (dados.itens || []).forEach(function (item) {
+          var texto = typeof item === 'string' ? item : item.texto;
+          var icone = (typeof item === 'object' && item.icone) || config.icone;
+          var li = criar('li', 'nead-cv__item');
+          if (icone) {
+            var img = criar('img', 'nead-cv__icone');
+            img.src = icone;
+            img.alt = '';
+            li.appendChild(img);
+          }
+          li.appendChild(criar('p', 'nead-cv__texto', texto));
+          lista.appendChild(li);
+        });
+        slide.appendChild(lista);
+        slidesEl.appendChild(slide);
+        return slide;
+      });
+
+      var controles = criar('div', 'nead-cv__controles');
+      var btnAnterior = criar('button', 'nead-cv__seta nead-cv__seta--anterior', SETA_CIMA);
+      var btnProxima = criar('button', 'nead-cv__seta nead-cv__seta--proxima', SETA_BAIXO);
+      var contador = criar('span', 'nead-cv__contador');
+      btnAnterior.type = btnProxima.type = 'button';
+      btnAnterior.setAttribute('aria-label', 'Slide anterior');
+      btnProxima.setAttribute('aria-label', 'Próximo slide');
+      contador.setAttribute('aria-live', 'polite');
+      controles.appendChild(btnAnterior);
+      controles.appendChild(contador);
+      controles.appendChild(btnProxima);
+
+      raiz.appendChild(slidesEl);
+      raiz.appendChild(controles);
+
+      var atual = 0;
+      function mostrar(indice) {
+        atual = Math.max(0, Math.min(indice, slides.length - 1));
+        slides.forEach(function (slide, i) {
+          slide.classList.toggle('is-active', i === atual);
+          slide.classList.toggle('is-before', i < atual);
+          slide.setAttribute('aria-hidden', i === atual ? 'false' : 'true');
+        });
+        btnAnterior.hidden = atual === 0;
+        btnProxima.hidden = atual === slides.length - 1;
+        contador.textContent = (atual + 1) + ' / ' + slides.length;
+      }
+
+      btnAnterior.addEventListener('click', function () { mostrar(atual - 1); });
+      btnProxima.addEventListener('click', function () { mostrar(atual + 1); });
+      raiz.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'PageDown') { mostrar(atual + 1); e.preventDefault(); }
+        if (e.key === 'ArrowUp' || e.key === 'PageUp') { mostrar(atual - 1); e.preventDefault(); }
+      });
+
+      mostrar(0);
+    }
+
+    window.NeadCarrosselVertical = {
+      initAll: function () {
+        document.querySelectorAll('.nead-cv').forEach(montar);
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', window.NeadCarrosselVertical.initAll);
+    } else {
+      window.NeadCarrosselVertical.initAll();
+    }
+  })();
+</script>
