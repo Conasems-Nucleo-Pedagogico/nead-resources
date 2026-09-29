@@ -1,6 +1,6 @@
 {
   "type": "game",
-  "titulo": "Perguntas e Respostas",
+  "titulo": "PERGUNTAS E RESPOSTAS",
   "conteudo": "O estudante lê uma afirmação por vez e marca se ela é verdadeira ou falsa. A cada acerto, o personagem avança na cena ao lado e aparece a próxima afirmação; ao errar, recebe um convite para refletir e tenta de novo. No fim, vê a mensagem de conclusão e pode jogar novamente.",
   "observacao": "Cada afirmação pode trocar a imagem da cena, mostrando o personagem numa nova etapa. Sem imagens por etapa, fica um personagem fixo ao lado.",
   "notasDev": "Cada jogo é um <div class=\"nead-pr\"> com JSON (imagemInicial, afirmacoes com texto/correta/imagem/feedbackAcerto/feedbackErro, imagemFeedback, rotulos, mensagens, corFundo). Substitui o script solto que dependia de IDs globais (txt-N com atributo res, img-N, sec1, sec2, sec-error, button-new-game) montados no Elementor, que só aceitava um jogo por página. Imagens da demo copiadas da disciplina-5 e reduzidas para 1200 px.",

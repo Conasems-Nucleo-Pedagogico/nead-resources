@@ -1,6 +1,6 @@
 {
   "type": "clinicalCase",
-  "titulo": "Videos com áudio (com gatilho de botão)",
+  "titulo": "VÍDEOS COM ÁUDIO (COM GATILHO DE BOTÃO)",
   "conteudo": "Recurso interativo de vídeo em tela cheia que utiliza um vídeo inicial em reprodução automática, sem áudio, como plano de fundo da experiência. A partir da interação do usuário com botões ou opções disponíveis na tela, o vídeo é substituído dinamicamente por outro conteúdo audiovisual relacionado à ação selecionada, podendo ser reproduzido com áudio. Ao final da reprodução, o sistema retorna automaticamente ao vídeo inicial em loop, mantendo a continuidade visual da interface.",
   "observacao": "Pode ser utilizado em aulas e conteúdos educacionais que demandem maior imersão e interação com personagens ou cenários simulados. É especialmente indicado para casos clínicos, entrevistas simuladas, anamneses, atendimento ao usuário, apresentação de diferentes etapas de uma situação-problema e experiências em que o aluno escolhe quais informações deseja acessar. Também pode ser aplicado em narrativas interativas, treinamentos, simulações de atendimento e conteúdos com personagens virtuais que respondem de acordo com a opção selecionada.",
   "img": "wp-resources/nead-trigger-videos/demo.png",

@@ -1,6 +1,6 @@
 {
   "type": "sequence",
-  "titulo": "Linha do tempo com scroll",
+  "titulo": "LINHA DO TEMPO COM SCROLL",
   "conteudo": "Linha do tempo vertical com etapas, relações entre etapas e conclusão. No modo scroll, a linha cresce acompanhando a rolagem e cada cartão aparece ao chegar na tela. No modo automático, quando o bloco entra na tela, os itens aparecem sozinhos, um a um, e a linha avança até cada marcador.",
   "observacao": "Os cartões podem ficar dos dois lados da linha ou todos de um lado só, com números ou pontos nos marcadores. No celular, viram uma lista.",
   "notasDev": "Cada linha do tempo é um <div class=\"nead-tl\"> com JSON (modo scroll/automatico, intervalo, layout alternado/lista, numerar, introducao, itens do tipo etapa/relacao, conclusao, cores, pontoRevelacao). Substitui o EducationalTimeline.create com objeto JS e o laço de requestAnimationFrame contínuo: agora usa rolagem (inclusive de contêineres), ResizeObserver e IntersectionObserver. O modo automático vem da .timeline-saude (VSR e cuidado aula-5). O antigo scroll.scrollContainer (\"#tela19\") não é mais necessário.",

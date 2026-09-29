@@ -1,6 +1,6 @@
 {
   "type": "game",
-  "titulo": "Roda da Fortuna",
+  "titulo": "RODA DA FORTUNA",
   "conteudo": "No jogo, os usuários utilizam o botão de clicar para girar a Roda da Fortuna e ver o conteúdo de cada uma das seções. Cada seção contém um título, e quando a roda da fortuna termina seu giro na seção, abre-se o “prêmio”, que é um card informativo em relação ao tópico para servir de fixação dos tópicos trabalhados",
   "observacao": "Ao parar em uma seção, a roda abre uma janela com o card do “prêmio”. Na demonstração, essa etapa não aparece.",
   "notasDev": "O card do prêmio é um popup do Elementor; o ID do popup vem de cada segmento da roda.",

@@ -1,6 +1,6 @@
 {
   "type": "game",
-  "titulo": "Arrasta e Solta",
+  "titulo": "ARRASTA E SOLTA",
   "conteudo": "O estudante associa cada resposta do banco à linha correspondente, arrastando ou tocando na resposta e depois na linha. Ao clicar em Conferir, todas as linhas são corrigidas de uma vez, com contorno verde ou vermelho, placar e gabarito numa janela. Refazer devolve as respostas ao banco em nova ordem. No celular, cada linha ganha uma lista de seleção, e a resposta já usada some das outras listas.",
   "observacao": "Funciona em qualquer página, sem depender de popup. O gabarito mostra todas as associações certas, e cada linha pode trazer um comentário próprio.",
   "notasDev": "Cada atividade é um <div class=\"nead-dd\"> com JSON (respostas com id/texto/rotulo, linhas com texto/resposta/comentario, embaralhar, larguraResposta, mensagens). Arrastar por Pointer Events (mouse, caneta e toque), com toque-para-escolher e teclado; abaixo de 600 px de largura do bloco, vira select. O feedback que antes abria o popup do Elementor (36884 na vacinação, 56732 na preceptoria) agora aparece num <dialog> interno.",
