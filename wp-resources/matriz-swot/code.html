@@ -1,0 +1,293 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  MATRIZ SWOT (FOFA) — NEAD
+  Matriz 2×2 clicável: Forças, Fraquezas, Oportunidades e Ameaças, com os cabeçalhos
+  Fatores positivos/negativos e as laterais Ambiente interno/externo. Clicar em qualquer parte
+  abre uma janela com o texto daquela parte (fecha no X, com Esc ou clicando fora).
+
+  Como usar no Elementor: cole este bloco inteiro em um widget "HTML".
+  Para editar, altere só o JSON dentro de <script class="nead-sw__config">:
+    - "fatores": os dois cabeçalhos do topo (cada um pode ter \n para quebrar a linha)
+    - "ambientes": as duas laterais, cada uma com "titulo" e "texto" (HTML da janela)
+    - "quadrantes": quatro itens na ordem Forças, Fraquezas, Oportunidades, Ameaças, cada um com
+      "letra", "titulo", "subtitulo", "cor" (fundo), "corTexto" e "texto" (HTML da janela)
+  Pode haver várias matrizes na mesma página: repita só o bloco <div class="nead-sw">...</div>.
+-->
+<style>
+  .nead-sw {
+    --nead-sw-texto: #171717;
+    box-sizing: border-box;
+    container-type: inline-size;
+    width: 100%;
+    margin: 0 auto 40px;
+    color: var(--nead-sw-texto);
+    font-family: "Nunito", Arial, sans-serif;
+  }
+  .nead-sw *, .nead-sw *::before, .nead-sw *::after { box-sizing: border-box; }
+  .nead-sw__instrucao { margin: 0 0 10px; font-weight: 800; }
+  .nead-sw__legenda { margin: 10px 0 0; font-size: 15px; }
+  .nead-sw__svg { display: block; width: 100%; height: auto; overflow: visible; font-family: inherit; }
+  .nead-sw__svg text { pointer-events: none; }
+  .nead-sw__topo { font-size: 18px; font-weight: 800; fill: var(--nead-sw-texto); }
+  .nead-sw__lado-titulo { font-size: 18px; font-weight: 800; fill: var(--nead-sw-texto); }
+  .nead-sw__letra { font-size: 48px; font-weight: 800; }
+  .nead-sw__titulo { font-size: 18px; font-weight: 800; }
+  .nead-sw__subtitulo { font-size: 16px; font-weight: 600; font-style: italic; }
+  .nead-sw__parte { cursor: pointer; outline: none; transition: transform 0.22s ease, filter 0.22s ease; }
+  .nead-sw__parte:hover { filter: brightness(1.05); transform: translateY(-3px); }
+  .nead-sw__parte:focus-visible rect { stroke: #F8CA33; stroke-width: 5; }
+
+  /* Matriz estreita: o SVG encolhe, então as letras aumentam para continuar legíveis */
+  @container (max-width: 600px) {
+    .nead-sw__topo { font-size: 26px; }
+    .nead-sw__lado-titulo { font-size: 24px; }
+    .nead-sw__letra { font-size: 58px; }
+    .nead-sw__titulo { font-size: 26px; }
+    .nead-sw__subtitulo { font-size: 22px; }
+  }
+
+  /* Janela (dialog nativo) */
+  .nead-sw__janela {
+    width: min(620px, calc(100vw - 32px));
+    max-height: calc(100vh - 48px);
+    padding: 0;
+    border: 0;
+    border-radius: 22px;
+    background: #fff;
+    color: var(--nead-sw-texto);
+    font-family: "Nunito", Arial, sans-serif;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+  }
+  .nead-sw__janela::backdrop { background: rgba(15, 23, 42, 0.55); }
+  .nead-sw__janela[open] { animation: nead-sw-abrir 0.25s ease both; }
+  @keyframes nead-sw-abrir { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: none; } }
+  .nead-sw__janela-topo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px 18px 24px;
+    background: var(--nead-sw-cor, #D9D9D9);
+    color: var(--nead-sw-cor-texto, #171717);
+  }
+  .nead-sw__janela-letra { font-size: 34px; font-weight: 800; line-height: 1; }
+  .nead-sw__janela-letra:empty { display: none; }
+  .nead-sw__janela-titulo { flex: 1; margin: 0; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; }
+  .nead-sw__fechar {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    color: #171717;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .nead-sw__fechar:hover { background: #fff; }
+  .nead-sw__fechar:focus-visible { outline: 3px solid #F8CA33; outline-offset: 2px; }
+  .nead-sw__janela-corpo { padding: 22px 26px 26px; overflow: auto; max-height: calc(100vh - 140px); font-size: 17px; line-height: 1.55; }
+  .nead-sw__janela-corpo p { margin: 0 0 12px; }
+  .nead-sw__janela-corpo p:last-child { margin-bottom: 0; }
+  .nead-sw__janela-corpo ul { margin: 8px 0 0; padding-left: 22px; }
+  .nead-sw__janela-corpo li { margin-bottom: 8px; }
+  @media (prefers-reduced-motion: reduce) {
+    .nead-sw__parte { transition: none; }
+    .nead-sw__parte:hover { transform: none; }
+    .nead-sw__janela[open] { animation: none; }
+  }
+</style>
+
+<div class="nead-sw">
+  <script type="application/json" class="nead-sw__config">
+    {
+      "instrucao": "Clique em cada parte da Matriz SWOT.",
+      "legenda": "Figura 2 – Análise do Problema (Matriz SWOT/FOFA)",
+      "fatores": ["Fatores\nPositivos", "Fatores\nNegativos"],
+      "ambientes": [
+        {
+          "titulo": "Ambiente\nInterno",
+          "texto": "<p>Compreende tudo o que envolve e circunda a organização, no nosso caso a UBS. É nela que se apresentam todos os recursos materiais, humanos, financeiros, políticos, sociais e tecnológicos necessários ao desenvolvimento do plano. No ambiente interno, se encontram as capacidades internas da organização, ou seja, seus pontos fortes e fracos.</p>"
+        },
+        {
+          "titulo": "Ambiente\nExterno",
+          "texto": "<p>Refere-se às condições que influenciam positiva ou negativamente a organização/UBS e estão fora da governabilidade da equipe que planeja.</p>"
+        }
+      ],
+      "quadrantes": [
+        {
+          "letra": "S", "titulo": "Forças", "subtitulo": "Strengths", "cor": "#213B74", "corTexto": "#FFFFFF",
+          "texto": "<p><b>Para revelar as forças, devemos responder às seguintes questões:</b></p><ul><li>O que temos de diferencial?</li><li>Quais são as qualidades dos nossos trabalhadores que nossos usuários percebem (quais são os diferenciais da nossa equipe)?</li><li>Quais são os recursos especiais que temos à disposição?</li><li>Quais as qualidades dos nossos serviços e pelas quais somos reconhecidos?</li></ul>"
+        },
+        {
+          "letra": "W", "titulo": "Fraquezas", "subtitulo": "Weaknesses", "cor": "#5B8E2D", "corTexto": "#FFFFFF",
+          "texto": "<p><b>Para descobrir as Fraquezas, podemos nos perguntar:</b></p><ul><li>Quais lacunas e fraquezas existem no nosso serviço?</li><li>De que maneira a falta de qualificação da equipe potencializa o problema?</li><li>Como a falta de materiais/equipamentos/recursos potencializa o problema?</li><li>Quais são as reclamações mais frequentes do nosso serviço (motivo)?</li></ul>"
+        },
+        {
+          "letra": "O", "titulo": "Oportunidades", "subtitulo": "Opportunities", "cor": "#F8CA33", "corTexto": "#171717",
+          "texto": "<p><b>Algumas perguntas a serem feitas na análise das Oportunidades:</b></p><ul><li>Como podemos agregar mais valor aos nossos serviços para nos fortalecer no enfrentamento do problema?</li><li>Quais condições políticas, econômicas ou sociais podem ser favoráveis para o enfrentamento do problema? Existem programas/atividades/projetos aos quais podemos aderir?</li><li>Como nossa relação com outros atores/órgãos pode nos auxiliar no enfrentamento do problema (Cosems, SES, MS, etc.)?</li></ul>"
+        },
+        {
+          "letra": "T", "titulo": "Ameaças", "subtitulo": "Threats", "cor": "#B7423A", "corTexto": "#FFFFFF",
+          "texto": "<p><b>Para descobrir as Ameaças, podemos nos perguntar:</b></p><ul><li>Existem condições políticas, econômicas, sanitárias ou sociais que podem ser ameaças para o enfrentamento do problema?</li><li>Como nossa relação com outros atores/órgãos pode nos prejudicar no enfrentamento do problema (Cosems, SES, MS, etc.)?</li></ul>"
+        }
+      ]
+    }
+  </script>
+</div>
+
+<script>
+  (function () {
+    if (window.NeadMatrizSwot) {
+      window.NeadMatrizSwot.initAll();
+      return;
+    }
+    var SVG_NS = 'http://www.w3.org/2000/svg';
+
+    function svgEl(tag, attrs, texto) {
+      var el = document.createElementNS(SVG_NS, tag);
+      Object.keys(attrs || {}).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+      if (texto != null) el.textContent = texto;
+      return el;
+    }
+    function criar(tag, classe, html) {
+      var el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (html != null) el.innerHTML = html;
+      return el;
+    }
+    // Texto com quebra de linha (\n) centralizado em (x, y)
+    function linhas(grupo, texto, x, y, classe, passo) {
+      var partes = String(texto || '').split('\n');
+      var inicio = y - ((partes.length - 1) * passo) / 2;
+      partes.forEach(function (p, i) {
+        grupo.appendChild(svgEl('text', { class: classe, x: x, y: inicio + i * passo, 'text-anchor': 'middle', 'dominant-baseline': 'middle' }, p));
+      });
+    }
+    function textoPlano(t) { return String(t || '').replace(/\n/g, ' '); }
+
+    // Uma janela (dialog) compartilhada por todas as matrizes da página
+    var janela, janelaTopo, janelaLetra, janelaTitulo, janelaCorpo, origem;
+    function obterJanela() {
+      if (janela) return janela;
+      janela = criar('dialog', 'nead-sw__janela');
+      janela.setAttribute('aria-labelledby', 'nead-sw-janela-titulo');
+      janelaTopo = criar('div', 'nead-sw__janela-topo');
+      janelaLetra = criar('span', 'nead-sw__janela-letra');
+      janelaLetra.setAttribute('aria-hidden', 'true');
+      janelaTitulo = criar('h3', 'nead-sw__janela-titulo');
+      janelaTitulo.id = 'nead-sw-janela-titulo';
+      var fechar = criar('button', 'nead-sw__fechar', '&times;');
+      fechar.type = 'button';
+      fechar.setAttribute('aria-label', 'Fechar');
+      fechar.addEventListener('click', function () { janela.close(); });
+      janelaTopo.append(janelaLetra, janelaTitulo, fechar);
+      janelaCorpo = criar('div', 'nead-sw__janela-corpo');
+      janela.append(janelaTopo, janelaCorpo);
+      // Clique no fundo escurecido (fora da caixa) fecha
+      janela.addEventListener('click', function (e) {
+        var r = janela.getBoundingClientRect();
+        var fora = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+        if (fora && e.target === janela) janela.close();
+      });
+      janela.addEventListener('close', function () {
+        if (origem && document.contains(origem)) origem.focus();
+      });
+      document.body.appendChild(janela);
+      return janela;
+    }
+    function abrir(item, gatilho) {
+      var j = obterJanela();
+      j.style.setProperty('--nead-sw-cor', item.cor || '#D9D9D9');
+      j.style.setProperty('--nead-sw-cor-texto', item.corTexto || '#171717');
+      janelaLetra.textContent = item.letra || '';
+      janelaTitulo.textContent = textoPlano(item.titulo);
+      janelaCorpo.innerHTML = item.texto || '';
+      janelaCorpo.scrollTop = 0;
+      origem = gatilho;
+      // O dialog devolve o foco a quem estava focado ao abrir: garante que seja a parte clicada
+      if (typeof gatilho.focus === 'function') gatilho.focus({ preventScroll: true });
+      if (j.open) j.close();
+      if (typeof j.showModal === 'function') j.showModal(); else j.setAttribute('open', '');
+      gatilho.classList.add('is-visto');
+    }
+
+    function montar(raiz) {
+      if (raiz.__neadSwPronto) return;
+      var configEl = raiz.querySelector('.nead-sw__config');
+      var cfg;
+      try {
+        cfg = JSON.parse(configEl.textContent);
+      } catch (erro) {
+        raiz.textContent = 'Matriz SWOT: o JSON de configuração está inválido.';
+        console.error('[nead-sw] JSON inválido', erro);
+        return;
+      }
+      raiz.__neadSwPronto = true;
+      configEl.remove();
+
+      var fatores = cfg.fatores || ['Fatores\nPositivos', 'Fatores\nNegativos'];
+      var ambientes = cfg.ambientes || [];
+      var quadrantes = cfg.quadrantes || [];
+
+      if (cfg.instrucao) raiz.appendChild(criar('p', 'nead-sw__instrucao', cfg.instrucao));
+      var svg = svgEl('svg', { class: 'nead-sw__svg', viewBox: '0 0 770 470', preserveAspectRatio: 'xMidYMid meet', role: 'group', 'aria-label': 'Matriz SWOT interativa' });
+
+      // Cabeçalhos do topo (não clicáveis, como no original)
+      var topo = svgEl('g');
+      [[150, '#E8EBEA'], [460, '#CFCFCF']].forEach(function (c, i) {
+        topo.appendChild(svgEl('rect', { x: c[0], y: 0, width: 310, height: 110, rx: 18, fill: c[1] }));
+        linhas(topo, fatores[i], c[0] + 155, 55, 'nead-sw__topo', 30);
+      });
+      svg.appendChild(topo);
+
+      function parte(item, rotulo) {
+        var g = svgEl('g', { class: 'nead-sw__parte', tabindex: '0', role: 'button', 'aria-haspopup': 'dialog', 'aria-label': rotulo });
+        g.addEventListener('click', function () { abrir(item, g); });
+        g.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(item, g); }
+        });
+        return g;
+      }
+
+      // Laterais: Ambiente interno / externo (texto girado)
+      [110, 290].forEach(function (y, i) {
+        var amb = ambientes[i] || {};
+        var g = parte({ titulo: amb.titulo, texto: amb.texto, cor: '#D9D9D9', corTexto: '#171717' }, 'Abrir ' + textoPlano(amb.titulo));
+        g.appendChild(svgEl('rect', { x: 0, y: y, width: 150, height: 180, rx: 18, fill: '#D9D9D9' }));
+        var girado = svgEl('g', { transform: 'translate(75,' + (y + 90) + ') rotate(-90)' });
+        linhas(girado, amb.titulo, 0, 0, 'nead-sw__lado-titulo', 30);
+        g.appendChild(girado);
+        svg.appendChild(g);
+      });
+
+      // Quadrantes S, W, O, T
+      [[150, 110], [460, 110], [150, 290], [460, 290]].forEach(function (pos, i) {
+        var q = quadrantes[i] || {};
+        var cor = q.cor || '#999999', corTexto = q.corTexto || '#FFFFFF';
+        var g = parte(q, 'Abrir ' + textoPlano(q.titulo));
+        g.appendChild(svgEl('rect', { x: pos[0], y: pos[1], width: 310, height: 180, rx: 18, fill: cor }));
+        g.appendChild(svgEl('text', { class: 'nead-sw__letra', x: pos[0] + 58, y: pos[1] + 90, fill: corTexto, 'text-anchor': 'middle', 'dominant-baseline': 'middle' }, q.letra || ''));
+        g.appendChild(svgEl('text', { class: 'nead-sw__titulo', x: pos[0] + 100, y: pos[1] + 75, fill: corTexto, 'dominant-baseline': 'middle' }, textoPlano(q.titulo)));
+        g.appendChild(svgEl('text', { class: 'nead-sw__subtitulo', x: pos[0] + 100, y: pos[1] + 108, fill: corTexto, 'dominant-baseline': 'middle' }, q.subtitulo || ''));
+        svg.appendChild(g);
+      });
+
+      raiz.appendChild(svg);
+      if (cfg.legenda) raiz.appendChild(criar('p', 'nead-sw__legenda', cfg.legenda));
+    }
+
+    window.NeadMatrizSwot = {
+      initAll: function (escopo) { (escopo || document).querySelectorAll('.nead-sw').forEach(montar); }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { window.NeadMatrizSwot.initAll(); });
+    } else {
+      window.NeadMatrizSwot.initAll();
+    }
+  })();
+</script>

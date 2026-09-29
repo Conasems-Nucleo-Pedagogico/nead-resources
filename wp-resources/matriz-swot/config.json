@@ -1,0 +1,24 @@
+{
+  "type": "hotspot",
+  "titulo": "MATRIZ SWOT (FOFA)",
+  "conteudo": "Matriz clicável com Forças, Fraquezas, Oportunidades e Ameaças, os cabeçalhos de fatores positivos e negativos e as laterais de ambiente interno e externo. Cada parte abre uma janela com a explicação ou as perguntas que orientam a análise.",
+  "observacao": "Serve para qualquer análise de situação-problema no planejamento em saúde. A janela fecha no X, com a tecla Esc ou clicando fora dela.",
+  "notasDev": "SVG gerado pelo motor a partir do JSON (fatores, ambientes com titulo/texto, quadrantes com letra/titulo/subtitulo/cor/corTexto/texto), com a mesma geometria do original (viewBox 770×470). As janelas usam <dialog> nativo compartilhado por todas as matrizes da página, com foco devolvido à parte clicada. No curso original cada parte abria um popup do Elementor (IDs 44419–44434 em data-popup-ids); aqui não precisa.",
+  "img": "wp-resources/matriz-swot/preview.webp",
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 11180,
+      "tipo": "curso",
+      "nota": "Origem da demo (Figura 2 – Análise do Problema); conteúdo das janelas vinha de 6 popups do Elementor"
+    },
+    {
+      "repo": "conasems-scripts",
+      "arquivo": "Cuidado/Disciplina 14/matriz.html",
+      "linha": 1,
+      "tipo": "prototipo"
+    }
+  ]
+}
