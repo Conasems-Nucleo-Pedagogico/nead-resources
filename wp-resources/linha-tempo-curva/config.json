@@ -1,0 +1,18 @@
+{
+  "type": "sequence",
+  "titulo": "LINHA DO TEMPO CURVA",
+  "conteudo": "Uma linha curva ascendente é desenhada quando o bloco chega à tela. Em seguida, os pontos da linha acendem um a um, cada um com seu cartão de ícone e texto, e no fim aparece o texto de fechamento. Boa para mostrar uma progressão ou um raciocínio em etapas. No celular, a curva vira uma linha vertical com os cartões empilhados.",
+  "observacao": "Aceita de 2 a 6 cartões. A animação acontece uma vez, no ritmo de leitura (um cartão por segundo, ajustável).",
+  "notasDev": "Cada linha é um <div class=\"nead-lc\"> com JSON (introducao, itens com icone/titulo/texto, fechamento, duracaoLinha, intervalo, seta, cores). Curva e seta do SVG original (viewBox 1200×355) desenhadas com stroke-dashoffset; as paradas são posicionadas sobre a curva acima do centro real de cada cartão (getPointAtLength). Empilha quando o bloco tem menos de 700 px ou menos de 220 px por coluna. Substitui o script com querySelector global (uma instância por página) e o bloco separado do celular feito com o Premium SVG Drawer.",
+  "img": "wp-resources/linha-tempo-curva/preview.webp",
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-4/index.html",
+      "linha": 8765,
+      "tipo": "curso",
+      "nota": "FinanceTimeline (#cuidadoD4FinanceTimelineContainer), só no computador; no celular, bloco separado com Premium SVG Drawer (linha 9059). Origem do exemplo e dos ícones"
+    }
+  ]
+}
