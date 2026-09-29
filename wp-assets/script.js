@@ -107,7 +107,7 @@ async function getAvailableResources() {
         }
 
         console.log('🔍 Tentando carregar:', window.location.origin + '/wp-resources/index.json');
-        const response = await fetch('wp-resources/index.json');
+        const response = await fetch('wp-resources/index.json', { cache: 'no-cache' });
         
         if (!response.ok) {
             throw new Error(`Erro HTTP ao carregar index.json: ${response.status} - ${response.statusText}`);
@@ -163,7 +163,7 @@ async function loadCards() {
         const cards = await Promise.all(
             recursos.map(async (recurso) => {
                 try {
-                    const response = await fetch(`wp-resources/${recurso}/config.json`);
+                    const response = await fetch(`wp-resources/${recurso}/config.json`, { cache: 'no-cache' });
                     if (!response.ok) {
                         throw new Error(`Erro ao carregar ${recurso}: ${response.status}`);
                     }
@@ -445,7 +445,7 @@ function handleResourceClick(resourceId, cardTitle, button) {
 async function loadResourceDemo(resourceId) {
     try {
         // Verificar se existe arquivo de demonstração
-        const config = await fetch(`wp-resources/${resourceId}/config.json`).then(r => r.json());
+        const config = await fetch(`wp-resources/${resourceId}/config.json`, { cache: 'no-cache' }).then(r => r.json());
         
         if (config.src) {
             // Se tiver src definido, carregar o arquivo
@@ -576,13 +576,13 @@ async function abrirPainelVisualizacao(resourceId, cardTitle) {
 
     // Carregar conteúdo do recurso
     try {
-        const response = await fetch(`wp-resources/${resourceId}/config.json`);
+        const response = await fetch(`wp-resources/${resourceId}/config.json`, { cache: 'no-cache' });
         const config = await response.json();
 
         if (config.src && config.src.trim() !== '') {
             // Se tem src definido, carregar o conteúdo
             try {
-                const srcResponse = await fetch(`wp-resources/${resourceId}/${config.src}`);
+                const srcResponse = await fetch(`wp-resources/${resourceId}/${config.src}`, { cache: 'no-cache' });
                 if (srcResponse.ok) {
                     const srcContent = await srcResponse.text();
                     
