@@ -1,274 +1,662 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
- 
+<!--
+  ARRASTA E SOLTA (ASSOCIAÇÃO) — NEAD
+  O estudante arrasta cada resposta do banco até a linha correspondente (ou toca na resposta e
+  depois na linha). Em "Conferir", todas as linhas são corrigidas de uma vez: contorno verde ou
+  vermelho, placar e gabarito numa janela. "Refazer" devolve tudo ao banco, em nova ordem.
+  Em espaços estreitos (celular), o arrastar vira uma lista de seleção em cada linha; a resposta
+  já usada some das outras listas.
 
-    h1 {
-      text-align: center;
-    }
-
-    .grid {
-      display: block;
-    }
-
-    .grid-container {
-  display: flex;
-  width: 100%;
-  gap: 10px;
-  box-sizing: border-box;
-}
-
-.grid-col {
-  width: 50%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
-
-
-    .quadro, .resposta {
-      background-color: #ffffff;
-      border: 2px dashed #ccc;
-      padding: 10px;
-      margin: 5px;
-      border-radius: 8px;
-      overflow-y: auto;
-      font-family: "Montserrat", Sans-serif;
-    font-size: 18px;
-    font-weight: 400;
-    color: #000000;
-    }
-
-    .quadro.over {
-      background-color: #e0f7fa;
-    }
-
-    .resposta {
-      margin-top: 15px;
-      background-color: #e3f2fd;
-      cursor: move;
-      border: 2px solid #ff7117;
-    }
-
-    .resposta.dragging {
-      opacity: 0.5;
-    }
-
-    strong {
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    @media (max-width: 1000px) {
-  #respostaGrid {
-    display: none;
-  }
-
-  .quadro select {
-    margin-top: 10px;
-    padding: 8px;
-    font-size: 16px;
+  Como usar no Elementor: cole este bloco inteiro em um widget "HTML".
+  Para editar, altere só o JSON dentro de <script class="nead-dd__config">:
+    - "instrucao": texto (HTML) acima da atividade
+    - "respostas": o banco de respostas, cada uma com "id", "texto" e, se quiser, "rotulo"
+      (nome mais completo usado no gabarito). Pode haver respostas a mais, que não servem a nenhuma linha.
+    - "linhas": cada uma com "texto" (HTML), "resposta" (o "id" certo) e, se quiser,
+      "comentario" (HTML mostrado no gabarito, logo abaixo da linha)
+    - "embaralhar": true mistura o banco ao abrir e a cada "Refazer"
+    - "larguraResposta": largura da coluna das respostas no computador (ex.: "220px" ou "45%")
+    - "mensagens": títulos e textos da janela de acerto e de erro, e o aviso de linhas vazias
+  Pode haver várias atividades na mesma página: repita só o bloco <div class="nead-dd">...</div>.
+-->
+<style>
+  .nead-dd {
+    --nead-dd-laranja: #FF7117;
+    --nead-dd-item: #E3F2FD;
+    --nead-dd-texto: #111111;
+    --nead-dd-certo: #22C55E;
+    --nead-dd-errado: #EF4444;
+    --nead-dd-zona: 220px;
+    box-sizing: border-box;
     width: 100%;
+    margin: 0 auto 40px;
+    color: var(--nead-dd-texto);
+    font-family: "Montserrat", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.45;
+  }
+  .nead-dd *, .nead-dd *::before, .nead-dd *::after { box-sizing: border-box; }
+  .nead-dd__instrucao { margin: 0 0 18px; }
+  .nead-dd__instrucao p { margin: 0 0 8px; }
+
+  /* Banco de respostas */
+  .nead-dd__banco {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    min-height: 64px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 2px dashed transparent;
+    border-radius: 10px;
+    background: #F6F7F9;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .nead-dd__banco:empty::before {
+    content: attr(data-vazio);
+    grid-column: 1 / -1;
+    align-self: center;
+    color: #6B7280;
+    font-size: 15px;
+    text-align: center;
   }
 
-  .grid-col {
-  width: 500%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
-}
-
-
-  </style>
-
-
-  <!-- Quadros -->
-  <div class="grid-container" id="quadroGrid">
-    <div class="grid-col" id="quadroGrid">
-        <div class="quadro" data-resposta="item1">
-      <strong>Quadro 1:</strong>
-      Um usuário chega à unidade de saúde para se vacinar contra a Covid-19, com receios sobre a vacina e apreensivo, com medo de que algo pudesse dar errado. Ansioso e resistente, durante a aplicação, ele desistiu da vacinação. Interrompeu o procedimento ao levantar-se antes da conclusão.
-    </div>
-    <div class="quadro" data-resposta="item2">
-      <strong>Quadro 2:</strong>
-      Senhor de 65 anos recebe a vacina contra a Dengue devido a uma prescrição médica.
-    </div>
-    <div class="quadro" data-resposta="item3">
-      <strong>Quadro 3:</strong>
-      Vacina BCG é administrada a uma criança prematura com peso inferior a 2 kg.
-    </div>
-    <div class="quadro" data-resposta="item4">
-      <strong>Quadro 4:</strong>
-      Idoso de 89 anos foi conduzido à unidade de saúde pelo filho para se vacinar contra a covid-19, mas recebeu, por engano, a vacina contra a influenza.
-    </div>
-    <div class="quadro" data-resposta="item5">
-      <strong>Quadro 5:</strong>
-      A administração da vacina penta aos 2, 4 e 6 meses de idade.
-    </div>
-    <div class="quadro" data-resposta="item6">
-      <strong>Quadro 6:</strong>
-      Uma gestante no final do 1º trimestre buscou a unidade de saúde para completar o esquema de difteria e tétano. No momento da aplicação, se esqueceu de informar que estava da 13ª semana...
-    </div>
-    </div>
-
-  <!-- Respostas -->
-  <div class="grid-col" id="respostaGrid">    
-    <div class="resposta" draggable="true" id="item1">
-      Um acolhimento adequado com calma e empatia, buscando identificar as necessidades do usuário e suas dúvidas e esclarecê-las de forma simples e respeitosa.
-    </div>
-    <div class="resposta" draggable="true" id="item2">
-      Ocorreu um uso off-label.
-    </div>
-    <div class="resposta" draggable="true" id="item3">
-      Trata-se de um erro de imunização.
-    </div>
-    <div class="resposta" draggable="true" id="item4">
-      Trata-se de um erro de imunização. Diante do caso, deve-se informar o idoso e seu filho sobre o equívoco... e notificar o erro no sistema.
-    </div>
-    <div class="resposta" draggable="true" id="item5">
-      Trata-se de uma prática correta e adequada, já que segue as recomendações do fabricante e do PNI.
-    </div>
-    <div class="resposta" draggable="true" id="item6">
-      A responsável pela vacinação pode evitar o erro de imunização e se desculpar-se pelo equívoco. Nesse caso foi preparada a dT, que era a vacina indicada.
-    </div>
-  </div>
-
-  
-    
-  </div>
-
-  <script>
-    const respostas = document.querySelectorAll('.resposta');
-    const quadros = document.querySelectorAll('.quadro');
-    let itemArrastado = null;
-
-    const feedbacks = {
-      item1: `Parabéns, você acertou!\nUma das etapas do processo de imunização é o acolhimento e nela deve ser criada uma relação de confiança entre todos os envolvidos no processo de vacinação...`,
-      item2: `Parabéns, você acertou!\nA Anvisa aprovou a vacina dengue (atenuada) para pessoas entre 4 e 60 anos...`,
-      item3: `Parabéns, você acertou!\nA decisão do PNI de adiar a vacinação com a BCG em crianças com peso inferior a 2 kg...`,
-      item4: `Parabéns, você acertou!\nDiante do erro ocorrido, é fundamental agir de forma rápida e segura...`,
-      item5: `Parabéns, você acertou!\nClique aqui e veja, no Calendário Nacional de Vacinação...`,
-      item6: `Parabéns, você acertou!\nEsse exemplo ilustra como a comunicação clara e detalhada é indispensável...`
-    };
-    
-
-    respostas.forEach(resposta => {
-      resposta.addEventListener('dragstart', () => {
-        itemArrastado = resposta;
-        resposta.classList.add('dragging');
-      });
-
-      resposta.addEventListener('dragend', () => {
-        itemArrastado = null;
-        resposta.classList.remove('dragging');
-      });
-    });
-
-    quadros.forEach(quadro => {
-      quadro.addEventListener('dragover', e => {
-        e.preventDefault();
-        quadro.classList.add('over');
-      });
-
-      quadro.addEventListener('dragleave', () => {
-        quadro.classList.remove('over');
-      });
-
-      quadro.addEventListener('drop', () => {
-        quadro.classList.remove('over');
-        if (itemArrastado) {
-          const respostaEsperada = quadro.dataset.resposta;
-          if (itemArrastado.id === respostaEsperada) {
-            quadro.appendChild(itemArrastado);
-            mostrarFeedback(itemArrastado.id, true);
-          } else {
-            mostrarFeedback(itemArrastado.id, false);
-          }
-        }
-      });
-    });
-
-    function mostrarFeedback(id, correto) {
-        // Escolhe o texto apropriado
-        const texto = correto
-            ? feedbacks[id] || 'Nenhum feedback disponível.'
-            : 'Ops! Essa resposta está incorreta. Tente novamente com atenção.';
-
-        // Aguarda o widget estar carregado dentro do popup
-        const intervalo = setInterval(() => {
-            const widget = document.getElementById('textoDragDrop');
-            if (widget) {
-            widget.innerHTML = texto.replace(/\n/g, '<br>');
-            clearInterval(intervalo);
-            }
-        }, 100);
-
-        // Abre o popup com ID 36884
-        if (typeof elementorProFrontend !== 'undefined') {
-            elementorProFrontend.modules.popup.showPopup({ id: 36884 });
-        } else {
-            console.warn("Elementor Pro não carregado.");
-        }
-        }
-
-        function isMobile() {
-    return window.innerWidth <= 1000;
+  /* Resposta (também usada no "fantasma" que segue o dedo/mouse) */
+  .nead-dd__item, .nead-dd__fantasma {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+    padding: 10px 12px;
+    border: 2px solid #FF7117;
+    border-radius: 8px;
+    background: #E3F2FD;
+    color: #111111;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.35;
+    text-align: left;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+  .nead-dd__item::before, .nead-dd__fantasma::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 12px;
+    height: 18px;
+    background: radial-gradient(circle, #FF7117 1.6px, transparent 2px) 0 0 / 6px 6px;
+  }
+  .nead-dd__item:hover { filter: brightness(0.97); }
+  .nead-dd__item:focus-visible { outline: 3px solid #1D4ED8; outline-offset: 2px; }
+  .nead-dd__item.is-arrastando { opacity: 0.35; }
+  .nead-dd__item.is-escolhido { box-shadow: 0 0 0 3px #1D4ED8; }
+  .nead-dd__fantasma {
+    position: fixed;
+    z-index: 2147483000;
+    top: 0;
+    left: 0;
+    font-family: "Montserrat", Arial, sans-serif;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+    pointer-events: none;
+    cursor: grabbing;
+    transform: rotate(-1.5deg);
   }
 
-  if (isMobile()) {
-    const respostasTextos = {
-      item1: "Um acolhimento adequado com calma e empatia...",
-      item2: "Ocorreu um uso off-label.",
-      item3: "Trata-se de um erro de imunização.",
-      item4: "Trata-se de um erro de imunização. Diante do caso...",
-      item5: "Trata-se de uma prática correta e adequada...",
-      item6: "A responsável pela vacinação pode evitar o erro..."
-    };
+  /* Linhas: espaço da resposta + texto */
+  .nead-dd__linhas { display: grid; gap: 14px; }
+  .nead-dd__linha {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--nead-dd-zona) 1fr;
+    gap: 12px;
+    align-items: stretch;
+  }
+  .nead-dd__zona {
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+    padding: 6px;
+    border: 2px dashed #C8C8C8;
+    border-radius: 8px;
+    background: #FFFFFF;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+  }
+  .nead-dd__zona:focus-visible { outline: 3px solid #1D4ED8; outline-offset: 2px; }
+  .nead-dd__zona.is-sobre, .nead-dd__banco.is-sobre { border-color: #0EA5E9; background: #E0F7FA; }
+  .nead-dd.is-escolhendo .nead-dd__zona:not(.is-sobre) { border-color: #93C5FD; }
+  .nead-dd__texto {
+    padding: 12px 14px;
+    border: 2px dashed #C8C8C8;
+    border-radius: 8px;
+    background: #FFFFFF;
+  }
+  .nead-dd__texto p { margin: 0; }
+  .nead-dd__select {
+    display: none;
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #C8C8C8;
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: #111111;
+    font: inherit;
+    font-size: 16px;
+  }
+  .nead-dd__marca {
+    position: absolute;
+    top: -9px;
+    left: -9px;
+    display: none;
+    width: 26px;
+    height: 26px;
+    place-items: center;
+    border-radius: 50%;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .nead-dd__linha.is-certo .nead-dd__zona,
+  .nead-dd__linha.is-certo .nead-dd__select { border: 3px solid var(--nead-dd-certo); }
+  .nead-dd__linha.is-errado .nead-dd__zona,
+  .nead-dd__linha.is-errado .nead-dd__select { border: 3px solid var(--nead-dd-errado); }
+  .nead-dd__linha.is-certo .nead-dd__marca { display: grid; background: var(--nead-dd-certo); }
+  .nead-dd__linha.is-errado .nead-dd__marca { display: grid; background: var(--nead-dd-errado); }
+  .nead-dd__linha.is-certo .nead-dd__marca::before { content: "\2713"; }
+  .nead-dd__linha.is-errado .nead-dd__marca::before { content: "\2715"; }
 
-    const quadroElements = document.querySelectorAll('.quadro');
+  /* Aviso e botões */
+  .nead-dd__aviso { min-height: 1.4em; margin: 14px 0 0; color: #B91C1C; font-size: 15px; font-weight: 600; }
+  .nead-dd__acoes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .nead-dd__botao {
+    padding: 11px 22px;
+    border: 0;
+    border-radius: 8px;
+    color: #FFFFFF;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .nead-dd__botao:hover { filter: brightness(1.08); }
+  .nead-dd__botao:focus-visible { outline: 3px solid #1D4ED8; outline-offset: 2px; }
+  .nead-dd__botao--conferir { background: var(--nead-dd-laranja); }
+  .nead-dd__botao--refazer { background: #111827; }
 
-    quadroElements.forEach(quadro => {
-      const select = document.createElement('select');
-      select.innerHTML = `<option value="">Selecione uma resposta</option>`;
+  /* Espaço estreito (celular): lista de seleção no lugar do arrastar */
+  .nead-dd.is-compacto .nead-dd__banco,
+  .nead-dd.is-compacto .nead-dd__zona { display: none; }
+  .nead-dd.is-compacto .nead-dd__linha { grid-template-columns: 1fr; gap: 8px; }
+  .nead-dd.is-compacto .nead-dd__select { display: block; }
 
-      // Cria opções
-      Object.entries(respostasTextos).forEach(([id, texto]) => {
-        const option = document.createElement('option');
-        option.value = id;
-        option.textContent = texto;
-        select.appendChild(option);
+  /* Janela de resultado (dialog nativo, uma por página) */
+  .nead-dd__janela {
+    width: min(640px, calc(100vw - 32px));
+    max-height: calc(100vh - 48px);
+    padding: 0;
+    border: 0;
+    border-radius: 18px;
+    background: #FFFFFF;
+    color: #111111;
+    font-family: "Montserrat", Arial, sans-serif;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+  }
+  .nead-dd__janela::backdrop { background: rgba(15, 23, 42, 0.55); }
+  .nead-dd__janela[open] { display: flex; flex-direction: column; animation: nead-dd-abrir 0.25s ease both; }
+  @keyframes nead-dd-abrir { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: none; } }
+  .nead-dd__janela-topo { display: flex; align-items: center; gap: 12px; padding: 18px 18px 18px 24px; background: #F8D7DA; }
+  .nead-dd__janela.is-acerto .nead-dd__janela-topo { background: #D4EDDA; }
+  .nead-dd__janela-titulo { flex: 1; margin: 0; font-size: 21px; font-weight: 800; line-height: 1.25; }
+  .nead-dd__fechar {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    color: #111111;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .nead-dd__fechar:focus-visible { outline: 3px solid #1D4ED8; outline-offset: 2px; }
+  .nead-dd__janela-corpo { flex: 1; padding: 20px 24px; overflow: auto; font-size: 16px; line-height: 1.55; }
+  .nead-dd__placar { margin: 0 0 12px; font-size: 18px; font-weight: 800; }
+  .nead-dd__janela-corpo p { margin: 0 0 12px; }
+  .nead-dd__gabarito { margin: 0; padding-left: 20px; }
+  .nead-dd__gabarito li { margin-bottom: 10px; }
+  .nead-dd__gabarito li.is-errado::marker { color: var(--nead-dd-errado, #EF4444); }
+  .nead-dd__comentario { margin-top: 4px; color: #374151; font-size: 15px; }
+  .nead-dd__janela-rodape { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 24px 20px; }
+  .nead-dd__janela .nead-dd__botao--fechar { background: #FF7117; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nead-dd__janela[open] { animation: none; }
+    .nead-dd__fantasma { transform: none; }
+  }
+</style>
+
+<div class="nead-dd">
+  <script type="application/json" class="nead-dd__config">
+    {
+      "instrucao": "<p>Analise as ações a seguir e identifique a <b>qual momento do PES</b> cada uma delas se refere. Para isso, arraste os “momentos” abaixo até a ação que considera adequada. Em seguida, clique em “<b>Conferir</b>”:</p>",
+      "respostas": [
+        { "id": "m1", "texto": "Explicativo (M1)", "rotulo": "Momento Explicativo (M1)" },
+        { "id": "m2", "texto": "Normativo (M2)", "rotulo": "Momento Normativo (M2)" },
+        { "id": "m3", "texto": "Estratégico (M3)", "rotulo": "Momento Estratégico (M3)" },
+        { "id": "m4", "texto": "Tático-Operacional (M4)", "rotulo": "Momento Tático-Operacional (M4)" }
+      ],
+      "linhas": [
+        { "texto": "Definir os responsáveis pela execução das ações do plano.", "resposta": "m3" },
+        { "texto": "Definir os procedimentos de avaliação para monitorar a execução das ações e a adequação do plano (saber se o que foi proposto realmente está adequado aos objetivos).", "resposta": "m4" },
+        { "texto": "Identificar os problemas e os fatores que contribuem para tal problema. Definir prioridades de intervenção.", "resposta": "m1" },
+        { "texto": "Definir estratégias/planos de ação que podem ser seguidos para resolver os problemas.", "resposta": "m2" }
+      ],
+      "embaralhar": true,
+      "larguraResposta": "240px",
+      "mensagens": {
+        "acerto": { "titulo": "Parabéns! Você acertou!", "texto": "Estes são os momentos e as respectivas ações:" },
+        "erro": { "titulo": "Ops! Desta vez você errou!", "texto": "Confira quais são os momentos e suas respectivas ações:" },
+        "incompleto": "Associe uma resposta a cada ação antes de conferir."
+      }
+    }
+  </script>
+</div>
+
+<script>
+  (function () {
+    if (window.NeadDragDrop) {
+      window.NeadDragDrop.initAll();
+      return;
+    }
+    var LARGURA_COMPACTA = 600;
+
+    function criar(tag, classe, html) {
+      var el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (html != null) el.innerHTML = html;
+      return el;
+    }
+    function embaralhar(lista) {
+      var a = lista.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+    function textoPlano(html) {
+      var d = document.createElement('div');
+      d.innerHTML = html || '';
+      return (d.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    // Uma janela (dialog) compartilhada por todas as atividades da página
+    var janela, janelaTitulo, janelaCorpo, botaoRefazerJanela, aoRefazer, origem;
+    function obterJanela() {
+      if (janela) return janela;
+      janela = criar('dialog', 'nead-dd__janela');
+      janela.setAttribute('aria-labelledby', 'nead-dd-janela-titulo');
+      var topo = criar('div', 'nead-dd__janela-topo');
+      janelaTitulo = criar('h3', 'nead-dd__janela-titulo');
+      janelaTitulo.id = 'nead-dd-janela-titulo';
+      var fechar = criar('button', 'nead-dd__fechar', '&times;');
+      fechar.type = 'button';
+      fechar.setAttribute('aria-label', 'Fechar');
+      fechar.addEventListener('click', function () { janela.close(); });
+      topo.append(janelaTitulo, fechar);
+      janelaCorpo = criar('div', 'nead-dd__janela-corpo');
+      var rodape = criar('div', 'nead-dd__janela-rodape');
+      botaoRefazerJanela = criar('button', 'nead-dd__botao nead-dd__botao--refazer', 'Refazer');
+      botaoRefazerJanela.type = 'button';
+      botaoRefazerJanela.addEventListener('click', function () {
+        var acao = aoRefazer;
+        janela.close();
+        if (acao) acao();
+      });
+      var ok = criar('button', 'nead-dd__botao nead-dd__botao--fechar', 'Fechar');
+      ok.type = 'button';
+      ok.addEventListener('click', function () { janela.close(); });
+      rodape.append(botaoRefazerJanela, ok);
+      janela.append(topo, janelaCorpo, rodape);
+      janela.addEventListener('click', function (e) {
+        if (e.target !== janela) return;
+        var r = janela.getBoundingClientRect();
+        if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) janela.close();
+      });
+      janela.addEventListener('close', function () {
+        if (origem && document.contains(origem)) origem.focus({ preventScroll: true });
+      });
+      document.body.appendChild(janela);
+      return janela;
+    }
+    function abrirJanela(dados, gatilho, refazer) {
+      var j = obterJanela();
+      j.classList.toggle('is-acerto', dados.acerto);
+      janelaTitulo.textContent = dados.titulo;
+      janelaCorpo.innerHTML = '';
+      janelaCorpo.append(dados.corpo);
+      janelaCorpo.scrollTop = 0;
+      aoRefazer = refazer;
+      botaoRefazerJanela.hidden = dados.acerto;
+      origem = gatilho;
+      if (j.open) j.close();
+      if (typeof j.showModal === 'function') j.showModal(); else j.setAttribute('open', '');
+    }
+
+    function montar(raiz) {
+      if (raiz.__neadDdPronto) return;
+      var configEl = raiz.querySelector('.nead-dd__config');
+      var cfg;
+      try {
+        cfg = JSON.parse(configEl.textContent);
+      } catch (erro) {
+        raiz.textContent = 'Arrasta e solta: o JSON de configuração está inválido.';
+        console.error('[nead-dd] JSON inválido', erro);
+        return;
+      }
+      raiz.__neadDdPronto = true;
+      configEl.remove();
+
+      var respostas = cfg.respostas || [];
+      var linhasCfg = cfg.linhas || [];
+      var msg = cfg.mensagens || {};
+      var msgAcerto = msg.acerto || { titulo: 'Parabéns! Você acertou!', texto: '' };
+      var msgErro = msg.erro || { titulo: 'Ops! Desta vez você errou!', texto: 'Confira as respostas corretas:' };
+      var porId = {};
+      respostas.forEach(function (r) { porId[r.id] = r; });
+      if (cfg.larguraResposta) raiz.style.setProperty('--nead-dd-zona', cfg.larguraResposta);
+
+      // estado[i] = id da resposta colocada na linha i (ou null)
+      var estado = linhasCfg.map(function () { return null; });
+      var ordemBanco = cfg.embaralhar ? embaralhar(respostas) : respostas.slice();
+      var escolhido = null; // resposta tocada/clicada, esperando o destino
+
+      if (cfg.instrucao) raiz.appendChild(criar('div', 'nead-dd__instrucao', cfg.instrucao));
+
+      var banco = criar('div', 'nead-dd__banco');
+      banco.setAttribute('role', 'group');
+      banco.setAttribute('aria-label', 'Respostas para arrastar');
+      banco.dataset.vazio = 'Todas as respostas foram usadas. Arraste uma de volta para cá se quiser trocar.';
+      raiz.appendChild(banco);
+
+      var itens = {};
+      respostas.forEach(function (r) {
+        var b = criar('button', 'nead-dd__item');
+        b.type = 'button';
+        b.textContent = r.texto;
+        b.dataset.id = r.id;
+        itens[r.id] = b;
       });
 
-      // Evento ao selecionar uma resposta
-      select.addEventListener('change', function () {
-        if (!this.value) return;
-
-        const respostaEsperada = quadro.dataset.resposta;
-        const selecionado = this.value;
-
-        mostrarFeedback(selecionado, selecionado === respostaEsperada);
-
-        // Remove opção escolhida dos outros selects
-        document.querySelectorAll('select').forEach(outroSelect => {
-          if (outroSelect !== this) {
-            const opt = outroSelect.querySelector(`option[value="${selecionado}"]`);
-            if (opt) opt.remove();
+      var lista = criar('div', 'nead-dd__linhas');
+      var linhas = linhasCfg.map(function (l, i) {
+        var linha = criar('div', 'nead-dd__linha');
+        var marca = criar('span', 'nead-dd__marca');
+        marca.setAttribute('aria-hidden', 'true');
+        var zona = criar('div', 'nead-dd__zona');
+        zona.tabIndex = 0;
+        zona.setAttribute('role', 'button');
+        zona.setAttribute('aria-label', 'Espaço da resposta ' + (i + 1) + ': ' + textoPlano(l.texto));
+        zona.dataset.linha = i;
+        var texto = criar('div', 'nead-dd__texto', l.texto);
+        var select = criar('select', 'nead-dd__select');
+        select.setAttribute('aria-label', 'Resposta para: ' + textoPlano(l.texto));
+        select.appendChild(new Option('Selecione uma resposta', ''));
+        respostas.forEach(function (r) { select.appendChild(new Option(r.texto, r.id)); });
+        select.addEventListener('change', function () {
+          colocar(select.value || null, i);
+        });
+        zona.addEventListener('click', function (e) {
+          if (e.target.closest('.nead-dd__item')) return;
+          if (escolhido) colocar(escolhido, i);
+        });
+        zona.addEventListener('keydown', function (e) {
+          if ((e.key === 'Enter' || e.key === ' ') && e.target === zona && escolhido) {
+            e.preventDefault();
+            colocar(escolhido, i);
           }
         });
+        linha.append(marca, zona, texto, select);
+        lista.appendChild(linha);
+        return { el: linha, zona: zona, select: select, marca: marca };
+      });
+      raiz.appendChild(lista);
 
-        // Desativa o select para impedir nova escolha
-        this.disabled = true;
+      var aviso = criar('p', 'nead-dd__aviso');
+      aviso.setAttribute('aria-live', 'polite');
+      var acoes = criar('div', 'nead-dd__acoes');
+      var btConferir = criar('button', 'nead-dd__botao nead-dd__botao--conferir', 'Conferir');
+      btConferir.type = 'button';
+      var btRefazer = criar('button', 'nead-dd__botao nead-dd__botao--refazer', 'Refazer');
+      btRefazer.type = 'button';
+      acoes.append(btConferir, btRefazer);
+      raiz.append(aviso, acoes);
+
+      banco.addEventListener('click', function (e) {
+        if (e.target === banco && escolhido) colocar(escolhido, null);
       });
 
-      quadro.appendChild(select);
-    });
+      // Coloca a resposta "id" na linha "destino" (null = volta ao banco).
+      // Se a linha já tinha outra resposta, ela vai para onde a arrastada estava (troca).
+      function colocar(id, destino) {
+        var origemLinha = id == null ? -1 : estado.indexOf(id);
+        if (destino == null) {
+          if (origemLinha > -1) estado[origemLinha] = null;
+        } else {
+          var anterior = estado[destino];
+          if (origemLinha === destino) { escolher(null); render(); return; }
+          if (origemLinha > -1) estado[origemLinha] = anterior;
+          estado[destino] = id;
+        }
+        limparMarcas();
+        escolher(null);
+        render();
+      }
 
-    // Oculta a área de drag-and-drop
-    document.getElementById('respostaGrid').style.display = 'none';
-  }
+      function escolher(id) {
+        if (escolhido && itens[escolhido]) itens[escolhido].classList.remove('is-escolhido');
+        escolhido = id;
+        raiz.classList.toggle('is-escolhendo', !!id);
+        Object.keys(itens).forEach(function (k) { itens[k].setAttribute('aria-pressed', k === id ? 'true' : 'false'); });
+        if (id && itens[id]) itens[id].classList.add('is-escolhido');
+      }
 
+      function render() {
+        ordemBanco.forEach(function (r) {
+          if (estado.indexOf(r.id) === -1) banco.appendChild(itens[r.id]);
+        });
+        linhas.forEach(function (l, i) {
+          var id = estado[i];
+          if (id) l.zona.appendChild(itens[id]);
+          l.select.value = id || '';
+          Array.prototype.forEach.call(l.select.options, function (op) {
+            if (!op.value) return;
+            var usada = estado.indexOf(op.value) > -1 && estado[i] !== op.value;
+            op.hidden = usada;
+            op.disabled = usada;
+          });
+        });
+      }
 
-  </script>
+      function limparMarcas() {
+        aviso.textContent = '';
+        linhas.forEach(function (l) { l.el.classList.remove('is-certo', 'is-errado'); });
+      }
 
+      function refazer() {
+        estado = estado.map(function () { return null; });
+        if (cfg.embaralhar) ordemBanco = embaralhar(respostas);
+        limparMarcas();
+        escolher(null);
+        render();
+      }
 
+      function conferir() {
+        var vazias = estado.filter(function (id) { return !id; }).length;
+        if (vazias) {
+          limparMarcas();
+          aviso.textContent = (msg.incompleto || 'Associe uma resposta a cada linha antes de conferir.') +
+            ' (' + (vazias === 1 ? 'falta 1' : 'faltam ' + vazias) + ')';
+          return;
+        }
+        aviso.textContent = '';
+        var acertos = 0;
+        linhas.forEach(function (l, i) {
+          var certo = estado[i] === linhasCfg[i].resposta;
+          if (certo) acertos++;
+          l.el.classList.toggle('is-certo', certo);
+          l.el.classList.toggle('is-errado', !certo);
+        });
+        var total = linhas.length;
+        var tudoCerto = acertos === total;
+        var m = tudoCerto ? msgAcerto : msgErro;
+
+        var corpo = document.createDocumentFragment();
+        corpo.appendChild(criar('p', 'nead-dd__placar', 'Você acertou ' + acertos + ' de ' + total + '.'));
+        if (m.texto) corpo.appendChild(criar('p', null, m.texto));
+        var ul = criar('ul', 'nead-dd__gabarito');
+        // Gabarito na ordem do banco original: cada resposta com suas linhas
+        respostas.forEach(function (r) {
+          linhasCfg.forEach(function (l, i) {
+            if (l.resposta !== r.id) return;
+            var li = criar('li');
+            if (estado[i] !== l.resposta) li.className = 'is-errado';
+            var forte = criar('strong');
+            forte.textContent = r.rotulo || r.texto;
+            li.appendChild(forte);
+            li.appendChild(document.createTextNode(' → '));
+            li.appendChild(criar('span', null, l.texto));
+            if (l.comentario) li.appendChild(criar('div', 'nead-dd__comentario', l.comentario));
+            ul.appendChild(li);
+          });
+        });
+        corpo.appendChild(ul);
+        abrirJanela({ acerto: tudoCerto, titulo: m.titulo, corpo: corpo }, btConferir, refazer);
+      }
+
+      btConferir.addEventListener('click', conferir);
+      btRefazer.addEventListener('click', refazer);
+
+      // Arrastar com mouse, caneta ou dedo (Pointer Events), com rolagem automática nas bordas
+      var arrasto = null;
+      function alvoEm(x, y) {
+        var el = document.elementFromPoint(x, y);
+        if (!el || !raiz.contains(el)) return null;
+        return el.closest('.nead-dd__zona') || el.closest('.nead-dd__banco');
+      }
+      function marcarAlvo(alvo) {
+        if (arrasto.alvo === alvo) return;
+        if (arrasto.alvo) arrasto.alvo.classList.remove('is-sobre');
+        arrasto.alvo = alvo;
+        if (alvo) alvo.classList.add('is-sobre');
+      }
+      function moverFantasma() {
+        arrasto.fantasma.style.transform = 'translate(' + (arrasto.x - arrasto.dx) + 'px,' + (arrasto.y - arrasto.dy) + 'px) rotate(-1.5deg)';
+      }
+      function rolarBordas() {
+        if (!arrasto || !arrasto.ativo) return;
+        var margem = 70, passo = 0;
+        if (arrasto.y < margem) passo = -Math.ceil((margem - arrasto.y) / 5);
+        else if (arrasto.y > window.innerHeight - margem) passo = Math.ceil((arrasto.y - (window.innerHeight - margem)) / 5);
+        if (passo) {
+          window.scrollBy(0, passo);
+          marcarAlvo(alvoEm(arrasto.x, arrasto.y));
+        }
+        arrasto.quadro = requestAnimationFrame(rolarBordas);
+      }
+      raiz.addEventListener('pointerdown', function (e) {
+        var item = e.target.closest('.nead-dd__item');
+        if (!item || !raiz.contains(item) || e.button > 0 || raiz.classList.contains('is-compacto')) return;
+        var r = item.getBoundingClientRect();
+        arrasto = { item: item, id: item.dataset.id, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, dx: e.clientX - r.left, dy: e.clientY - r.top, largura: r.width, ativo: false, alvo: null, pid: e.pointerId };
+        try { item.setPointerCapture(e.pointerId); } catch (err) { /* sem captura */ }
+      });
+      raiz.addEventListener('pointermove', function (e) {
+        if (!arrasto || e.pointerId !== arrasto.pid) return;
+        arrasto.x = e.clientX;
+        arrasto.y = e.clientY;
+        if (!arrasto.ativo) {
+          if (Math.abs(e.clientX - arrasto.x0) + Math.abs(e.clientY - arrasto.y0) < 6) return;
+          arrasto.ativo = true;
+          escolher(null);
+          var f = arrasto.item.cloneNode(true);
+          f.className = 'nead-dd__fantasma';
+          f.style.width = arrasto.largura + 'px';
+          document.body.appendChild(f);
+          arrasto.fantasma = f;
+          arrasto.item.classList.add('is-arrastando');
+          arrasto.quadro = requestAnimationFrame(rolarBordas);
+        }
+        e.preventDefault();
+        moverFantasma();
+        marcarAlvo(alvoEm(e.clientX, e.clientY));
+      });
+      function terminar(e, cancelado) {
+        if (!arrasto || e.pointerId !== arrasto.pid) return;
+        var a = arrasto;
+        arrasto = null;
+        if (!a.ativo) {
+          if (!cancelado) tocarItem(a.item);
+          return;
+        }
+        cancelAnimationFrame(a.quadro);
+        a.fantasma.remove();
+        a.item.classList.remove('is-arrastando');
+        if (a.alvo) a.alvo.classList.remove('is-sobre');
+        if (cancelado || !a.alvo) return;
+        colocar(a.id, a.alvo === banco ? null : Number(a.alvo.dataset.linha));
+      }
+      // Toque/clique sem arrastar: escolhe a resposta; se já havia outra escolhida e esta
+      // está numa linha, a escolhida vai para essa linha (troca)
+      function tocarItem(item) {
+        var id = item.dataset.id;
+        var zona = item.parentNode.classList.contains('nead-dd__zona') ? item.parentNode : null;
+        if (escolhido && escolhido !== id && zona) colocar(escolhido, Number(zona.dataset.linha));
+        else escolher(escolhido === id ? null : id);
+      }
+      // Teclado (Enter/Espaço no botão gera clique sem ponteiro)
+      raiz.addEventListener('click', function (e) {
+        var item = e.target.closest('.nead-dd__item');
+        if (item && e.detail === 0) tocarItem(item);
+      });
+      raiz.addEventListener('pointerup', function (e) { terminar(e, false); });
+      raiz.addEventListener('pointercancel', function (e) { terminar(e, true); });
+      raiz.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && escolhido) escolher(null);
+      });
+
+      // Computador x espaço estreito: decide pela largura do próprio bloco, não da janela
+      function ajustarModo() {
+        var compacto = raiz.clientWidth > 0 && raiz.clientWidth < LARGURA_COMPACTA;
+        if (compacto !== raiz.classList.contains('is-compacto')) {
+          raiz.classList.toggle('is-compacto', compacto);
+          escolher(null);
+        }
+      }
+      if (typeof ResizeObserver === 'function') new ResizeObserver(ajustarModo).observe(raiz);
+      else window.addEventListener('resize', ajustarModo);
+      ajustarModo();
+      render();
+    }
+
+    window.NeadDragDrop = {
+      initAll: function (escopo) { (escopo || document).querySelectorAll('.nead-dd').forEach(montar); }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { window.NeadDragDrop.initAll(); });
+    } else {
+      window.NeadDragDrop.initAll();
+    }
+  })();
+</script>
