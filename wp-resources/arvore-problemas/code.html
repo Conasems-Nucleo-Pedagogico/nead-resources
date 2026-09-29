@@ -1,0 +1,306 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  ÁRVORE DE PROBLEMAS — NEAD
+  Ao clicar na árvore, aparecem em sequência o PROBLEMA (tronco), as CAUSAS (raízes) e as
+  CONSEQUÊNCIAS (copa), cada um com uma linha que liga o card à parte da árvore.
+  Clicar de novo reinicia a animação. Em telas estreitas os três cards aparecem empilhados.
+
+  Como usar no Elementor: cole este bloco inteiro em um widget "HTML".
+  Para editar, altere só o JSON dentro de <script class="nead-ap__config">:
+    - "instrucao": texto acima da árvore (deixe "" para esconder)
+    - "legenda": texto abaixo (ex.: "<b>Figura 3</b> – Árvore de problemas"; "" para esconder)
+    - "imagem": URL da ilustração da árvore (troque pela URL da mídia no WordPress)
+    - "problema", "causas", "consequencias": cada um com "titulo" e
+      "itens" (lista de frases) OU "texto" (HTML livre)
+  Pode haver várias árvores na mesma página: repita só o bloco <div class="nead-ap">...</div>.
+-->
+<style>
+  .nead-ap {
+    --nead-ap-verde: #0F3D2E;
+    --nead-ap-azul: #213B74;
+    --nead-ap-amarelo: #F8CA33;
+    --nead-ap-card: #E8EBEA;
+    --nead-ap-texto: #171717;
+    box-sizing: border-box;
+    container-type: inline-size;
+    width: 100%;
+    margin: 0 auto 40px;
+    color: var(--nead-ap-texto);
+    font-family: "Nunito", Arial, sans-serif;
+  }
+  .nead-ap *, .nead-ap *::before, .nead-ap *::after { box-sizing: border-box; }
+  .nead-ap__instrucao { margin: 0 0 12px; font-weight: 800; text-align: center; }
+  .nead-ap__legenda { margin: 12px 0 0; font-size: 15px; text-align: center; }
+
+  /* Palco com proporção fixa 5:3: as coordenadas do SVG (1000×600) batem sempre com a árvore */
+  .nead-ap__palco { position: relative; width: 100%; aspect-ratio: 5 / 3; }
+  .nead-ap__arvore {
+    position: absolute;
+    left: 27%;
+    top: 12%;
+    width: 46%;
+    height: 76.667%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    border-radius: 24px;
+    transition: transform 0.25s ease, filter 0.25s ease;
+  }
+  .nead-ap__arvore img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+  .nead-ap__arvore:hover { transform: scale(1.01); filter: drop-shadow(0 7px 10px rgba(0, 0, 0, 0.10)); }
+  .nead-ap__arvore:focus-visible { outline: 3px solid var(--nead-ap-amarelo); outline-offset: 4px; }
+
+  .nead-ap__ligacoes { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 2; }
+  .nead-ap__linha {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    transition: stroke-dashoffset 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .nead-ap__no {
+    opacity: 0;
+    stroke: #fff;
+    stroke-width: 3;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(0.3);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .nead-ap__linha.is-visivel { stroke-dashoffset: 0; }
+  .nead-ap__no.is-visivel { opacity: 1; transform: scale(1); }
+  .nead-ap__linha--causas { stroke: var(--nead-ap-verde); }
+  .nead-ap__linha--consequencias { stroke: var(--nead-ap-azul); }
+  .nead-ap__linha--problema { stroke: var(--nead-ap-amarelo); }
+  .nead-ap__no--causas { fill: var(--nead-ap-verde); }
+  .nead-ap__no--consequencias { fill: var(--nead-ap-azul); }
+  .nead-ap__no--problema { fill: var(--nead-ap-amarelo); }
+
+  .nead-ap__card {
+    position: absolute;
+    z-index: 3;
+    overflow: hidden;
+    margin: 0;
+    border-radius: 16px;
+    background: var(--nead-ap-card);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.10);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(18px) scale(0.97);
+    transition: opacity 0.45s ease, transform 0.45s ease, visibility 0.45s ease;
+  }
+  .nead-ap__card.is-visivel { opacity: 1; visibility: visible; transform: none; }
+  .nead-ap__card h3 {
+    margin: 0;
+    padding: 10px 16px;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  .nead-ap__corpo { padding: 13px 16px 16px; font-size: 15px; line-height: 1.4; }
+  .nead-ap__corpo p { margin: 0 0 8px; }
+  .nead-ap__corpo p:last-child { margin-bottom: 0; }
+  .nead-ap__corpo ul { margin: 0; padding-left: 20px; }
+  .nead-ap__corpo li { margin-bottom: 6px; }
+  .nead-ap__corpo li:last-child { margin-bottom: 0; }
+  .nead-ap__card--causas { left: 1.5%; top: 22%; width: 31%; }
+  .nead-ap__card--causas h3 { color: #fff; background: var(--nead-ap-verde); }
+  .nead-ap__card--consequencias { right: 1.5%; top: 8%; width: 29%; }
+  .nead-ap__card--consequencias h3 { color: #fff; background: var(--nead-ap-azul); }
+  .nead-ap__card--problema { right: 1.5%; top: 60%; width: 29%; }
+  .nead-ap__card--problema h3 { color: var(--nead-ap-texto); background: var(--nead-ap-amarelo); }
+
+  /* Bloco estreito (coluna do Elementor, tablet, celular): árvore em cima e cards empilhados,
+     sempre visíveis, ligados por uma linha vertical (causas → problema → consequências). */
+  @container (max-width: 900px) {
+    .nead-ap__instrucao { display: none; }
+    .nead-ap__palco { aspect-ratio: auto; display: flex; flex-direction: column; align-items: stretch; }
+    .nead-ap__arvore { position: relative; left: auto; top: auto; width: min(320px, 70%); height: auto; aspect-ratio: 1; margin: 0 auto 8px; cursor: default; }
+    .nead-ap__arvore:hover { transform: none; filter: none; }
+    .nead-ap__ligacoes { display: none; }
+    .nead-ap__card { position: relative; inset: auto; width: 100%; opacity: 1; visibility: visible; transform: none; }
+    .nead-ap__card--causas { order: 1; }
+    .nead-ap__card--problema { order: 2; margin-top: 28px; }
+    .nead-ap__card--consequencias { order: 3; margin-top: 28px; }
+    .nead-ap__card--problema::before, .nead-ap__card--consequencias::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -28px;
+      width: 2px;
+      height: 28px;
+      transform: translateX(-50%);
+      background: var(--nead-ap-verde);
+    }
+    .nead-ap__card { overflow: visible; }
+    .nead-ap__card h3 { border-radius: 16px 16px 0 0; font-size: 18px; }
+    .nead-ap__corpo { font-size: 16px; line-height: 1.5; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nead-ap__linha, .nead-ap__no, .nead-ap__card, .nead-ap__arvore { transition: none; }
+  }
+</style>
+
+<div class="nead-ap">
+  <script type="application/json" class="nead-ap__config">
+    {
+      "instrucao": "Clique na figura.",
+      "legenda": "<b>Figura 3</b> – Árvore de problemas",
+      "imagem": "arvore.svg",
+      "problema": {
+        "titulo": "Problema",
+        "texto": "<p>Grande número de faltosos no Programa de Puericultura.</p>"
+      },
+      "causas": {
+        "titulo": "Causas",
+        "itens": [
+          "Falta de organização da agenda dos profissionais;",
+          "Falta de adesão pelas mães (devido ao trabalho, horário da UBS incompatível com sua disponibilidade, ter outros filhos, falta de incentivo e conhecimento da necessidade da puericultura);",
+          "Falta de qualificação dos profissionais de saúde."
+        ]
+      },
+      "consequencias": {
+        "titulo": "Consequências",
+        "itens": [
+          "Mães sem orientação quanto ao crescimento e desenvolvimento;",
+          "Aumento dos fatores de risco para o crescimento e desenvolvimento;",
+          "Aumento do número de óbitos infantis."
+        ]
+      }
+    }
+  </script>
+</div>
+
+<script>
+  (function () {
+    if (window.NeadArvoreProblemas) {
+      window.NeadArvoreProblemas.initAll();
+      return;
+    }
+
+    // Ligações no sistema de coordenadas 1000×600 do palco. A árvore ocupa x 270–730 e y 72–532
+    // (ponto da ilustração em fração u,v → x = 270 + 460u, y = 72 + 460v):
+    // raízes (0.46, 0.84), tronco (0.50, 0.68), copa (0.70, 0.30).
+    var LIGACOES = {
+      problema: { d: 'M 695 420 C 630 420, 560 395, 500 385', no: [500, 385] },
+      causas: { d: 'M 328 330 C 390 350, 440 420, 482 458', no: [482, 458] },
+      consequencias: { d: 'M 695 150 C 660 155, 625 185, 592 210', no: [592, 210] }
+    };
+    var ORDEM = ['problema', 'causas', 'consequencias'];
+    var SVG_NS = 'http://www.w3.org/2000/svg';
+
+    function criar(tag, classe, html) {
+      var el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (html != null) el.innerHTML = html;
+      return el;
+    }
+    function svgEl(tag, attrs) {
+      var el = document.createElementNS(SVG_NS, tag);
+      Object.keys(attrs).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+      return el;
+    }
+    function esperar(ms) { return new Promise(function (ok) { setTimeout(ok, ms); }); }
+
+    function corpoHtml(parte) {
+      if (parte.itens && parte.itens.length) {
+        return '<ul>' + parte.itens.map(function (i) { return '<li>' + i + '</li>'; }).join('') + '</ul>';
+      }
+      return parte.texto || '';
+    }
+
+    function montar(raiz) {
+      if (raiz.__neadApPronto) return;
+      var configEl = raiz.querySelector('.nead-ap__config');
+      var cfg;
+      try {
+        cfg = JSON.parse(configEl.textContent);
+      } catch (erro) {
+        raiz.textContent = 'Árvore de problemas: o JSON de configuração está inválido.';
+        console.error('[nead-ap] JSON inválido', erro);
+        return;
+      }
+      raiz.__neadApPronto = true;
+      configEl.remove();
+
+      if (cfg.instrucao) raiz.appendChild(criar('p', 'nead-ap__instrucao', cfg.instrucao));
+      var palco = criar('div', 'nead-ap__palco');
+      var arvore = criar('button', 'nead-ap__arvore');
+      arvore.type = 'button';
+      arvore.setAttribute('aria-label', 'Mostrar problema, causas e consequências na árvore');
+      var img = criar('img');
+      img.src = cfg.imagem || '';
+      img.alt = 'Ilustração de uma árvore: raízes, tronco e copa';
+      arvore.appendChild(img);
+
+      var svg = svgEl('svg', { class: 'nead-ap__ligacoes', viewBox: '0 0 1000 600', preserveAspectRatio: 'none', 'aria-hidden': 'true' });
+      var linhas = {}, nos = {}, cards = {};
+      ORDEM.forEach(function (chave) {
+        linhas[chave] = svgEl('path', { class: 'nead-ap__linha nead-ap__linha--' + chave, d: LIGACOES[chave].d });
+        nos[chave] = svgEl('circle', { class: 'nead-ap__no nead-ap__no--' + chave, cx: LIGACOES[chave].no[0], cy: LIGACOES[chave].no[1], r: 7 });
+        svg.append(linhas[chave], nos[chave]);
+        var parte = cfg[chave] || {};
+        var card = criar('article', 'nead-ap__card nead-ap__card--' + chave);
+        card.append(criar('h3', null, parte.titulo || chave), criar('div', 'nead-ap__corpo', corpoHtml(parte)));
+        card.setAttribute('aria-live', 'polite');
+        cards[chave] = card;
+      });
+      palco.append(arvore, svg, cards.causas, cards.problema, cards.consequencias);
+      raiz.appendChild(palco);
+      if (cfg.legenda) raiz.appendChild(criar('p', 'nead-ap__legenda', cfg.legenda));
+
+      var rodada = 0; // cada clique começa uma rodada nova; rodadas antigas param sozinhas
+
+      function limpar() {
+        ORDEM.forEach(function (c) {
+          linhas[c].classList.remove('is-visivel');
+          nos[c].classList.remove('is-visivel');
+          cards[c].classList.remove('is-visivel');
+        });
+      }
+
+      function mostrar(c, oque) {
+        ({ linha: linhas, no: nos, card: cards })[oque][c].classList.add('is-visivel');
+      }
+
+      async function animar() {
+        var minha = ++rodada;
+        limpar();
+        void palco.offsetWidth; // aplica o "apagado" antes de desenhar de novo
+        var pausas = { problema: [900, 0], causas: [1500, 1600], consequencias: [1900, 0] };
+        for (var i = 0; i < ORDEM.length; i++) {
+          var c = ORDEM[i];
+          if (minha !== rodada) return;
+          mostrar(c, 'linha');
+          mostrar(c, 'no');
+          await esperar(pausas[c][0]);
+          if (minha !== rodada) return;
+          mostrar(c, 'card');
+          if (pausas[c][1]) await esperar(pausas[c][1]);
+        }
+      }
+
+      arvore.addEventListener('click', function () {
+        // No layout empilhado os cards já estão visíveis; a animação só vale no palco
+        if (getComputedStyle(svg).display === 'none') return;
+        animar();
+      });
+    }
+
+    window.NeadArvoreProblemas = {
+      initAll: function (escopo) { (escopo || document).querySelectorAll('.nead-ap').forEach(montar); }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { window.NeadArvoreProblemas.initAll(); });
+    } else {
+      window.NeadArvoreProblemas.initAll();
+    }
+  })();
+</script>

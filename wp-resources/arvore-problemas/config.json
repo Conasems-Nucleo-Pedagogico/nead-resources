@@ -1,0 +1,24 @@
+{
+  "type": "sequence",
+  "titulo": "ÁRVORE DE PROBLEMAS",
+  "conteudo": "Ao clicar na árvore, aparecem em sequência o problema (tronco), as causas (raízes) e as consequências (copa), cada um com uma linha que liga o card à parte da árvore. Ferramenta clássica de planejamento em saúde para analisar um problema do território ou do serviço.",
+  "observacao": "Clicar de novo reinicia a animação. Em telas menores os três cards aparecem empilhados, sem depender da animação.",
+  "notasDev": "Conteúdo no JSON do bloco (instrucao, legenda, imagem, e problema/causas/consequencias com titulo + itens ou texto HTML). Palco com proporção fixa 5:3 e SVG de ligações em 1000×600 calibrado para a ilustração arvore.svg (árvore em x 270–730, y 72–532); trocar a ilustração exige recalibrar as coordenadas em LIGACOES no script. Layout empilhado por container query (bloco com até 900px de largura). No curso original a árvore ficava dentro de um popup do Elementor e era iniciada pelo evento elementor/popup/show; aqui não precisa.",
+  "img": "wp-resources/arvore-problemas/preview.webp",
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 15268,
+      "tipo": "curso",
+      "nota": "Origem da demo (Figura 3 – Árvore de problemas, dentro de um popup do Elementor)"
+    },
+    {
+      "repo": "conasems-scripts",
+      "arquivo": "Cuidado/Disciplina 14/treePopup.html",
+      "linha": 1,
+      "tipo": "prototipo"
+    }
+  ]
+}
