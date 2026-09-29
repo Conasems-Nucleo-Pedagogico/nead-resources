@@ -1,9 +1,10 @@
 {
   "type": "sequence",
-  "titulo": "Linha do tempo com scroll",
-  "conteudo": "Recurso interativo de timeLine, em que o progresso segue o scroll.",
-  "observacao": "",
-  "img": "wp-resources/timeLineScroll/timeLineScroll.jpeg",
+  "titulo": "LINHA DO TEMPO COM SCROLL",
+  "conteudo": "Linha do tempo vertical com etapas, relações entre etapas e conclusão. No modo scroll, a linha cresce acompanhando a rolagem e cada cartão aparece ao chegar na tela. No modo automático, quando o bloco entra na tela, os itens aparecem sozinhos, um a um, e a linha avança até cada marcador.",
+  "observacao": "Os cartões podem ficar dos dois lados da linha ou todos de um lado só, com números ou pontos nos marcadores. No celular, viram uma lista.",
+  "notasDev": "Cada linha do tempo é um <div class=\"nead-tl\"> com JSON (modo scroll/automatico, intervalo, layout alternado/lista, numerar, introducao, itens do tipo etapa/relacao, conclusao, cores, pontoRevelacao). Substitui o EducationalTimeline.create com objeto JS e o laço de requestAnimationFrame contínuo: agora usa rolagem (inclusive de contêineres), ResizeObserver e IntersectionObserver. O modo automático vem da .timeline-saude (VSR e cuidado aula-5). O antigo scroll.scrollContainer (\"#tela19\") não é mais necessário.",
+  "img": "wp-resources/timeLineScroll/preview.webp",
   "src": "code.html",
   "usoEmCursos": [
     {
@@ -11,7 +12,21 @@
       "arquivo": "aula-13/index.html",
       "linha": 10061,
       "tipo": "precursor",
-      "nota": "Versão original feita sob medida (classes cuidadoD13T19*); o eduTimeline genérico ainda não aparece nas cópias dos cursos"
+      "nota": "Versão original feita sob medida (classes cuidadoD13T19*); origem do modo scroll e do exemplo"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-5/index.html",
+      "linha": 11224,
+      "tipo": "curso",
+      "nota": "Revelação automática (.timeline-saude), cartões brancos. Origem do exemplo do modo automático"
+    },
+    {
+      "repo": "conasems-infeccoes-respiratorias",
+      "arquivo": "Virus Sincicial/aula/index.html",
+      "linha": 3410,
+      "tipo": "curso",
+      "nota": "Revelação automática (.timeline-saude) com ícones, em laranja; segunda instância na linha 4588"
     }
   ]
 }

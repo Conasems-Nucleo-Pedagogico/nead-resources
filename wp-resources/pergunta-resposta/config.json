@@ -1,23 +1,32 @@
 {
   "type": "game",
-  "titulo": "Perguntas e Respostas",
-  "conteudo": "No jogo, os usuários respondem perguntas e o personagem avança no tabuleiro quando o estudante acerta a resposta. Essa integração entre aprendizado e diversão não apenas envolve os alunos de maneira ativa, mas também fortalece a retenção de conhecimento de maneira eficaz, tornando-se assim uma ferramenta versátil e motivadora para consolidar conceitos em diversas disciplinas.",
-  "observacao": "",
-  "img": "wp-resources/pergunta-resposta/perguntas.jpeg",
+  "titulo": "PERGUNTAS E RESPOSTAS",
+  "conteudo": "O estudante lê uma afirmação por vez e marca se ela é verdadeira ou falsa. A cada acerto, o personagem avança na cena ao lado e aparece a próxima afirmação; ao errar, recebe um convite para refletir e tenta de novo. No fim, vê a mensagem de conclusão e pode jogar novamente.",
+  "observacao": "Cada afirmação pode trocar a imagem da cena, mostrando o personagem numa nova etapa. Sem imagens por etapa, fica um personagem fixo ao lado.",
+  "notasDev": "Cada jogo é um <div class=\"nead-pr\"> com JSON (imagemInicial, afirmacoes com texto/correta/imagem/feedbackAcerto/feedbackErro, imagemFeedback, rotulos, mensagens, corFundo). Substitui o script solto que dependia de IDs globais (txt-N com atributo res, img-N, sec1, sec2, sec-error, button-new-game) montados no Elementor, que só aceitava um jogo por página. Imagens da demo copiadas da disciplina-5 e reduzidas para 1200 px.",
+  "img": "wp-resources/pergunta-resposta/preview.webp",
   "src": "code.html",
   "usoEmCursos": [
     {
       "repo": "conasems-especializao-tutoria",
-      "arquivo": "disciplina-8/index.html",
-      "linha": 12845,
+      "arquivo": "disciplina-5/index.html",
+      "linha": 10803,
       "tipo": "curso",
-      "nota": "Markup (txt-N com atributo res, img-N, botões) montado no Elementor; o code.html só tem o script"
+      "nota": "Professor Márcio avançando na sala a cada acerto. Origem do exemplo"
     },
     {
       "repo": "conasems-especializao-tutoria",
-      "arquivo": "disciplina-5/index.html",
-      "linha": 10890,
-      "tipo": "curso"
+      "arquivo": "disciplina-8/index.html",
+      "linha": 12851,
+      "tipo": "variante",
+      "nota": "Personagem fixa (Ana) com balão de instrução e caixa \"Você acertou a questão!\""
+    },
+    {
+      "repo": "educational-resource",
+      "arquivo": "nead-horizontal/disciplina-5/index.html",
+      "linha": 10803,
+      "tipo": "demo",
+      "nota": "Cópia da disciplina-5"
     },
     {
       "repo": "educational-games",

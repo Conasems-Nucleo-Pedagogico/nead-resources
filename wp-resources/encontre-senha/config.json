@@ -1,6 +1,6 @@
 {
   "type": "game",
-  "titulo": "Encontre Senha",
+  "titulo": "ENCONTRE A SENHA",
   "conteudo": "Inspirado no famoso jogo de palavras criado por Josh Wardle e adquirido pelo New York Times, o objetivo é encontrar uma palavra de cinco letras em um número limitado de tentativas. Após cada tentativa, o jogo fornece um feedback sobre a palavra enviada: se uma letra existe na palavra secreta e está na posição correta, ela será destacada com a cor verde; se uma letra existe na palavra secreta, mas não está na posição correta, será destacada com a cor amarela; e se a letra não estiver na palavra secreta, ficará cinza. Para incorporar o jogo ao campo pedagógico, ele foi adaptado para incluir uma dica, que pode ser revelada a partir da enésima tentativa (a escolha da equipe pedagógica). Trata-se de um jogo que testa as habilidades de vocabulário e raciocínio lógico dos estudantes.",
   "observacao": "",
   "img": "wp-resources/encontre-senha/encontre-a-senha.jpeg",

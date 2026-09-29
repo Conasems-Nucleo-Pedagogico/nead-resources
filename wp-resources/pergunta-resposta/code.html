@@ -1,119 +1,352 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  PERGUNTAS E RESPOSTAS (VERDADEIRO OU FALSO COM TABULEIRO) — NEAD
+  Uma afirmação por vez; o estudante marca se é verdadeira (ícone verde) ou falsa (ícone vermelho).
+  Ao acertar, a cena ao lado avança (o personagem aparece fazendo a etapa seguinte) e vem a
+  próxima afirmação. Ao errar, aparece "Reflita novamente!" e a afirmação continua na tela.
+  No fim, mensagem de conclusão e botão "Jogar novamente".
+
+  Como usar no Elementor: cole este bloco inteiro em um widget "HTML".
+  Para editar, altere só o JSON dentro de <script class="nead-pr__config">:
+    - "instrucao": texto (HTML) acima do jogo
+    - "imagemInicial": a cena antes da primeira resposta (URL da imagem)
+    - "afirmacoes": cada uma com "texto", "correta" (true = verdadeira, false = falsa) e, se quiser,
+      "imagem" (cena mostrada depois de acertar esta afirmação), "feedbackAcerto" e "feedbackErro"
+      (substituem as mensagens gerais só nesta afirmação). Sem "imagem", a cena anterior continua:
+      use só "imagemInicial" para ter um personagem fixo.
+    - "imagemFeedback": imagem pequena (redonda) ao lado das mensagens; pode ficar vazia
+    - "rotulos": textos sob os ícones ("verdadeiro" e "falso")
+    - "mensagens": "acerto", "erro", "conclusao" e "jogarNovamente"
+    - "corFundo": cor do painel (use "transparent" para ficar sem fundo)
+  Pode haver vários jogos na mesma página: repita só o bloco <div class="nead-pr">...</div>.
+-->
+<style>
+  .nead-pr {
+    --nead-pr-fundo: #3E4F3E;
+    --nead-pr-texto: #212121;
+    --nead-pr-verde: #27AE60;
+    --nead-pr-vermelho: #EB5757;
+    --nead-pr-amarelo: #FFD693;
+    --nead-pr-botao: #F8B624;
+    box-sizing: border-box;
+    container-type: inline-size;
+    width: 100%;
+    margin: 0 auto 40px;
+    padding: clamp(18px, 4cqw, 40px);
+    border-radius: 20px;
+    background: var(--nead-pr-fundo);
+    color: #FAFAFA;
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  .nead-pr *, .nead-pr *::before, .nead-pr *::after { box-sizing: border-box; }
+  .nead-pr__instrucao { max-width: 860px; margin: 0 auto 24px; text-align: center; }
+  .nead-pr__instrucao p { margin: 0 0 8px; }
+  .nead-pr__palco { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 4cqw, 48px); align-items: center; }
+
+  /* Cena: imagens empilhadas, só a atual visível */
+  .nead-pr__cena { display: grid; }
+  .nead-pr__cena img {
+    grid-area: 1 / 1;
+    display: block;
+    width: 100%;
+    height: auto;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  .nead-pr__cena img.is-atual { opacity: 1; }
+
+  .nead-pr__lado { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+  /* Mensagens */
+  .nead-pr__feedback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    width: min(100%, 440px);
+    padding: 18px 22px;
+    border-radius: 16px;
+    color: #FFFFFF;
+    font-weight: 600;
+    text-align: center;
+  }
+  .nead-pr__feedback[hidden] { display: none; }
+  .nead-pr__feedback.is-erro { background: var(--nead-pr-vermelho); animation: nead-pr-balanca 0.45s ease; }
+  .nead-pr__feedback.is-acerto { background: var(--nead-pr-verde); animation: nead-pr-surge 0.35s ease; }
+  .nead-pr__feedback.is-fim { flex-direction: column; background: var(--nead-pr-amarelo); color: var(--nead-pr-texto); animation: nead-pr-surge 0.35s ease; }
+  .nead-pr__feedback img { flex: 0 0 auto; width: 72px; height: 72px; object-fit: contain; }
+  .nead-pr__feedback.is-fim img { width: 120px; height: 120px; }
+  .nead-pr__feedback p { margin: 0; }
+  @keyframes nead-pr-surge { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: none; } }
+  @keyframes nead-pr-balanca {
+    0%, 100% { transform: none; }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(7px); }
+    75% { transform: translateX(-4px); }
+  }
+
+  /* Cartão da afirmação */
+  .nead-pr__cartao {
+    display: flex;
+    width: 100%;
+    border-radius: 16px;
+    background: #FFFFFF;
+    color: var(--nead-pr-texto);
+    overflow: hidden;
+  }
+  .nead-pr__cartao[hidden] { display: none; }
+  .nead-pr__afirmacao { flex: 1; align-self: center; padding: 18px 20px; }
+  .nead-pr__progresso { margin: 0 0 6px; color: #5B6B5B; font-size: 14px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .nead-pr__texto { margin: 0; }
+  .nead-pr__texto.is-entrando { animation: nead-pr-entra 0.4s ease; }
+  @keyframes nead-pr-entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .nead-pr__botoes { display: flex; flex: 0 0 auto; border-left: 1px solid #ECECEC; }
+  .nead-pr__resposta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 96px;
+    padding: 14px 10px;
+    border: 0;
+    background: transparent;
+    color: var(--nead-pr-texto);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .nead-pr__resposta + .nead-pr__resposta { border-left: 1px solid #ECECEC; }
+  .nead-pr__resposta svg { width: 45px; height: 45px; transition: transform 0.2s ease; }
+  .nead-pr__resposta--v svg { fill: var(--nead-pr-verde); }
+  .nead-pr__resposta--f svg { fill: var(--nead-pr-vermelho); }
+  .nead-pr__resposta:hover { background: #F6F6F6; }
+  .nead-pr__resposta:hover svg { transform: scale(1.1); }
+  .nead-pr__resposta:focus-visible { outline: 3px solid #1D4ED8; outline-offset: -3px; }
+
+  .nead-pr__novo {
+    padding: 12px 26px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--nead-pr-botao);
+    color: var(--nead-pr-texto);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .nead-pr__novo[hidden] { display: none; }
+  .nead-pr__novo:hover { filter: brightness(1.06); }
+  .nead-pr__novo:focus-visible { outline: 3px solid #FAFAFA; outline-offset: 3px; }
+
+  @container (max-width: 760px) {
+    .nead-pr__palco { grid-template-columns: 1fr; }
+  }
+  @container (max-width: 460px) {
+    .nead-pr { font-size: 17px; }
+    .nead-pr__cartao { flex-direction: column; }
+    .nead-pr__botoes { border-top: 1px solid #ECECEC; border-left: 0; }
+    .nead-pr__resposta { flex: 1; }
+    .nead-pr__feedback img { width: 56px; height: 56px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nead-pr__cena img, .nead-pr__resposta, .nead-pr__resposta svg { transition: none; }
+    .nead-pr__feedback, .nead-pr__texto.is-entrando { animation: none !important; }
+  }
+</style>
+
+<div class="nead-pr">
+  <script type="application/json" class="nead-pr__config">
+    {
+      "instrucao": "<p>Ajude o professor Márcio a realizar corretamente as etapas da pesquisa. Se a afirmação estiver correta, clique no ícone verde. Se estiver incorreta, clique no ícone vermelho.</p>",
+      "imagemInicial": "sala-0.webp",
+      "afirmacoes": [
+        { "texto": "Para começar uma pesquisa, não é preciso escolher um tema.", "correta": false, "imagem": "sala-1.webp" },
+        { "texto": "Após explorar materiais que abordem o tema da pesquisa, o pesquisador precisa problematizá-lo a partir de seu Referencial Teórico.", "correta": true, "imagem": "sala-2.webp" },
+        { "texto": "Os métodos de coleta e análise dos dados são escolhidos a partir dos objetivos da pesquisa.", "correta": true, "imagem": "sala-3.webp" },
+        { "texto": "Com os dados coletados, encerra-se a pesquisa, permitindo que outras pessoas façam a análise.", "correta": false, "imagem": "sala-4.webp" },
+        { "texto": "Após apresentar a análise dos dados, o pesquisador conclui a pesquisa, relembrando os passos metodológicos, retomando os achados e apresenta perspectivas futuras para o estudo.", "correta": true, "imagem": "sala-5.webp" }
+      ],
+      "imagemFeedback": "professor.webp",
+      "rotulos": { "verdadeiro": "Verdadeiro", "falso": "Falso" },
+      "mensagens": {
+        "acerto": "Você acertou a questão!",
+        "erro": "Reflita novamente!",
+        "conclusao": "Parabéns, você concluiu o desafio!",
+        "jogarNovamente": "Jogar novamente"
+      },
+      "corFundo": "#3E4F3E"
+    }
+  </script>
+</div>
+
 <script>
-
-
-    // add classe .hide-elements aos elementos a serem escondidos
-    // adicionar número de elementos (imagens e textos) na constante numberElements:
-    // adicionar handleTxtAndImgChange no onclick dos botões, informando via parâmetro o tipo do botão (false ou true)
-    // adicionar a resposta dos textos usando o atributo: res|true ou false
-    const numberElements = 6;
-    
-    function hideElements() {
-        const hiddenElements = document.getElementsByClassName('hide-elements');
-    
-        for (let index = 0; index < hiddenElements.length; index++) {
-            const element = hiddenElements[index];
-    
-            element.style.display = "none";
-            
-        }
-    } 
-    
-    function handleTxtAndImgChange(buttonType) {
-    
-        console.log(buttonType, 'button')
-        const currentElements = document.getElementsByClassName('current');
-        const currentElementIndex = Number((currentElements[0].id).split('-')[1]);
-    
-        const currentText = document.getElementById(`txt-${currentElementIndex}`)
-        const currentRes = currentText.getAttribute('res') === 'true' ? true : false;
-    
-        // acertou
-        if (currentRes === buttonType) {
-            const secError = document.getElementById('sec-error');
-            const title = document.getElementById('title');
-            title.style.display = 'block';
-            secError.style.display = 'none';
-    
-            for (let j = 0; j < currentElements.length; j++) {
-                const element = currentElements[j];
-                element.style.display = "none";
-            }
-        
-            if (currentElementIndex < numberElements - 1) {
-                const currentImg = document.getElementById(`img-${currentElementIndex}`)
-                const currentTxt = document.getElementById(`txt-${currentElementIndex}`)
-                const nextImage = document.getElementById(`img-${currentElementIndex + 1}`);
-                const nextText = document.getElementById(`txt-${currentElementIndex + 1}`);
-        
-                nextImage.style.display = "block";
-                nextImage.classList.add('current')
-                nextText.style.display = "block";
-                nextText.classList.add('current')
-        
-                currentImg.classList.remove('current');
-                currentTxt.classList.remove('current')
-            } else {
-                const nextImage = document.getElementById(`img-${currentElementIndex + 1}`);
-                const buttonNewGame = document.getElementById('button-new-game');
-                buttonNewGame.style.display = 'block'
-        
-                const secTexts = document.getElementById('sec1');
-                const secCongrats = document.getElementById('sec2');
-        
-                nextImage.style.display = "block";
-                secTexts.style.display = 'none';
-                secCongrats.style.display = 'block';
-    
-    
-            }
-        } else {
-            // errou
-            const secError = document.getElementById('sec-error');
-            const title = document.getElementById('title');
-    
-            title.style.display = 'none';
-            secError.style.display = 'block';
-        }
+  (function () {
+    if (window.NeadPerguntaResposta) {
+      window.NeadPerguntaResposta.initAll();
+      return;
     }
-    
-    function newGame() {
-        for (let index = 2; index <= numberElements; index++) {
-            const firstTxt = document.getElementById(`txt-1`);
-            const firstImg = document.getElementById(`img-1`);
-            const secTexts = document.getElementById('sec1');
-            const secCongrats = document.getElementById('sec2');
-    
-            secTexts.style.display = 'block';
-            secCongrats.style.display = 'none'; 
-    
-            firstTxt.style.display = 'block';
-            firstTxt.classList.add('current');
-            firstImg.style.display = 'block';
-            firstImg.classList.add('current');
-    
-            const buttonNewGame = document.getElementById('button-new-game');
-            buttonNewGame.style.display = 'none'
-    
-            if (index !== numberElements) {
-                const txt = document.getElementById(`txt-${index}`);
-                txt.style.display = 'none';
-                txt.classList.remove('current')
-    
-                const img = document.getElementById(`img-${index}`)
-                img.style.display = 'none';
-                img.classList.remove('current')
-            } else {
-                const img = document.getElementById(`img-${index}`)
-                img.style.display = 'none';
-                img.classList.remove('current')
-            }
-        }
+    var ICONE_V = '<svg viewBox="0 0 512 512" aria-hidden="true"><path d="M504 256c0 137-111 248-248 248S8 393 8 256 119 8 256 8s248 111 248 248zM227.3 387.3l184-184c6.2-6.2 6.2-16.4 0-22.6l-22.6-22.6c-6.2-6.2-16.4-6.2-22.6 0L216 308.1l-70.1-70.1c-6.2-6.2-16.4-6.2-22.6 0l-22.6 22.6c-6.2 6.2-6.2 16.4 0 22.6l104 104c6.2 6.2 16.4 6.2 22.6 0z"/></svg>';
+    var ICONE_F = '<svg viewBox="0 0 512 512" aria-hidden="true"><path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"/></svg>';
+
+    function criar(tag, classe, html) {
+      var el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (html != null) el.innerHTML = html;
+      return el;
     }
-    
-    document.addEventListener("DOMContentLoaded", function (event) {
-        hideElements();
-    });
-    
-    </script>
+
+    function montar(raiz) {
+      if (raiz.__neadPrPronto) return;
+      var configEl = raiz.querySelector('.nead-pr__config');
+      var cfg;
+      try {
+        cfg = JSON.parse(configEl.textContent);
+      } catch (erro) {
+        raiz.textContent = 'Perguntas e respostas: o JSON de configuração está inválido.';
+        console.error('[nead-pr] JSON inválido', erro);
+        return;
+      }
+      raiz.__neadPrPronto = true;
+      configEl.remove();
+
+      var afirmacoes = cfg.afirmacoes || [];
+      var msg = cfg.mensagens || {};
+      var rot = cfg.rotulos || {};
+      var total = afirmacoes.length;
+      if (cfg.corFundo) raiz.style.setProperty('--nead-pr-fundo', cfg.corFundo);
+
+      if (cfg.instrucao) raiz.appendChild(criar('div', 'nead-pr__instrucao', cfg.instrucao));
+      var palco = criar('div', 'nead-pr__palco');
+
+      // Cenas: a inicial e, para cada afirmação, a que aparece depois do acerto
+      // (sem imagem própria, repete a anterior)
+      var cena = criar('div', 'nead-pr__cena');
+      var urls = [], porEtapa = [];
+      function registrar(url) {
+        if (!url) return porEtapa.length ? porEtapa[porEtapa.length - 1] : -1;
+        var i = urls.indexOf(url);
+        if (i === -1) { urls.push(url); i = urls.length - 1; }
+        return i;
+      }
+      porEtapa.push(registrar(cfg.imagemInicial));
+      afirmacoes.forEach(function (a) { porEtapa.push(registrar(a.imagem)); });
+      var imgs = urls.map(function (url) {
+        var img = document.createElement('img');
+        img.src = url;
+        img.alt = '';
+        img.decoding = 'async';
+        cena.appendChild(img);
+        return img;
+      });
+      if (imgs.length) palco.appendChild(cena);
+
+      var lado = criar('div', 'nead-pr__lado');
+      var feedback = criar('div', 'nead-pr__feedback');
+      feedback.setAttribute('role', 'status');
+      feedback.hidden = true;
+      var cartao = criar('div', 'nead-pr__cartao');
+      var bloco = criar('div', 'nead-pr__afirmacao');
+      var progresso = criar('p', 'nead-pr__progresso');
+      var texto = criar('p', 'nead-pr__texto');
+      bloco.append(progresso, texto);
+      var botoes = criar('div', 'nead-pr__botoes');
+      botoes.setAttribute('role', 'group');
+      botoes.setAttribute('aria-label', 'Sua resposta');
+      var btV = criar('button', 'nead-pr__resposta nead-pr__resposta--v', ICONE_V);
+      btV.type = 'button';
+      btV.appendChild(criar('span', null)).textContent = rot.verdadeiro || 'Verdadeiro';
+      var btF = criar('button', 'nead-pr__resposta nead-pr__resposta--f', ICONE_F);
+      btF.type = 'button';
+      btF.appendChild(criar('span', null)).textContent = rot.falso || 'Falso';
+      botoes.append(btV, btF);
+      cartao.append(bloco, botoes);
+      var novo = criar('button', 'nead-pr__novo');
+      novo.type = 'button';
+      novo.textContent = msg.jogarNovamente || 'Jogar novamente';
+      novo.hidden = true;
+      lado.append(feedback, cartao, novo);
+      palco.appendChild(lado);
+      raiz.appendChild(palco);
+
+      var etapa = 0;
+
+      function mostrarCena(i) {
+        var alvo = porEtapa[i];
+        imgs.forEach(function (img, k) { img.classList.toggle('is-atual', k === alvo); });
+      }
+      function mostrarAfirmacao(animar) {
+        progresso.textContent = 'Afirmação ' + (etapa + 1) + ' de ' + total;
+        texto.innerHTML = afirmacoes[etapa].texto || '';
+        if (animar) {
+          texto.classList.remove('is-entrando');
+          void texto.offsetWidth;
+          texto.classList.add('is-entrando');
+        }
+      }
+      function avisar(tipo, html) {
+        feedback.className = 'nead-pr__feedback';
+        void feedback.offsetWidth; // reinicia a animação quando a mesma mensagem se repete
+        feedback.classList.add('is-' + tipo);
+        feedback.innerHTML = '';
+        if (cfg.imagemFeedback) {
+          var av = document.createElement('img');
+          av.src = cfg.imagemFeedback;
+          av.alt = '';
+          feedback.appendChild(av);
+        }
+        feedback.appendChild(criar('p', null, html));
+        feedback.hidden = false;
+      }
+
+      function responder(valor) {
+        var atual = afirmacoes[etapa];
+        if (!atual) return;
+        if (valor !== atual.correta) {
+          avisar('erro', atual.feedbackErro || msg.erro || 'Reflita novamente!');
+          return;
+        }
+        etapa++;
+        mostrarCena(etapa);
+        if (etapa >= total) {
+          cartao.hidden = true;
+          avisar('fim', msg.conclusao || 'Parabéns, você concluiu o desafio!');
+          novo.hidden = false;
+          novo.focus({ preventScroll: true });
+          return;
+        }
+        avisar('acerto', atual.feedbackAcerto || msg.acerto || 'Você acertou a questão!');
+        mostrarAfirmacao(true);
+      }
+
+      function reiniciar(focar) {
+        etapa = 0;
+        feedback.hidden = true;
+        feedback.className = 'nead-pr__feedback';
+        cartao.hidden = false;
+        novo.hidden = true;
+        mostrarCena(0);
+        if (total) mostrarAfirmacao(false);
+        if (focar) btV.focus({ preventScroll: true });
+      }
+
+      btV.addEventListener('click', function () { responder(true); });
+      btF.addEventListener('click', function () { responder(false); });
+      novo.addEventListener('click', function () { reiniciar(true); });
+      reiniciar(false);
+    }
+
+    window.NeadPerguntaResposta = {
+      initAll: function (escopo) { (escopo || document).querySelectorAll('.nead-pr').forEach(montar); }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { window.NeadPerguntaResposta.initAll(); });
+    } else {
+      window.NeadPerguntaResposta.initAll();
+    }
+  })();
+</script>

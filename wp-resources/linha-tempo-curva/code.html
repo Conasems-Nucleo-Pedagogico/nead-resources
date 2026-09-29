@@ -1,0 +1,330 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  LINHA DO TEMPO CURVA — NEAD
+  Uma linha curva ascendente é desenhada quando o bloco entra na tela; em seguida aparece a
+  seta e, um a um, os pontos da linha acendem junto com seus cartões (ícone + texto). Por fim,
+  aparece o texto de fechamento. Acontece uma vez. Em espaços estreitos (celular), a curva vira
+  uma linha vertical à esquerda, com os cartões empilhados, na mesma sequência.
+
+  Como usar no Elementor: cole este bloco inteiro em um widget "HTML".
+  Para editar, altere só o JSON dentro de <script class="nead-lc__config">:
+    - "introducao": texto (HTML) acima da linha
+    - "itens": de 2 a 6, cada um com "icone" (URL da imagem), "titulo" (opcional) e "texto" (HTML)
+    - "fechamento": texto (HTML) abaixo dos cartões
+    - "duracaoLinha": tempo para desenhar a linha (ms); "intervalo": tempo entre um cartão e outro (ms)
+    - "seta": false esconde a seta no fim da linha
+    - "cores": "linha" (linha, pontos e seta), "cartao" (fundo), "cartaoBorda", "texto"
+  Pode haver várias linhas na mesma página: repita só o bloco <div class="nead-lc">...</div>.
+-->
+<style>
+  .nead-lc {
+    --nead-lc-linha: #213B74;
+    --nead-lc-cartao: #FFFFFF;
+    --nead-lc-cartao-borda: #213B74;
+    --nead-lc-texto: #1F1F1F;
+    --nead-lc-colunas: 4;
+    box-sizing: border-box;
+    container-type: inline-size;
+    width: 100%;
+    max-width: 1280px;
+    overflow-x: clip;
+    margin: 0 auto 40px;
+    color: var(--nead-lc-texto);
+    font-family: "Nunito", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .nead-lc *, .nead-lc *::before, .nead-lc *::after { box-sizing: border-box; }
+  .nead-lc__introducao, .nead-lc__fechamento { max-width: 900px; margin: 0 auto; text-align: center; font-size: 17px; }
+  .nead-lc__introducao p, .nead-lc__fechamento p { margin: 0 0 8px; }
+  .nead-lc__introducao { margin-bottom: 8px; }
+
+  /* Curva (computador) */
+  .nead-lc__svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .nead-lc__caminho { fill: none; stroke: var(--nead-lc-linha); stroke-width: 2.5; stroke-linecap: round; }
+  .nead-lc__seta { fill: var(--nead-lc-linha); opacity: 0; transition: opacity 0.3s ease; }
+  .nead-lc__parada { fill: var(--nead-lc-linha); opacity: 0; transform-box: fill-box; transform-origin: center; transform: scale(0.3); transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.4); }
+  .nead-lc.is-seta .nead-lc__seta { opacity: 1; }
+  .nead-lc__parada.is-ativa { opacity: 1; transform: none; }
+
+  /* Cartões */
+  .nead-lc__itens {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--nead-lc-colunas), 1fr);
+    gap: 24px;
+    align-items: start;
+    margin-top: -7%;
+  }
+  .nead-lc__item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+  }
+  .nead-lc__item.is-visivel { opacity: 1; transform: none; }
+  .nead-lc__icone { display: block; width: min(125px, 60%); height: auto; aspect-ratio: 1; object-fit: contain; }
+  .nead-lc__cartao {
+    width: 100%;
+    padding: 36px 20px;
+    border: 2px solid var(--nead-lc-cartao-borda);
+    border-radius: 26px;
+    background: var(--nead-lc-cartao);
+    text-align: center;
+  }
+  .nead-lc__cartao h3 { margin: 0 0 8px; color: var(--nead-lc-linha); font-size: 19px; line-height: 1.3; }
+  .nead-lc__cartao p { margin: 0; }
+  .nead-lc__cartao p + p { margin-top: 10px; }
+  .nead-lc__ponto, .nead-lc__trilho { display: none; }
+  .nead-lc__fechamento { margin-top: 32px; opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .nead-lc__fechamento.is-visivel { opacity: 1; transform: none; }
+
+  /* Espaço estreito: linha vertical à esquerda, cartões empilhados */
+  .nead-lc.is-estreito .nead-lc__svg { display: none; }
+  .nead-lc.is-estreito .nead-lc__itens { grid-template-columns: 1fr; gap: 28px; margin-top: 20px; padding-left: 44px; }
+  .nead-lc.is-estreito .nead-lc__item { align-items: flex-start; gap: 10px; transform: translateX(24px); }
+  .nead-lc.is-estreito .nead-lc__item.is-visivel { transform: none; }
+  .nead-lc.is-estreito .nead-lc__icone { width: 72px; }
+  .nead-lc.is-estreito .nead-lc__cartao { padding: 20px; border-radius: 20px; text-align: left; }
+  .nead-lc.is-estreito .nead-lc__fechamento { text-align: left; }
+  .nead-lc.is-estreito .nead-lc__ponto {
+    position: absolute;
+    top: 29px;
+    left: -37px;
+    display: block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--nead-lc-linha);
+  }
+  .nead-lc.is-estreito .nead-lc__trilho {
+    position: absolute;
+    left: 13px;
+    display: block;
+    width: 3px;
+    background: repeating-linear-gradient(to bottom, #C3C3C3 0 8px, transparent 8px 16px);
+    transform: translateX(-50%);
+  }
+  .nead-lc__progresso { width: 100%; height: 0; border-radius: 3px; background: var(--nead-lc-linha); transition: height 0.9s ease; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nead-lc *, .nead-lc *::before, .nead-lc *::after { transition-duration: 0.01ms !important; }
+  }
+</style>
+
+<div class="nead-lc">
+  <script type="application/json" class="nead-lc__config">
+    {
+      "introducao": "<p>Vamos começar com uma reflexão simples: você já parou para pensar quanto custa a sua unidade de saúde?</p>",
+      "itens": [
+        { "icone": "icone-medico.webp", "texto": "O custo de uma unidade de saúde envolve tanto <b>elementos visíveis</b>, como recursos humanos e insumos, quanto <b>custos indiretos</b> frequentemente negligenciados, como despesas com água, energia, transporte e serviços de apoio." },
+        { "icone": "icone-melhorar.webp", "texto": "Compreender esse conjunto é fundamental para avaliar o nível de eficiência do serviço e identificar oportunidades de melhoria." },
+        { "icone": "icone-sustentabilidade.webp", "texto": "Nesse contexto, até itens aparentemente simples, como copos descartáveis, podem representar gastos significativos ao longo do tempo, evidenciando a importância do uso consciente e sustentável dos recursos." },
+        { "icone": "icone-organizacao.webp", "texto": "No entanto, a eficiência não se restringe aos materiais, estando também relacionada à organização do processo de trabalho. Situações como a repetição de exames já realizados, sem consulta ao prontuário, geram custos desnecessários e não agregam valor ao cuidado." }
+      ],
+      "fechamento": "<p>Assim, ser eficiente implica utilizar adequadamente os recursos disponíveis e tomar decisões clínicas qualificadas, fazendo o necessário, no momento oportuno, com foco na qualidade do cuidado e na sustentabilidade do sistema.</p>",
+      "duracaoLinha": 2000,
+      "intervalo": 1000,
+      "seta": true,
+      "cores": { "linha": "#213B74", "cartao": "#FFFFFF", "cartaoBorda": "#213B74", "texto": "#1F1F1F" }
+    }
+  </script>
+</div>
+
+<script>
+  (function () {
+    if (window.NeadLinhaCurva) {
+      window.NeadLinhaCurva.initAll();
+      return;
+    }
+    var SVG_NS = 'http://www.w3.org/2000/svg';
+    // Curva e seta do original (cuidado aula-4), num quadro de 1200 × 355
+    var CURVA = 'M0 273.659C50.5897 215.353 128.541 183.56 206.932 171.528C285.323 159.493 365.354 165.186 444.605 169.865C555.58 176.418 661.443 169.361 771.321 154.344C919.174 134.138 1073.84 106.421 1195.49 18.8359';
+    var SETA = 'M1183.81 51.0267C1182.71 50.6158 1182.17 49.4248 1182.61 48.374L1194.62 19.2799L1161.87 21.2057C1160.68 21.2768 1159.66 20.4196 1159.59 19.2937C1159.52 18.1679 1160.43 17.1961 1161.6 17.125L1197.72 15.0037C1198.45 14.9622 1199.16 15.2762 1199.59 15.8411C1200.02 16.406 1200.12 17.1428 1199.85 17.7926L1186.6 49.8732C1186.44 50.2484 1186.18 50.5566 1185.87 50.7778C1185.29 51.1728 1184.52 51.2913 1183.81 51.0267Z';
+    var CORES = { linha: '--nead-lc-linha', cartao: '--nead-lc-cartao', cartaoBorda: '--nead-lc-cartao-borda', texto: '--nead-lc-texto' };
+    var LARGURA_ESTREITA = 700; // e pelo menos 220 px por coluna
+    var semMovimento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function svgEl(tag, attrs) {
+      var el = document.createElementNS(SVG_NS, tag);
+      Object.keys(attrs || {}).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+      return el;
+    }
+    function criar(tag, classe, html) {
+      var el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (html != null) el.innerHTML = html;
+      return el;
+    }
+    // Ponto da curva com a coordenada x pedida (a curva só avança para a direita)
+    function pontoEmX(caminho, x) {
+      var total = caminho.getTotalLength(), a = 0, b = total, p = caminho.getPointAtLength(0);
+      for (var i = 0; i < 30; i++) {
+        var meio = (a + b) / 2;
+        p = caminho.getPointAtLength(meio);
+        if (p.x < x) a = meio; else b = meio;
+      }
+      return p;
+    }
+
+    function montar(raiz) {
+      if (raiz.__neadLcPronto) return;
+      var configEl = raiz.querySelector('.nead-lc__config');
+      var cfg;
+      try {
+        cfg = JSON.parse(configEl.textContent);
+      } catch (erro) {
+        raiz.textContent = 'Linha do tempo curva: o JSON de configuração está inválido.';
+        console.error('[nead-lc] JSON inválido', erro);
+        return;
+      }
+      raiz.__neadLcPronto = true;
+      configEl.remove();
+
+      var itensCfg = cfg.itens || [];
+      var n = itensCfg.length;
+      var duracao = Number(cfg.duracaoLinha) || 2000;
+      var intervalo = Number(cfg.intervalo) || 1000;
+      Object.keys(cfg.cores || {}).forEach(function (k) {
+        if (CORES[k]) raiz.style.setProperty(CORES[k], cfg.cores[k]);
+      });
+      raiz.style.setProperty('--nead-lc-colunas', Math.max(1, n));
+
+      if (cfg.introducao) raiz.appendChild(criar('div', 'nead-lc__introducao', cfg.introducao));
+
+      // Curva, seta e uma parada acima do centro de cada coluna
+      var svg = svgEl('svg', { class: 'nead-lc__svg', viewBox: '0 0 1200 355', 'aria-hidden': 'true' });
+      var caminho = svgEl('path', { class: 'nead-lc__caminho', d: CURVA });
+      svg.appendChild(caminho);
+      if (cfg.seta !== false) svg.appendChild(svgEl('path', { class: 'nead-lc__seta', d: SETA }));
+      raiz.appendChild(svg);
+      var paradas = itensCfg.map(function () {
+        var c = svgEl('circle', { class: 'nead-lc__parada', r: 7 });
+        svg.appendChild(c);
+        return c;
+      });
+      // x = centro da coluna (vale antes de medir) ou, depois de medir, centro real do cartão
+      function posicionarParada(i, x) {
+        var p = pontoEmX(caminho, x);
+        paradas[i].setAttribute('cx', p.x.toFixed(1));
+        paradas[i].setAttribute('cy', p.y.toFixed(1));
+      }
+      paradas.forEach(function (c, i) { posicionarParada(i, ((i + 0.5) / n) * 1200); });
+      var comprimento = caminho.getTotalLength();
+      caminho.style.strokeDasharray = comprimento;
+      caminho.style.strokeDashoffset = comprimento;
+
+      // Cartões
+      var lista = criar('div', 'nead-lc__itens');
+      var trilho = criar('div', 'nead-lc__trilho');
+      trilho.setAttribute('aria-hidden', 'true');
+      var progresso = criar('div', 'nead-lc__progresso');
+      trilho.appendChild(progresso);
+      lista.appendChild(trilho);
+      var itens = itensCfg.map(function (item) {
+        var el = criar('div', 'nead-lc__item');
+        var ponto = criar('span', 'nead-lc__ponto');
+        ponto.setAttribute('aria-hidden', 'true');
+        el.appendChild(ponto);
+        if (item.icone) {
+          var img = document.createElement('img');
+          img.className = 'nead-lc__icone';
+          img.src = item.icone;
+          img.alt = item.alt || '';
+          el.appendChild(img);
+        }
+        var cartao = criar('div', 'nead-lc__cartao');
+        if (item.titulo) cartao.appendChild(criar('h3', null, item.titulo));
+        cartao.appendChild(criar('p', null, item.texto || ''));
+        el.appendChild(cartao);
+        lista.appendChild(el);
+        return el;
+      });
+      raiz.appendChild(lista);
+      var fechamento = null;
+      if (cfg.fechamento) {
+        fechamento = criar('div', 'nead-lc__fechamento', cfg.fechamento);
+        raiz.appendChild(fechamento);
+      }
+
+      var revelados = 0;
+      // Linha vertical (espaço estreito): do primeiro ao último ponto; o progresso vai até o último revelado
+      function centroPonto(el) {
+        var p = el.querySelector('.nead-lc__ponto');
+        return el.offsetTop + p.offsetTop + p.offsetHeight / 2;
+      }
+      function medir() {
+        raiz.classList.toggle('is-estreito', raiz.clientWidth > 0 && raiz.clientWidth < Math.max(LARGURA_ESTREITA, n * 220));
+        if (!n) return;
+        if (!raiz.classList.contains('is-estreito')) {
+          // cada parada fica exatamente acima do centro do seu cartão
+          var caixa = svg.getBoundingClientRect();
+          if (!caixa.width) return;
+          itens.forEach(function (el, i) {
+            var r = el.getBoundingClientRect();
+            posicionarParada(i, ((r.left + r.width / 2 - caixa.left) / caixa.width) * 1200);
+          });
+          return;
+        }
+        var inicio = centroPonto(itens[0]);
+        trilho.style.top = inicio + 'px';
+        trilho.style.height = Math.max(0, centroPonto(itens[n - 1]) - inicio) + 'px';
+        progresso.style.height = revelados ? (centroPonto(itens[revelados - 1]) - inicio) + 'px' : '0px';
+      }
+
+      function revelar(i) {
+        if (i < n) {
+          itens[i].classList.add('is-visivel');
+          paradas[i].classList.add('is-ativa');
+          revelados = Math.max(revelados, i + 1);
+          medir();
+        } else if (fechamento) {
+          fechamento.classList.add('is-visivel');
+        }
+      }
+      function iniciar() {
+        if (semMovimento) {
+          caminho.style.strokeDashoffset = 0;
+          raiz.classList.add('is-seta');
+          for (var i = 0; i <= n; i++) revelar(i);
+          return;
+        }
+        caminho.style.transition = 'stroke-dashoffset ' + duracao + 'ms ease-out';
+        caminho.style.strokeDashoffset = 0;
+        // no espaço estreito a curva não aparece: o primeiro cartão vem logo
+        var espera = raiz.classList.contains('is-estreito') ? 300 : duracao;
+        setTimeout(function () { raiz.classList.add('is-seta'); }, espera);
+        for (var k = 0; k < n; k++) {
+          (function (i) { setTimeout(function () { revelar(i); }, espera + i * intervalo); })(k);
+        }
+        setTimeout(function () { revelar(n); }, espera + Math.max(0, n - 1) * intervalo + 500);
+      }
+
+      medir();
+      if (typeof ResizeObserver === 'function') new ResizeObserver(medir).observe(raiz);
+      else window.addEventListener('resize', medir);
+      if (typeof IntersectionObserver !== 'function') { iniciar(); return; }
+      var obs = new IntersectionObserver(function (entradas) {
+        if (entradas.some(function (e) { return e.isIntersecting; })) {
+          obs.disconnect();
+          iniciar();
+        }
+      }, { rootMargin: '0px 0px -25% 0px' }); // começa quando o topo passa de 3/4 da tela (o bloco pode ser mais alto que a tela)
+      obs.observe(raiz);
+    }
+
+    window.NeadLinhaCurva = {
+      initAll: function (escopo) { (escopo || document).querySelectorAll('.nead-lc').forEach(montar); }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { window.NeadLinhaCurva.initAll(); });
+    } else {
+      window.NeadLinhaCurva.initAll();
+    }
+  })();
+</script>
