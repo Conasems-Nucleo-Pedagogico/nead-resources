@@ -1,0 +1,37 @@
+{
+  "type": "cardsCarousel",
+  "titulo": "CARROSSEL DE PAINÉIS",
+  "conteudo": "Abas com miniatura no topo; ao escolher uma, aparecem o texto e a imagem daquele item, com botão para abrir o site ou painel em nova aba. Navega pelas abas, pelos botões Anterior/Próximo e pelos pontos. Bom para apresentar ferramentas, sistemas ou painéis de dados lado a lado.",
+  "observacao": "Cada item pode ter texto com listas e destaques. O botão de abrir em nova aba só aparece quando o item tem link.",
+  "notasDev": "O conteúdo fica no JSON do bloco (titulo, subtitulo, imagem, texto em HTML, link); toda a estrutura é gerada pelo motor. Aceita também as chaves do modelo do curso (title, kicker, image, html, url, showLink), então o JSON de uma página pode ser colado direto. Opcional data-rotulo-link no bloco. Várias instâncias por página; API window.NeadCarrosselPaineis.initAll(escopo). No curso original o carrossel ficava dentro de um popup do Elementor (hook elementor/popup/show), que aqui não é mais necessário.",
+  "img": "wp-resources/carrossel-paineis/preview.webp",
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 15568,
+      "tipo": "curso",
+      "nota": "Painéis de vigilância; origem do conteúdo da demo (dentro de um popup do Elementor)"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 15737,
+      "tipo": "curso",
+      "nota": "Painéis de gestão"
+    },
+    {
+      "repo": "conasems-scripts",
+      "arquivo": "Cuidado/Disciplina 14/painelDeVigilancia.html",
+      "linha": 1,
+      "tipo": "prototipo"
+    },
+    {
+      "repo": "conasems-scripts",
+      "arquivo": "Cuidado/Disciplina 14/painelDeGestao.html",
+      "linha": 1,
+      "tipo": "prototipo"
+    }
+  ]
+}

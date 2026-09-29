@@ -1,0 +1,437 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  CARROSSEL DE PAINÉIS — NEAD
+  Abas com miniatura no topo; ao escolher uma, aparece o texto (65%) e a imagem (35%) daquele
+  painel, com link opcional (lupa) para abrir o painel em nova aba. Navega também pelos botões
+  Anterior / Próximo, pelos pontos e pelas setas do teclado (← →) quando uma aba está em foco.
+
+  Como usar no Elementor: cole este bloco inteiro em um widget "HTML".
+  Para editar, altere só o JSON dentro de <script class="nead-cp__config">. Cada painel tem:
+    - "titulo"      (obrigatório)
+    - "subtitulo"   (opcional, aparece acima do título, em maiúsculas)
+    - "imagem"      URL da imagem (miniatura da aba e imagem grande)
+    - "texto"       HTML do conteúdo (parágrafos, listas, negrito...)
+    - "link"        URL que a lupa abre em nova aba (deixe "" para não mostrar a lupa)
+  Também aceita as chaves do modelo antigo (title, kicker, image, html, url, showLink), então
+  dá para colar direto o JSON de uma página de curso.
+  Opcional no <div class="nead-cp">: data-rotulo-link="Acessar painel" (texto abaixo da imagem).
+  Pode haver vários carrosséis na mesma página: repita só o bloco <div class="nead-cp">...</div>.
+-->
+<style>
+  .nead-cp {
+    --nead-cp-verde: #0F3D2E;
+    --nead-cp-amarelo: #F8CA33;
+    --nead-cp-texto: #171717;
+    --nead-cp-borda: #DCE2DF;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0 auto 40px;
+    color: var(--nead-cp-texto);
+    font-family: "Nunito", Arial, sans-serif;
+  }
+  .nead-cp *, .nead-cp *::before, .nead-cp *::after { box-sizing: border-box; }
+
+  /* Trilho de abas */
+  .nead-cp__navegador {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) 42px;
+    align-items: center;
+    gap: 12px;
+  }
+  .nead-cp__seta {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1.5px solid var(--nead-cp-verde);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--nead-cp-verde);
+    font-family: inherit;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nead-cp__seta:hover:not(:disabled) { color: #fff; background: var(--nead-cp-verde); transform: scale(1.05); }
+  .nead-cp__seta:disabled { opacity: 0.3; cursor: default; }
+  .nead-cp__trilho {
+    display: grid;
+    grid-template-columns: repeat(var(--nead-cp-qtd, 4), minmax(0, 1fr));
+    gap: 12px;
+    min-width: 0;
+    padding: 4px 2px 10px;
+  }
+  .nead-cp__aba {
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid var(--nead-cp-borda);
+    border-radius: 16px;
+    background: #fff;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .nead-cp__aba:hover { transform: translateY(-3px); border-color: var(--nead-cp-amarelo); box-shadow: 0 7px 18px rgba(0, 0, 0, 0.07); }
+  .nead-cp__aba.is-ativa { border: 2px solid var(--nead-cp-verde); box-shadow: 0 8px 20px rgba(15, 61, 46, 0.10); }
+  .nead-cp__aba:focus-visible, .nead-cp__botao:focus-visible, .nead-cp__ponto:focus-visible, .nead-cp__seta:focus-visible, .nead-cp__lupa:focus-visible {
+    outline: 3px solid var(--nead-cp-amarelo);
+    outline-offset: 2px;
+  }
+  .nead-cp__aba-imagem {
+    display: block;
+    width: 100%;
+    height: clamp(75px, 7vw, 125px);
+    margin-bottom: 9px;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 9px;
+    background: #F2F2F2;
+  }
+  .nead-cp__aba-numero { display: block; margin-bottom: 3px; color: var(--nead-cp-verde); font-size: 12px; font-weight: 900; line-height: 1; }
+  .nead-cp__aba-titulo { display: block; color: var(--nead-cp-texto); font-size: 12px; font-weight: 800; line-height: 1.3; }
+
+  /* Área do painel: 65% texto, 35% imagem */
+  .nead-cp__area {
+    display: grid;
+    grid-template-columns: minmax(0, 13fr) minmax(280px, 7fr);
+    align-items: start;
+    gap: 40px;
+    margin-top: 32px;
+  }
+  .nead-cp__area.is-trocando { animation: nead-cp-entrar 0.35s ease both; }
+  @keyframes nead-cp-entrar { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .nead-cp__conteudo { min-width: 0; }
+  .nead-cp__subtitulo {
+    display: block;
+    margin-bottom: 16px;
+    color: #987600;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .nead-cp__subtitulo:empty { display: none; }
+  .nead-cp__titulo { margin: 0 0 18px; color: var(--nead-cp-verde); font-size: clamp(25px, 2.2vw, 31px); font-weight: 900; line-height: 1.2; }
+  .nead-cp__texto { font-size: 16px; line-height: 1.65; }
+  .nead-cp__texto p { margin: 0 0 14px; }
+  .nead-cp__texto p:last-child { margin-bottom: 0; }
+  .nead-cp__texto ul, .nead-cp__texto ol { margin: 10px 0 14px; padding-left: 24px; }
+  .nead-cp__texto li { margin-bottom: 8px; }
+  .nead-cp__texto strong, .nead-cp__texto b { font-weight: 800; }
+
+  .nead-cp__imagem-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--nead-cp-borda);
+    border-radius: 22px;
+    background: #F6F8F7;
+  }
+  .nead-cp__imagem-moldura {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 13px;
+    background: #fff;
+  }
+  .nead-cp__imagem-moldura > img { display: block; width: 100%; max-height: 360px; object-fit: contain; border-radius: 12px; }
+  .nead-cp__lupa {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--nead-cp-amarelo);
+    color: #171717;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.20);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .nead-cp__lupa:hover { transform: scale(1.08); box-shadow: 0 11px 26px rgba(0, 0, 0, 0.24); }
+  .nead-cp__lupa svg { width: 24px; height: 24px; }
+  .nead-cp__lupa[hidden], .nead-cp__rotulo-link[hidden] { display: none; }
+  .nead-cp__rotulo-link { margin-top: 11px; color: var(--nead-cp-verde); font-size: 13px; font-weight: 800; line-height: 1.3; }
+
+  /* Rodapé */
+  .nead-cp__rodape {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 18px;
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--nead-cp-borda);
+  }
+  .nead-cp__botao {
+    min-height: 45px;
+    padding: 10px 20px;
+    border: 1.5px solid var(--nead-cp-verde);
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nead-cp__botao:hover:not(:disabled) { transform: translateY(-2px); }
+  .nead-cp__botao:disabled { opacity: 0.25; cursor: default; }
+  .nead-cp__botao--anterior { justify-self: start; color: var(--nead-cp-verde); background: #fff; }
+  .nead-cp__botao--proximo { justify-self: end; color: #fff; background: var(--nead-cp-verde); }
+  .nead-cp__pontos { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .nead-cp__ponto {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #C2C7C5;
+    cursor: pointer;
+    transition: width 0.2s ease, background-color 0.2s ease;
+  }
+  .nead-cp__ponto.is-ativo { width: 24px; border-radius: 999px; background: var(--nead-cp-verde); }
+
+  /* Notebook menor: o trilho vira uma faixa com rolagem horizontal */
+  @media (max-width: 1100px) {
+    .nead-cp__trilho { display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: thin; }
+    .nead-cp__aba { flex: 0 0 180px; width: 180px; }
+    .nead-cp__aba-imagem { height: 92px; }
+    .nead-cp__area { grid-template-columns: minmax(0, 3fr) minmax(260px, 2fr); gap: 28px; }
+  }
+  @media (max-width: 767px) {
+    .nead-cp__navegador { grid-template-columns: 34px minmax(0, 1fr) 34px; gap: 6px; }
+    .nead-cp__seta { width: 32px; height: 32px; font-size: 21px; }
+    .nead-cp__aba { flex: 0 0 135px; width: 135px; }
+    .nead-cp__aba-imagem { height: 74px; }
+    .nead-cp__area { grid-template-columns: 1fr; gap: 24px; margin-top: 25px; }
+    .nead-cp__titulo { font-size: 23px; }
+    .nead-cp__imagem-moldura > img { max-height: 300px; }
+    .nead-cp__rodape { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .nead-cp__pontos { grid-column: 1 / -1; grid-row: 1; }
+    .nead-cp__botao--anterior { grid-column: 1; grid-row: 2; justify-self: stretch; }
+    .nead-cp__botao--proximo { grid-column: 2; grid-row: 2; justify-self: stretch; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nead-cp__aba, .nead-cp__lupa, .nead-cp__botao, .nead-cp__ponto, .nead-cp__seta { transition: none; }
+    .nead-cp__area.is-trocando { animation: none; }
+    .nead-cp__trilho { scroll-behavior: auto; }
+  }
+</style>
+
+<div class="nead-cp" data-rotulo-link="Acessar painel">
+  <script type="application/json" class="nead-cp__config">
+    [
+      {
+        "titulo": "IVIS",
+        "subtitulo": "Plataforma Integrada de Vigilância em Saúde",
+        "imagem": "painel-ivis.webp",
+        "link": "",
+        "texto": "<p>Em relação aos Painéis de Vigilância, o Ministério da Saúde mantém a <strong>Plataforma Integrada de Vigilância em Saúde (IVIS)</strong>, que disponibiliza um painel com dados de nascimentos, óbitos, agravos de notificação, dentre outros, de todo o território nacional.</p>"
+      },
+      {
+        "titulo": "Painel de Vigilância dos Agravos não Transmissíveis",
+        "imagem": "painel-dant.webp",
+        "link": "https://svs.aids.gov.br/daent/",
+        "texto": "<p>O Ministério também disponibiliza um painel de Vigilância das Doenças e Agravos não Transmissíveis.</p>"
+      },
+      {
+        "titulo": "Painel do Conselho Nacional do Ministério Público",
+        "imagem": "painel-cnmp.webp",
+        "link": "https://app.powerbi.com/view?r=eyJrIjoiMDhlMjI3OTEtOGVjMS00M2E5LTk4YjEtY2U0ZmY4YjA2Yzc0IiwidCI6IjAyNzM3ZTQ4LWUwM2ItNDk1NS04MTExLWU2MDMzZTI2Y2EzYiJ9",
+        "texto": "<p>Há também o painel do <b>Conselho Nacional do Ministério Público</b>, que apresenta, em gráficos e tabelas, diversas informações sobre a mortalidade materna no Brasil e nas diferentes regiões do país, organizadas por ano, região, raça/cor, faixa etária, entre outros aspectos, conforme ilustrado a seguir. <b>Vale a pena conferir!</b></p>"
+      },
+      {
+        "titulo": "TABNET",
+        "imagem": "painel-tabnet.webp",
+        "link": "https://datasus.saude.gov.br/informacoes-de-saude-tabnet/",
+        "texto": "<p>Visto na Disciplina 13: Pesquisa, Avaliação e Qualidade da APS, o <b>Tabnet</b> é uma ferramenta online que possibilita aos profissionais de saúde o acesso a informações epidemiológicas, sanitárias e de morbi-mortalidade, com a tabulação de dados e construção de séries históricas que possibilitam maior clareza sobre os problemas de saúde da população.</p><p>Relembramos aqui as principais informações que podem ser obtidas pelo Tabnet:</p><ul><li><strong>Estatísticas Vitais</strong>: Dados sobre Nascidos Vivos (SINASC) e de Sistema de Informações sobre Mortalidade (SIM);</li><li><strong>Epidemiológicas e Morbidade</strong>: Informações sobre doenças e agravos de notificação (SINAN), hanseníase, tuberculose, hepatites, dengue, dentre outras doenças;</li><li><strong>Assistência à Saúde</strong>: Informações sobre internações (SIH/SUS) e procedimentos ambulatoriais (SIA/SUS);</li><li><strong>Cadastros e Demografia</strong>: Informações sobre a rede de serviços de saúde (CNES) e estimativas de população residente em cada município/estado da federação.</li></ul>"
+      }
+    ]
+  </script>
+</div>
+
+<script>
+  (function () {
+    if (window.NeadCarrosselPaineis) {
+      window.NeadCarrosselPaineis.initAll();
+      return;
+    }
+
+    var LUPA = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>';
+
+    function criar(tag, classe, html) {
+      var el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (html != null) el.innerHTML = html;
+      return el;
+    }
+    function botao(classe, html, rotulo) {
+      var b = criar('button', classe, html);
+      b.type = 'button';
+      if (rotulo) b.setAttribute('aria-label', rotulo);
+      return b;
+    }
+
+    // Aceita as chaves em português e as do modelo antigo (title, kicker, image, html, url, showLink).
+    function normalizar(p) {
+      var link = p.link != null ? p.link : (p.showLink === false ? '' : (p.url || ''));
+      return {
+        titulo: p.titulo || p.title || '',
+        subtitulo: p.subtitulo || p.kicker || '',
+        imagem: p.imagem || p.image || '',
+        texto: p.texto || p.html || '',
+        link: String(link || '').trim()
+      };
+    }
+
+    function montar(raiz) {
+      if (raiz.__neadCpPronto) return;
+      var configEl = raiz.querySelector('.nead-cp__config');
+      var paineis;
+      try {
+        paineis = JSON.parse(configEl.textContent);
+      } catch (erro) {
+        raiz.textContent = 'Carrossel de painéis: o JSON de configuração está inválido.';
+        console.error('[nead-cp] JSON inválido', erro);
+        return;
+      }
+      if (!Array.isArray(paineis) || !paineis.length) return;
+      raiz.__neadCpPronto = true;
+      paineis = paineis.map(normalizar);
+      var rotuloLink = raiz.getAttribute('data-rotulo-link') || 'Acessar painel';
+
+      // Estrutura
+      var navegador = criar('div', 'nead-cp__navegador');
+      var setaAnt = botao('nead-cp__seta', '&lsaquo;', 'Painel anterior');
+      var trilho = criar('div', 'nead-cp__trilho');
+      trilho.setAttribute('role', 'tablist');
+      var setaProx = botao('nead-cp__seta', '&rsaquo;', 'Próximo painel');
+      navegador.append(setaAnt, trilho, setaProx);
+
+      var area = criar('div', 'nead-cp__area');
+      area.setAttribute('role', 'tabpanel');
+      area.id = 'nead-cp-' + Math.random().toString(36).slice(2, 8);
+      var conteudo = criar('div', 'nead-cp__conteudo');
+      var subtitulo = criar('span', 'nead-cp__subtitulo');
+      var titulo = criar('h3', 'nead-cp__titulo');
+      var texto = criar('div', 'nead-cp__texto');
+      conteudo.append(subtitulo, titulo, texto);
+      var imagemArea = criar('div', 'nead-cp__imagem-area');
+      var moldura = criar('div', 'nead-cp__imagem-moldura');
+      var imagem = criar('img');
+      var lupa = criar('a', 'nead-cp__lupa', LUPA);
+      lupa.target = '_blank';
+      lupa.rel = 'noopener noreferrer';
+      moldura.append(imagem, lupa);
+      var rotulo = criar('span', 'nead-cp__rotulo-link', rotuloLink);
+      imagemArea.append(moldura, rotulo);
+      area.append(conteudo, imagemArea);
+
+      var rodape = criar('div', 'nead-cp__rodape');
+      var anterior = botao('nead-cp__botao nead-cp__botao--anterior', '&larr; Anterior');
+      var pontos = criar('div', 'nead-cp__pontos');
+      var proximo = botao('nead-cp__botao nead-cp__botao--proximo', 'Próximo &rarr;');
+      rodape.append(anterior, pontos, proximo);
+
+      raiz.style.setProperty('--nead-cp-qtd', paineis.length);
+      var abas = paineis.map(function (p, i) {
+        var aba = botao('nead-cp__aba');
+        aba.setAttribute('role', 'tab');
+        aba.setAttribute('aria-controls', area.id);
+        aba.setAttribute('aria-label', 'Painel ' + (i + 1) + ': ' + p.titulo);
+        var mini = criar('img', 'nead-cp__aba-imagem');
+        mini.src = p.imagem;
+        mini.alt = '';
+        mini.loading = 'lazy';
+        aba.append(mini, criar('span', 'nead-cp__aba-numero', String(i + 1).padStart(2, '0')), criar('span', 'nead-cp__aba-titulo'));
+        aba.lastChild.textContent = p.titulo;
+        trilho.appendChild(aba);
+        var ponto = botao('nead-cp__ponto', '', 'Ir para o painel ' + (i + 1));
+        pontos.appendChild(ponto);
+        aba.addEventListener('click', function () { ir(i); });
+        ponto.addEventListener('click', function () { ir(i); });
+        return { aba: aba, ponto: ponto };
+      });
+
+      configEl.remove();
+      raiz.append(navegador, area, rodape);
+
+      var atual = -1;
+      function ir(indice, focar) {
+        indice = Math.max(0, Math.min(indice, paineis.length - 1));
+        var mudou = indice !== atual;
+        atual = indice;
+        var p = paineis[atual];
+        subtitulo.textContent = p.subtitulo;
+        titulo.textContent = p.titulo;
+        texto.innerHTML = p.texto;
+        imagem.src = p.imagem;
+        imagem.alt = p.titulo;
+        var temLink = !!p.link;
+        lupa.hidden = !temLink;
+        rotulo.hidden = !temLink;
+        if (temLink) {
+          lupa.href = p.link;
+          lupa.setAttribute('aria-label', 'Acessar ' + p.titulo + ' em nova aba');
+        } else {
+          lupa.removeAttribute('href');
+        }
+        anterior.disabled = setaAnt.disabled = atual === 0;
+        proximo.disabled = setaProx.disabled = atual === paineis.length - 1;
+        abas.forEach(function (a, i) {
+          var ativo = i === atual;
+          a.aba.classList.toggle('is-ativa', ativo);
+          a.aba.setAttribute('aria-selected', ativo ? 'true' : 'false');
+          a.aba.tabIndex = ativo ? 0 : -1;
+          a.ponto.classList.toggle('is-ativo', ativo);
+          a.ponto.setAttribute('aria-current', ativo ? 'true' : 'false');
+        });
+        // Mantém a aba ativa visível quando o trilho rola (notebook menor / celular)
+        var aba = abas[atual].aba;
+        if (trilho.scrollWidth > trilho.clientWidth) {
+          var ra = aba.getBoundingClientRect(), rt = trilho.getBoundingClientRect();
+          trilho.scrollLeft += (ra.left - rt.left) - (rt.width - ra.width) / 2;
+        }
+        if (focar) aba.focus();
+        if (mudou) {
+          area.classList.remove('is-trocando');
+          void area.offsetWidth;
+          area.classList.add('is-trocando');
+        }
+      }
+
+      anterior.addEventListener('click', function () { ir(atual - 1); });
+      proximo.addEventListener('click', function () { ir(atual + 1); });
+      setaAnt.addEventListener('click', function () { ir(atual - 1); });
+      setaProx.addEventListener('click', function () { ir(atual + 1); });
+      trilho.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight') { e.preventDefault(); ir(atual + 1, true); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); ir(atual - 1, true); }
+        if (e.key === 'Home') { e.preventDefault(); ir(0, true); }
+        if (e.key === 'End') { e.preventDefault(); ir(paineis.length - 1, true); }
+      });
+
+      ir(0);
+    }
+
+    window.NeadCarrosselPaineis = {
+      initAll: function (escopo) { (escopo || document).querySelectorAll('.nead-cp').forEach(montar); }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { window.NeadCarrosselPaineis.initAll(); });
+    } else {
+      window.NeadCarrosselPaineis.initAll();
+    }
+  })();
+</script>
