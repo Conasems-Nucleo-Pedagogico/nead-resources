@@ -1,0 +1,203 @@
+{
+  "type": "hotspot",
+  "titulo": "DIAGRAMA CLICÁVEL",
+  "conteudo": "Clicar em uma parte de um diagrama mostra o texto daquela parte e esconde os outros. Funciona com as peças de um desenho (fluxo circular, pirâmide, esquema, infográfico) ou com pontos numerados sobre uma imagem.",
+  "observacao": "É o padrão mais repetido nos cursos: cada tela tinha uma cópia própria. Aqui um único recurso atende todas.",
+  "notasDev": "Motor único; cada diagrama é um <div class=\"nead-dc\">. Formas do SVG recebem data-dc=\"N\" (opcional data-dc-revelar=direita|baixo|esquerda|cima); pontos sobre imagem são <button class=\"nead-dc__ponto\" data-dc=\"N\" style=\"--x:%;--y:%\">: botão invisível centrado no número desenhado na imagem, só com um anel pulsando (--x/--y = centro; --tamanho = área clicável, padrão 72px); para imagem sem números desenhados, acrescente a classe nead-dc__ponto--visivel. Painéis: data-dc-painel=\"N\". Opções no bloco: data-cores=\"originais\", data-layout=\"empilhado\", data-inicial=\"N\" e um .nead-dc__concluido opcional que aparece quando todas as partes foram vistas. Substitui as ~60 cópias com prefixo por tela (<prefixo>Txts, .to-hide, t1hotN/t1txtN) e o widget e-hotspot do Elementor.",
+  "img": "wp-resources/diagrama-clicavel/preview.webp",
+  "src": "code.html",
+  "usoEmCursos": [
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "ambientacao/index.html",
+      "linha": 4807,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-12/index.html",
+      "linha": 6418,
+      "tipo": "curso",
+      "nota": "Origem do exemplo 1 (fluxo circular com revelação direcional)"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-13/index.html",
+      "linha": 8183,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 7601,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 7701,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 7938,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-14/index.html",
+      "linha": 12086,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-15-caso-clinico/index.html",
+      "linha": 13749,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-1/index.html",
+      "linha": 4767,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-3/index.html",
+      "linha": 8073,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-4/index.html",
+      "linha": 8262,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-5/index.html",
+      "linha": 7573,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-5/index.html",
+      "linha": 8154,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-6/index.html",
+      "linha": 6588,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-6/index.html",
+      "linha": 8231,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-6/index.html",
+      "linha": 9827,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-6/index.html",
+      "linha": 11644,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-cuidado-do-cuidado",
+      "arquivo": "aula-7/coordenacao-do-cuidado-disciplina-7/index.html",
+      "linha": 6454,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-6/index.html",
+      "linha": 6871,
+      "tipo": "curso",
+      "nota": "Origem do exemplo 2 (pontos sobre imagem)"
+    },
+    {
+      "repo": "conasems-especializao-tutoria",
+      "arquivo": "disciplina-7/index.html",
+      "linha": 6270,
+      "tipo": "curso"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/ACS/D23 - Saude da Criança/index.html",
+      "linha": 1225,
+      "tipo": "curso",
+      "nota": "Versão antiga (Legado): pares de IDs t1hotN / t1txtN"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/ACS/D23 - Saude da Mulher/index.html",
+      "linha": 1308,
+      "tipo": "curso",
+      "nota": "Versão antiga (Legado): pares de IDs t1hotN / t1txtN"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/ACS/D23 - Saude do Idoso/index.html",
+      "linha": 1504,
+      "tipo": "curso",
+      "nota": "Versão antiga (Legado): pares de IDs t1hotN / t1txtN"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/ACS/D24/index.html",
+      "linha": 1646,
+      "tipo": "curso",
+      "nota": "Versão antiga (Legado): pares de IDs t1hotN / t1txtN"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/ACS/D25/index.html",
+      "linha": 1257,
+      "tipo": "curso",
+      "nota": "Versão antiga (Legado): pares de IDs t1hotN / t1txtN"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/ACS/D26/index.html",
+      "linha": 2051,
+      "tipo": "curso",
+      "nota": "Versão antiga (Legado): pares de IDs t1hotN / t1txtN"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/Disciplinas 1 a 21/D14/index.html",
+      "linha": 1405,
+      "tipo": "curso",
+      "nota": "Versão antiga (Legado): pares de IDs t1hotN / t1txtN"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/Disciplinas 1 a 21/D18/index.html",
+      "linha": 7150,
+      "tipo": "curso",
+      "nota": "Versão antiga (Legado): pares de IDs t1hotN / t1txtN"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Legado/Disciplinas 1 a 21/D21/index.html",
+      "linha": 587,
+      "tipo": "curso",
+      "nota": "Versão antiga (Legado): pares de IDs t1hotN / t1txtN"
+    },
+    {
+      "repo": "conasems-sca",
+      "arquivo": "Mais SCA/ACE/aula-18/index.html",
+      "linha": 7008,
+      "tipo": "curso",
+      "nota": "As aulas equivalentes em Mais SCA/ACS também usam"
+    }
+  ]
+}

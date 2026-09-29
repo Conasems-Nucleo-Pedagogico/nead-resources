@@ -1,0 +1,335 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  DIAGRAMA CLICÁVEL — NEAD
+  Clicar em uma parte de um diagrama (forma de um SVG ou ponto numerado sobre uma imagem)
+  mostra o texto daquela parte; os outros textos se escondem.
+
+  Como usar no Elementor: cole o bloco "MOTOR" uma vez na página (widget HTML) e, para cada
+  diagrama, um bloco <div class="nead-dc">...</div> com duas partes:
+    1) .nead-dc__figura: o desenho. Pode ser:
+       - um SVG: coloque data-dc="1", data-dc="2"... em cada forma clicável (path, polygon, g...);
+         opcional data-dc-revelar="direita|baixo|esquerda|cima" para a forma "se desenhar" ao ser clicada;
+       - uma imagem + pontos: <button class="nead-dc__ponto" data-dc="1" style="--x: 63%; --y: 14%">1</button>
+         O ponto é invisível: só um anel pulsa por cima do número/elemento desenhado na imagem,
+         e o anel some depois que o ponto é clicado.
+         --x e --y = CENTRO do ponto sobre a imagem, em %; --tamanho = área clicável
+         (padrão: 11% da largura da imagem; ex.: style="--tamanho: 15cqw" para um anel maior).
+         Se a imagem não tiver números desenhados, use class="nead-dc__ponto nead-dc__ponto--visivel".
+    2) .nead-dc__paineis: um <div class="nead-dc__painel" data-dc-painel="1"> para cada parte,
+       com o texto em HTML. O .nead-dc__inicial (opcional) aparece antes do primeiro clique.
+  Opções no <div class="nead-dc">:
+    - data-cores="originais": mantém as cores do SVG (sem pintar de cinza/azul; o destaque vira contorno)
+    - data-layout="empilhado": texto sempre abaixo do desenho (padrão: ao lado no computador)
+  Um .nead-dc__concluido (opcional) aparece quando todas as partes já foram vistas.
+-->
+
+<!-- ============================ MOTOR ============================ -->
+<style>
+  .nead-dc {
+    --nead-dc-inativa: #C3C3C3;
+    --nead-dc-ativa: #213B74;
+    --nead-dc-destaque: #F8CA33;
+    --nead-dc-texto: #1F2A37;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 32px;
+    margin: 0 auto 40px;
+    color: var(--nead-dc-texto);
+    font-family: "Nunito", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  .nead-dc *, .nead-dc *::before, .nead-dc *::after { box-sizing: border-box; }
+  .nead-dc[data-layout="empilhado"] { grid-template-columns: minmax(0, 1fr); }
+
+  .nead-dc__figura { position: relative; container-type: inline-size; }
+  .nead-dc__figura svg, .nead-dc__figura img { display: block; width: 100%; height: auto; }
+
+  /* Formas clicáveis do SVG */
+  .nead-dc [data-dc]:not(.nead-dc__ponto) { cursor: pointer; outline: none; }
+  .nead-dc:not([data-cores="originais"]) [data-dc]:not(.nead-dc__ponto) {
+    fill: var(--nead-dc-inativa);
+    transition: fill 0.4s ease, clip-path 1s ease, filter 0.3s ease;
+  }
+  .nead-dc:not([data-cores="originais"]) [data-dc].is-ativo:not(.nead-dc__ponto) { fill: var(--nead-dc-ativa); }
+  .nead-dc:not([data-cores="originais"]) [data-dc]:not(.nead-dc__ponto):hover:not(.is-ativo) { fill: #A9B4C6; }
+  .nead-dc[data-cores="originais"] [data-dc]:not(.nead-dc__ponto) { transition: filter 0.3s ease, clip-path 1s ease; }
+  .nead-dc[data-cores="originais"] [data-dc].is-ativo:not(.nead-dc__ponto) {
+    stroke: var(--nead-dc-destaque);
+    stroke-width: 4;
+    filter: drop-shadow(0 6px 10px rgba(33, 59, 116, 0.3));
+  }
+  .nead-dc [data-dc]:not(.nead-dc__ponto):focus-visible { filter: drop-shadow(0 0 4px var(--nead-dc-destaque)); }
+
+  /* Revelação direcional (a forma "se desenha" a partir de um lado) */
+  .nead-dc .nead-dc--revelar-direita { clip-path: inset(0 100% 0 0); }
+  .nead-dc .nead-dc--revelar-esquerda { clip-path: inset(0 0 0 100%); }
+  .nead-dc .nead-dc--revelar-baixo { clip-path: inset(0 0 100% 0); }
+  .nead-dc .nead-dc--revelar-cima { clip-path: inset(100% 0 0 0); }
+  .nead-dc [class*="nead-dc--revelar-"].is-revelado { clip-path: inset(0 0 0 0); }
+
+  /* Pontos sobre imagem: botão invisível centrado no número/elemento da imagem,
+     com um anel pulsando por cima. --x/--y = centro do ponto; --tamanho = área clicável. */
+  .nead-dc__ponto {
+    --tamanho: 72px;
+    position: absolute;
+    left: var(--x, 50%);
+    top: var(--y, 50%);
+    width: var(--tamanho);
+    height: var(--tamanho);
+    transform: translate(-50%, -50%);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: transparent;
+    font-size: 0; /* o número fica só para leitores de tela (aria-label) */
+    cursor: pointer;
+  }
+  .nead-dc__ponto::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid var(--nead-dc-ativa);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
+    animation: nead-dc-pulsar 1.8s ease-out infinite;
+    pointer-events: none;
+  }
+  .nead-dc__ponto:focus-visible { outline: 3px dashed var(--nead-dc-ativa); outline-offset: 2px; }
+  /* O anel acompanha o tamanho da imagem (11% da largura), para cobrir o número em qualquer tela */
+  @supports (width: 1cqw) {
+    .nead-dc__ponto:not(.nead-dc__ponto--visivel) { --tamanho: clamp(36px, 11cqw, 110px); }
+  }
+
+  /* Depois do clique o anel some (o ponto ativo e os já vistos ficam invisíveis) */
+  .nead-dc__ponto.is-visto::after,
+  .nead-dc__ponto.is-ativo::after { animation: none; opacity: 0; }
+  @keyframes nead-dc-pulsar {
+    0% { transform: scale(0.85); opacity: 0.9; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+
+  /* Variante visível: bolinha numerada (para imagens que não trazem o número desenhado) */
+  .nead-dc__ponto--visivel {
+    --tamanho: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fff;
+    background: var(--nead-dc-ativa);
+    color: #fff;
+    font: 800 16px/1 "Nunito", Arial, sans-serif;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+  .nead-dc__ponto--visivel::after { inset: -3px; box-shadow: none; }
+  .nead-dc__ponto--visivel.is-visto { background: #5B6B86; }
+  .nead-dc__ponto--visivel.is-ativo { background: var(--nead-dc-destaque); color: #1F2A37; }
+
+  /* Textos */
+  .nead-dc__paineis { min-width: 0; }
+  .nead-dc__inicial { margin: 0; font-weight: 700; color: #5B6B86; }
+  .nead-dc__painel, .nead-dc__concluido {
+    padding: 22px 24px;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+    border: 1px solid rgba(33, 59, 116, 0.12);
+  }
+  .nead-dc__painel[hidden], .nead-dc__inicial[hidden], .nead-dc__concluido[hidden] { display: none; }
+  .nead-dc__painel.is-entrando { animation: nead-dc-entrar 0.4s ease both; }
+  .nead-dc__painel > :first-child { margin-top: 0; }
+  .nead-dc__painel > :last-child { margin-bottom: 0; }
+  .nead-dc__painel p { margin: 0 0 10px; }
+  .nead-dc__painel b, .nead-dc__painel strong { color: var(--nead-dc-ativa); }
+  .nead-dc__concluido { margin-top: 16px; border-left: 6px solid var(--nead-dc-destaque); }
+  @keyframes nead-dc-entrar {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @media (max-width: 767px) {
+    .nead-dc { grid-template-columns: minmax(0, 1fr); gap: 20px; font-size: 16px; }
+    .nead-dc__ponto--visivel { --tamanho: 34px; font-size: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nead-dc__ponto::after { animation: none; }
+    .nead-dc__painel.is-entrando { animation: none; }
+    .nead-dc [data-dc] { transition: none !important; }
+  }
+</style>
+
+<script>
+  (function () {
+    if (window.NeadDiagramaClicavel) {
+      window.NeadDiagramaClicavel.initAll();
+      return;
+    }
+    var REVELAR = { direita: 1, esquerda: 1, baixo: 1, cima: 1 };
+
+    function montar(raiz) {
+      if (raiz.dataset.neadDcPronto) return;
+      raiz.dataset.neadDcPronto = '1';
+
+      var gatilhos = Array.prototype.slice.call(raiz.querySelectorAll('[data-dc]'));
+      var paineis = Array.prototype.slice.call(raiz.querySelectorAll('[data-dc-painel]'));
+      var inicial = raiz.querySelector('.nead-dc__inicial');
+      var concluido = raiz.querySelector('.nead-dc__concluido');
+      var chaves = [];
+      var vistas = {};
+
+      paineis.forEach(function (p) { p.hidden = true; p.setAttribute('role', 'region'); p.setAttribute('aria-live', 'polite'); });
+      if (concluido) concluido.hidden = true;
+
+      function rotulo(chave) {
+        var painel = raiz.querySelector('[data-dc-painel="' + chave + '"]');
+        var forte = painel && painel.querySelector('b, strong, h3, h4');
+        return (forte ? forte.textContent : 'Parte ' + chave).replace(/[:\s]+$/, '').trim();
+      }
+
+      gatilhos.forEach(function (g) {
+        var chave = g.getAttribute('data-dc');
+        if (chaves.indexOf(chave) === -1) chaves.push(chave);
+        if (g.tagName !== 'BUTTON') {
+          g.setAttribute('tabindex', '0');
+          g.setAttribute('role', 'button');
+        }
+        g.setAttribute('aria-label', rotulo(chave));
+        g.setAttribute('aria-pressed', 'false');
+        var lado = g.getAttribute('data-dc-revelar');
+        if (REVELAR[lado]) g.classList.add('nead-dc--revelar-' + lado, 'is-revelado');
+      });
+
+      function ativar(chave) {
+        gatilhos.forEach(function (g) {
+          var ativo = g.getAttribute('data-dc') === chave;
+          var lado = g.getAttribute('data-dc-revelar');
+          g.classList.toggle('is-ativo', ativo);
+          g.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+          if (ativo) g.classList.add('is-visto');
+          if (REVELAR[lado]) {
+            if (ativo) {
+              // recomeça a revelação: esconde, força o navegador a aplicar e revela de novo
+              g.classList.remove('is-revelado');
+              void g.getBoundingClientRect();
+              g.classList.add('is-revelado');
+            } else {
+              g.classList.add('is-revelado');
+            }
+          }
+        });
+        paineis.forEach(function (p) {
+          var mostrar = p.getAttribute('data-dc-painel') === chave;
+          if (mostrar && p.hidden) {
+            p.hidden = false;
+            p.classList.remove('is-entrando');
+            void p.offsetWidth;
+            p.classList.add('is-entrando');
+          } else if (!mostrar) {
+            p.hidden = true;
+          }
+        });
+        if (inicial) inicial.hidden = true;
+        vistas[chave] = true;
+        if (concluido && chaves.every(function (c) { return vistas[c]; })) concluido.hidden = false;
+      }
+
+      raiz.addEventListener('click', function (e) {
+        var g = e.target.closest ? e.target.closest('[data-dc]') : null;
+        if (g && raiz.contains(g)) ativar(g.getAttribute('data-dc'));
+      });
+      raiz.addEventListener('keydown', function (e) {
+        var g = e.target.closest ? e.target.closest('[data-dc]') : null;
+        if (!g || g.tagName === 'BUTTON') return;
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ativar(g.getAttribute('data-dc')); }
+      });
+
+      var inicialAtivo = raiz.getAttribute('data-inicial');
+      if (inicialAtivo) ativar(inicialAtivo);
+    }
+
+    window.NeadDiagramaClicavel = {
+      initAll: function () { document.querySelectorAll('.nead-dc').forEach(montar); }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', window.NeadDiagramaClicavel.initAll);
+    } else {
+      window.NeadDiagramaClicavel.initAll();
+    }
+  })();
+</script>
+<!-- ========================== FIM DO MOTOR ========================== -->
+
+
+<!-- Exemplo 1: formas de um SVG (conteúdo de conasems-cuidado-do-cuidado, aula 12) -->
+<div class="nead-dc" data-inicial="1">
+  <div class="nead-dc__figura">
+    <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Fluxo circular dos níveis de prevenção">
+      <path data-dc="1" data-dc-revelar="direita" d="M257.496 67.175C254.926 67.068 252.346 67 249.75 67C154.125 67 75.6666 140.45 67.6836 234.008L112.689 200.254L159.506 235.367C166.405 191.736 204.179 158.374 249.75 158.374C252.238 158.374 254.702 158.477 257.141 158.672L291.63 112.686L257.496 67.175Z"/>
+      <path data-dc="2" data-dc-revelar="baixo" d="M264.131 159.506C307.762 166.405 341.124 204.179 341.124 249.75C341.124 252.238 341.021 254.702 340.826 257.141L386.812 291.63L432.324 257.496C432.431 254.926 432.499 252.346 432.499 249.75C432.499 154.125 359.049 75.6666 265.491 67.6836L299.245 112.689L264.131 159.506Z"/>
+      <path data-dc="3" data-dc-revelar="esquerda" d="M386.81 299.244L339.993 264.131C333.094 307.762 295.32 341.124 249.749 341.124C247.261 341.124 244.796 341.021 242.358 340.826L207.869 386.812L242.003 432.324C244.573 432.431 247.153 432.499 249.749 432.499C345.374 432.499 423.832 359.049 431.815 265.491L386.81 299.244Z"/>
+      <path data-dc="4" data-dc-revelar="cima" d="M158.375 249.749C158.375 247.261 158.478 244.797 158.673 242.358L112.687 207.869L67.175 242.003C67.068 244.573 67 247.153 67 249.749C67 345.374 140.45 423.832 234.008 431.815L200.254 386.81L235.367 339.993C191.736 333.095 158.375 295.32 158.375 249.749Z"/>
+      <text x="250" y="250" fill="#1F2A37" font-family="Nunito, Arial, sans-serif" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="middle" pointer-events="none">
+        <tspan x="250" dy="-20">Clique em cada peça</tspan>
+        <tspan x="250" dy="20">do fluxo circular para</tspan>
+        <tspan x="250" dy="20">visualizar o conteúdo.</tspan>
+      </text>
+    </svg>
+  </div>
+  <div class="nead-dc__paineis">
+    <div class="nead-dc__painel" data-dc-painel="1">
+      <p><b>PREVENÇÃO PRIMÁRIA:</b></p>
+      <p>remove causas e fatores de risco antes do desenvolvimento de uma condição clínica (Brasil, 2010).</p>
+      <p>Destacam-se a fluoretação das águas de abastecimento público, a educação em Saúde Bucal, a orientação quanto à higiene oral, a escovação dental supervisionada, a aplicação tópica de flúor e o incentivo à alimentação saudável, especialmente com a redução do consumo de açúcares.</p>
+    </div>
+    <div class="nead-dc__painel" data-dc-painel="2">
+      <p><b>PREVENÇÃO SECUNDÁRIA:</b></p>
+      <p>busca identificar precocemente os problemas, ainda em estágio subclínico (Brasil, 2010).</p>
+      <p>Incluem-se os exames odontológicos periódicos, o diagnóstico precoce da cárie dentária e da doença periodontal, o rastreamento de lesões bucais potencialmente malignas e a aplicação de selantes de fóssulas e fissuras (Brasil, 2012a).</p>
+    </div>
+    <div class="nead-dc__painel" data-dc-painel="3">
+      <p><b>PREVENÇÃO TERCIÁRIA:</b></p>
+      <p>reduz prejuízos funcionais em problemas agudos ou crônicos, como a reabilitação (Brasil, 2010).</p>
+      <p>Exemplificam-se como ações desse nível os procedimentos restauradores, o tratamento de doenças periodontais avançadas, as cirurgias odontológicas indicadas e a reabilitação oral com próteses dentárias (Brasil, 2012a).</p>
+    </div>
+    <div class="nead-dc__painel" data-dc-painel="4">
+      <p><b>PREVENÇÃO QUATERNÁRIA:</b></p>
+      <p>visa evitar as consequências do intervencionismo excessivo em indivíduos em risco de intervenções inadequadas (Brasil, 2010).</p>
+      <p>Incluem-se evitar procedimentos invasivos sem indicação clínica e adotar condutas fundamentadas na avaliação de risco e na real necessidade de tratamento (Brasil, 2012a).</p>
+    </div>
+  </div>
+</div>
+
+<!-- Exemplo 2: pontos numerados sobre imagem (conteúdo de conasems-especializao-tutoria, disciplina 6) -->
+<div class="nead-dc">
+  <div class="nead-dc__figura">
+    <img src="funcoes-tutor.webp" alt="Tutor usando um tablet, ao lado dos números de 1 a 4 que representam as funções do tutor">
+    <button type="button" class="nead-dc__ponto" data-dc="1" style="--x: 63.1%; --y: 14.2%">1</button>
+    <button type="button" class="nead-dc__ponto" data-dc="2" style="--x: 84%; --y: 32.6%">2</button>
+    <button type="button" class="nead-dc__ponto" data-dc="3" style="--x: 84%; --y: 67.4%">3</button>
+    <button type="button" class="nead-dc__ponto" data-dc="4" style="--x: 63.6%; --y: 85.7%">4</button>
+  </div>
+  <div class="nead-dc__paineis">
+    <p class="nead-dc__inicial">Vamos conhecer quais são as funções e competências do tutor? Clique nos números.</p>
+    <div class="nead-dc__painel" data-dc-painel="1">
+      <p><b>Pedagógica</b></p>
+      <p>Atua como orientador acadêmico, conhecendo o conteúdo e os estudantes, organizando trabalhos em grupo, elaborando atividades e avaliando o desempenho dos alunos.</p>
+    </div>
+    <div class="nead-dc__painel" data-dc-painel="2">
+      <p><b>Social e Comunicacional</b></p>
+      <p>Desenvolve habilidades para mediar discussões, motivar a participação dos estudantes e fornecer feedbacks construtivos e pareceres sobre as atividades.</p>
+    </div>
+    <div class="nead-dc__painel" data-dc-painel="3">
+      <p><b>Organizacional e Administrativa</b></p>
+      <p>Apoia os estudantes na gestão do tempo, no cumprimento de prazos e na organização das tarefas, além de manter uma comunicação clara e eficaz.</p>
+    </div>
+    <div class="nead-dc__painel" data-dc-painel="4">
+      <p><b>Técnica</b></p>
+      <p>Utiliza suas competências digitais para operar e orientar o uso adequado do Ambiente Virtual de Aprendizagem (AVA), auxiliando os estudantes com questões tecnológicas.</p>
+    </div>
+    <div class="nead-dc__concluido">Você conheceu as quatro funções do tutor!</div>
+  </div>
+</div>
